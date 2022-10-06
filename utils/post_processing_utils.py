@@ -33,12 +33,18 @@ def get_all_experimental_records():
     return experiment_record
 
 
+def remove_experiments(experiments, ones_to_remove):
+    for mouse in ones_to_remove.keys():
+        for date in ones_to_remove[mouse]:
+            index_to_remove = experiments[(experiments['mouse_id'] == mouse) & (experiments['date'] == date)].index[0]
+            experiments = experiments.drop(index=index_to_remove)
+    return experiments
 
-def find_manipulation_days(experiment_records, mice):
+
+def find_manipulation_days(experiment_records, mice, exemption_list=['psychometric', 'state change medium cloud', 'value blocks', 'state change white noise',
+                      'omissions and large rewards', 'contingency switch', 'ph3', 'saturation', 'value switch', 'omissions and large rewards']):
     # I have removed centre port hold as an exemption
     experiments = experiment_records[experiment_records['mouse_id'].isin(mice)]
-    exemption_list = ['psychometric', 'state change medium cloud', 'value blocks', 'state change white noise',
-                      'omissions and large rewards', 'contingency switch', 'ph3', 'saturation', 'value switch', 'omissions and large rewards']
     exemptions = '|'.join(exemption_list)
     index_to_remove = experiments[experiments['experiment_notes'].str.contains(exemptions,na=False)].index
     mouse_dates = experiments.loc[index_to_remove][['mouse_id', 'date']].reset_index(drop=True)
@@ -62,6 +68,24 @@ def remove_exps_after_manipulations(experiments, mice):
     return experiments
 
 
+def remove_exps_after_manipulations_not_including_psychometric(experiments, mice):
+    exemption_list = ['state change medium cloud', 'value blocks', 'state change white noise',
+                      'omissions and large rewards', 'contingency switch', 'ph3', 'saturation', 'value switch',
+                      'omissions and large rewards']
+    manipulation_days = find_manipulation_days(experiments, mice, exemption_list=exemption_list)
+    for mouse in manipulation_days['mouse_id'].unique():
+        all_manipulation_days = manipulation_days[manipulation_days['mouse_id'] == mouse]
+        earliest_manipulation_day = all_manipulation_days.min()
+
+        index_to_remove = experiments[np.logical_and((experiments['mouse_id'] == mouse),
+                                                     (pd.to_datetime(experiments['date']) >= earliest_manipulation_day['date']))].index
+        if index_to_remove.shape[0] > 0:
+            dates_being_removed = experiments['date'][index_to_remove].unique()
+            experiments = experiments.drop(index=index_to_remove)
+            experiments = remove_manipulation_days(experiments)
+    return experiments
+
+
 def remove_manipulation_days(experiments):
     exemption_list = ['psychometric', 'state change medium cloud', 'value blocks', 'state change white noise', 'omissions and large rewards']
     exemptions = '|'.join(exemption_list)
@@ -73,7 +97,6 @@ def remove_manipulation_days(experiments):
 def remove_bad_recordings(experiments):
     index_to_remove = experiments[experiments['include'] == 'no'].index
     cleaned_experiments = experiments.drop(index=index_to_remove)
-    print(index_to_remove)
     return cleaned_experiments
 
 def open_experiment(experiment_to_add):

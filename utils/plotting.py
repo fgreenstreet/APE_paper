@@ -399,5 +399,33 @@ class rewardData(object):
         self.contra_mean_y_vals = dff_events_contra[2]
         self.contra_CI = dff_events_contra[3]
 
-        
+
+def two_conditions_plot(ax, data, show_err_bar=False, mean_linewidth=4, mean_line_color='blue', colour='grey', legend=False):
+    """Plot lines for all mice from early to late.
+    """
+    data.plot(ax=ax, color=colour, legend=False)
+    data.mean(1).plot(ax=ax, linewidth=mean_linewidth, color=mean_line_color)
+
+    if show_err_bar:
+        yerr = data.std(axis=1)
+
+        plt.errorbar(np.array([0, 1]), data.mean(1), yerr, color=mean_line_color, linewidth=4)
+
+    # drop the left and bottom spine for cool looking effect
+    ax.spines['left'].set_position(('outward', 10))
+    ax.spines['bottom'].set_position(('outward', 10))
+    # Hide the right and top spines
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+
+def output_significance_stars_from_pval(pval):
+    if pval >= 0.05:
+        return 'n.s.'
+    elif (pval < 0.05) & (pval >= 0.01):
+        return '*'
+    elif (pval < 0.01) & (pval >= 0.001):
+        return '**'
+    elif pval < 0.001:
+        return '***'
 
