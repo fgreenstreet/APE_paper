@@ -87,7 +87,31 @@ def get_next_reward_time(trial_data, events_of_int):
         next_reward_times.append(choice['Time end'].values[0])
     return next_reward_times
 
+
 def find_and_z_score_traces(trial_data, demod_signal, params, norm_window=8, sort=False, get_photometry_data=True):
+    """
+    Aligns and extracts photometry data to behavioural events based on params
+    Args:
+        trial_data (pd.dataframe): behavioural data (one session)
+        demod_signal (np.array): demodulated photometry signal
+        params (HeatMapParams): parameters for aligning photometry data
+        norm_window (float): window (seconds) around event to zscore photometry data to
+        sort (bool): whether to sort trials by reaction time
+        get_photometry_data (bool): whether to get the photometry traces or just behavioural timestamps
+
+    Returns:
+        time_points (list): time points in seconds for the mean and single trial traces
+        mean_trace (np.array): average trace, aligned to behaviuoral event
+        sorted_traces (np.array): all traces for trials that meet these params, aligned to behavioural event
+        sorted_other_event (list): either end of bpod state or reward time, or next trial start
+        state_name (str): name of bpod state that events are aligned to
+        title (str): title for plots
+        sorted_next_poke (list): other relevant behavioural event timestamp (normally either bpod state start or end)
+        trial_nums (list): trial numbers that correspond to sored_traces
+        event_times (list): actual event times relative to raw data time
+        trial_starts (list): time of trial starts
+        trial_ends (list): time of trial ends
+    """
     response_names = ['both left and right', 'left', 'right']
     outcome_names = ['incorrect', 'correct', 'both correct and incorrect']
 
