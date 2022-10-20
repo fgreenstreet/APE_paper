@@ -24,7 +24,6 @@ for mouse_num, mouse in enumerate(mice):
     all_experiments = remove_exps_after_manipulations(all_experiments, [mouse])
     all = remove_manipulation_days(all_experiments)
     all_experiments = remove_bad_recordings(all_experiments)
-    # all_experiments = remove_experiments(all_experiments, experiments_to_remove)
     experiments_to_process = all_experiments[
         (all_experiments['mouse_id'] == mouse) & (all_experiments['recording_site'] == recording_site)]
     dates = experiments_to_process['date'].values
