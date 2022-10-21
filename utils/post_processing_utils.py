@@ -5,6 +5,7 @@ from utils.individual_trial_analysis_utils import ZScoredTraces, SessionData, Cu
 from set_global_params import experiment_record_path, processed_data_path
 import pickle
 import os
+from set_global_params import experiment_record_path, processed_data_path
 
 
 def get_all_experimental_records():
@@ -194,7 +195,7 @@ def add_experiment_to_aligned_data(experiments_to_add):
     Returns:
 
     """
-    data_root = r'W:\photometry_2AC\processed_data\for_figure'
+    data_root = processed_data_path + 'for_figure'
     for index, experiment in experiments_to_add.iterrows():
         print(experiment['mouse_id'],' ', experiment['date'])
         saving_folder = os.path.join(data_root, experiment['mouse_id'])
