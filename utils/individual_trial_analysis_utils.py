@@ -493,6 +493,15 @@ class SessionEvents(object):
 
 class ZScoredTraces(object):
     def __init__(self,  trial_data, dff, params, response, first_choice):
+        """
+        Creates object with traces and behavioural information for each event that is aligned to.
+        Args:
+            trial_data (pd.dataframe):
+            dff (np.array):
+            params (dict):
+            response (int): 1 (left) or 2 (right)
+            first_choice (int): 1 (left) or 2 (right)
+        """
         self.trial_peaks = None
         self.params = HeatMapParams(params, response, first_choice)
         self.time_points, self.mean_trace, self.sorted_traces, self.reaction_times, self.state_name, title, self.sorted_next_poke, self.trial_nums, self.event_times, self.outcome_times = find_and_z_score_traces(
@@ -500,10 +509,18 @@ class ZScoredTraces(object):
 
 
     def get_peaks(self, save_traces=True):
+        """
+        Determines time window to look for peak photometry response and finds peaks for traces
+        Args:
+            save_traces (bool): if you only want the response size for each event but don;t want to save the traces
+            (large file - takes time to load and save), you can set this to False
+
+        Returns:
+        """
         if self.params.align_to == 'Time start':
             other_time_point = self.outcome_times
-        else: # for reward or non reward aligned data
-            other_time_point = self.sorted_next_poke
+        else: # for outcome aligned data
+            other_time_point = self.sorted_next_poke # uses the start of the next trial
         self.trial_peaks = get_peak_each_trial_no_nans(self.sorted_traces, self.time_points, other_time_point)
         if not save_traces:
             self.sorted_traces = None
