@@ -8,6 +8,14 @@ from set_global_params import processed_data_path
 
 class HeatMapParams(object):
     def __init__(self, params, response, first_choice):
+        """
+        Sets the parameters for aligning traces to behavioural events
+        Args:
+            params (dict): parameters
+            response (int): 1 (left) or 2 (right) - this is the final choice
+            first_choice (int): 1 (left) or 2 (right) - the first choice (not always the
+             same as final choice in unpunished sessions)
+        """
         self.state = params['state_type_of_interest']
         self.outcome = params['outcome']
         #self.last_outcome = params['last_outcome']
@@ -24,6 +32,18 @@ class HeatMapParams(object):
 
 
 def get_photometry_around_event(all_trial_event_times, demodulated_trace, pre_window=5, post_window=5, sample_rate=10000):
+    """
+    Gets photometry traces around behavioural event times
+    Args:
+        all_trial_event_times (list): all the time points where there is an event to align to
+        demodulated_trace (np.array): demodulated photometry signal
+        pre_window (float): time (seconds) before event to get photometry data for
+        post_window (float): time (seconds) after event to get photometry data for
+        sample_rate (float): photometry data sample rate (Hz)
+
+    Returns:
+        event_photo_traces (np.array): traces aligned to events with pre_window and post_window seconds before and after
+    """
     num_events = len(all_trial_event_times)
     event_photo_traces = np.zeros((num_events, sample_rate*(pre_window + post_window)))
     for event_num, event_time in enumerate(all_trial_event_times):
@@ -40,6 +60,16 @@ def get_photometry_around_event(all_trial_event_times, demodulated_trace, pre_wi
 
 
 def get_next_centre_poke(trial_data, events_of_int, last_trial):
+    """
+    Finds the initiation of the next trial (triggered by a centre poke)
+    Args:
+        trial_data (pd.dataframe): behavioural data
+        events_of_int (np.array): event times
+        last_trial (bool): is the last trial of the session present in the events?
+
+    Returns:
+        next_centre_poke_times (np.array): times of the next centre pokes after aligned to events
+    """
     next_centre_poke_times = np.zeros(events_of_int.shape[0])
     events_of_int = events_of_int.reset_index(drop=True)
     for i, event in events_of_int[:-1].iterrows():
@@ -62,9 +92,19 @@ def get_next_centre_poke(trial_data, events_of_int, last_trial):
         next_centre_poke_times[-1] = next_wait_for_poke['Time end'].values[0]
     return next_centre_poke_times
 
+
 def get_first_poke(trial_data, events_of_int):
+    """
+    Gets trial start times for each event
+    Args:
+        trial_data (pd.dataframe): behavioural data
+        events_of_int (np.array): event times
+
+    Returns:
+        first_poke_times (np.array): times of trial starts for each event
+    """
     trial_numbers = events_of_int['Trial num'].unique()
-    next_centre_poke_times = np.zeros(events_of_int.shape[0])
+    first_poke_times = np.zeros(events_of_int.shape[0])
     events_of_int = events_of_int.reset_index(drop=True)
     for event_trial_num in trial_numbers:
         trial_num = event_trial_num
@@ -72,10 +112,20 @@ def get_first_poke(trial_data, events_of_int):
         trial_events = trial_data.loc[(trial_data['Trial num'] == trial_num)]
         wait_for_pokes = trial_events.loc[(trial_events['State type'] == 2)]
         next_wait_for_poke = wait_for_pokes.loc[(wait_for_pokes['Instance in state'] == 1)]
-        next_centre_poke_times[event_indx_for_that_trial] = next_wait_for_poke['Time end'].values[0]-1
-    return next_centre_poke_times
+        first_poke_times[event_indx_for_that_trial] = next_wait_for_poke['Time end'].values[0]-1
+    return first_poke_times
+
 
 def get_next_reward_time(trial_data, events_of_int):
+    """
+    Finds the time of the next reward (or lack of reward on incorrect trials) for each event
+    Args:
+        trial_data (pd.dataframe): behavioural data
+        events_of_int (np.array): event times
+
+    Returns:
+        next_reward_times (list): times of the next outcome for each event
+    """
     trial_numbers = events_of_int['Trial num'].values
     next_reward_times = []
     for event_trial_num in range(len(trial_numbers)):
@@ -272,9 +322,19 @@ def find_and_z_score_traces(trial_data, demod_signal, params, norm_window=8, sor
         return sorted_other_event, state_name, title, sorted_next_poke, trial_nums, event_times, trial_starts, trial_ends
 
 
-
-
 def get_peak_each_trial(sorted_traces, time_points, sorted_other_events):
+    """
+    Finds peak of photometry traces between time_points and sorted_other_events.
+    Can return some events where no peak is found which will be empty lists []
+    Args:
+        sorted_traces (np.array): photometry traces (may be sorted by reaction time or not)
+        time_points (list): time points for the traces
+        (window around event in seconds - 0 is the time of aligned to event)
+        sorted_other_events (list): time of next event relative to aligned to event
+
+    Returns:
+        flat_peaks (list):
+    """
     all_trials_peaks = []
     for trial_num in range(0, len(sorted_other_events)):
         indices_to_integrate = np.where(np.logical_and(np.greater_equal(time_points, 0), np.less_equal(time_points, sorted_other_events[trial_num])))
@@ -285,14 +345,22 @@ def get_peak_each_trial(sorted_traces, time_points, sorted_other_events):
             trial_peak_inds = trial_peak_inds[0]
         trial_peaks = trial_trace.flatten('F')[trial_peak_inds]
         all_trials_peaks.append(trial_peaks)
-        #plt.plot(trial_trace)
-        #plt.scatter(trial_peak_inds, trial_peaks)
     flat_peaks = all_trials_peaks
-    #plt.show()
     return flat_peaks
 
 
 def get_peak_each_trial_no_nans(sorted_traces, time_points, sorted_other_events):
+    """
+    Finds peak of photometry traces between time_points and sorted_other_events. If peak finding fails, takes max.
+    Args:
+        sorted_traces (np.array): photometry traces (may be sorted by reaction time or not)
+        time_points (list): time points for the traces
+        (window around event in seconds - 0 is the time of aligned to event)
+        sorted_other_events (list): time of next event relative to aligned to event
+
+    Returns:
+        flat_peaks (list):
+    """
     all_trials_peaks = []
     for trial_num in range(0, len(sorted_other_events)):
         indices_to_integrate = np.where(np.logical_and(np.greater_equal(time_points, 0), np.less_equal(time_points, sorted_other_events[trial_num])))
@@ -307,12 +375,23 @@ def get_peak_each_trial_no_nans(sorted_traces, time_points, sorted_other_events)
             trial_peaks = np.max(trial_trace)
         all_trials_peaks.append(trial_peaks)
     flat_peaks = all_trials_peaks
-    #plt.show()
     return flat_peaks
 
-def get_peak_each_trial_psychometric(sorted_traces, time_points, sorted_other_events):
+
+def get_peak_each_trial_with_nans(sorted_traces, time_points, sorted_other_events):
+    """
+    Finds peak of photometry traces between time_points and sorted_other_events.
+    Can return some events where no peak is found but replaces with nans
+    Args:
+        sorted_traces (np.array): photometry traces (may be sorted by reaction time or not)
+        time_points (list): time points for the traces
+        (window around event in seconds - 0 is the time of aligned to event)
+        sorted_other_events (list): time of next event relative to aligned to event
+
+    Returns:
+        flat_peaks (list):
+    """
     all_trials_peaks = []
-    #plt.figure()
     for trial_num in range(0, len(sorted_other_events)):
         indices_to_integrate = np.where(np.logical_and(np.greater_equal(time_points, 0),
                                                        np.less_equal(time_points, sorted_other_events[trial_num])))
@@ -322,34 +401,24 @@ def get_peak_each_trial_psychometric(sorted_traces, time_points, sorted_other_ev
         if trial_peak_inds.shape[0] > 0:
             if len(trial_peak_inds > 1):
                 trial_peak_inds = trial_peak_inds[0]
-
             trial_peaks = trial_trace.flatten('F')[trial_peak_inds]
         else:
             trial_peaks = np.nan
         all_trials_peaks.append(trial_peaks)
-            #plt.plot(trial_trace)
-           # plt.scatter(trial_peak_inds, trial_peaks)
-    flat_peaks = all_trials_peaks
-    #plt.show()
-   # plt.figure()
-    #plt.plot(np.mean(sorted_traces, axis=0))
-    return flat_peaks
-
-def get_max_each_trial(sorted_traces, time_points, sorted_other_events):
-    all_trials_peaks = []
-    plt.figure()
-    for trial_num in range(0, len(sorted_other_events)):
-        indices_to_integrate = np.where(np.logical_and(np.greater_equal(time_points, 0),
-                                                       np.less_equal(time_points, sorted_other_events[trial_num])))
-        trial_trace = (sorted_traces[trial_num, indices_to_integrate]).T
-        trial_trace = trial_trace  - trial_trace[0]
-        all_trials_peaks.append(np.max(trial_trace))
     flat_peaks = all_trials_peaks
     return flat_peaks
 
 
 class SessionData(object):
     def __init__(self, fiber_side, recording_site, mouse_id, date):
+        """
+        Creates object that will contain photometry aligned to all sorts of behvaioural events
+        Args:
+            fiber_side (str): 'left' or 'right'
+            recording_site (str): 'Nacc' or 'tail'
+            mouse_id (str): normally something like 'SNL_photo17'
+            date (str): 'YYYYMMDD'
+        """
         self.mouse = mouse_id
         self.fiber_side = fiber_side
         self.recording_site = recording_site
@@ -394,6 +463,7 @@ class SessionDataPsychometric(object):
 
     def get_outcome_responses(self, save_traces=True):
         self.outcome_data = RewardAndNoRewardAlignedDataPsychometric(self, save_traces=save_traces)
+
 
 class SessionEvents(object):
     def __init__(self, fiber_side, recording_site, mouse_id, date):
@@ -457,6 +527,13 @@ class BehaviouralEvents(object):
 
 class ChoiceAlignedData(object):
     def __init__(self, session_data, save_traces=True):
+        """
+        Creates object and loads session photometry and behavioural data.
+        Then aligns to choice for ipsi and contra choices.
+        Args:
+            session_data (SessionData): the session object with information about fiber side, dat, mouse ID etc...
+            save_traces (bool): should photometry traces be aligned and saved or only behavioural data?
+        """
         saving_folder = processed_data_path + session_data.mouse + '\\'
         restructured_data_filename = session_data.mouse + '_' + session_data.date + '_' + 'restructured_data.pkl'
         trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
@@ -512,8 +589,16 @@ class ChoiceAlignedEvents(object):
         self.ipsi_data = BehaviouralEvents(trial_data, dff, params, fiber_side_numeric, fiber_side_numeric)
         self.contra_data = BehaviouralEvents(trial_data, dff, params, contra_fiber_side_numeric, contra_fiber_side_numeric)
 
+
 class CueAlignedData(object):
     def __init__(self, session_data, save_traces=True):
+        """
+        Creates object and loads session photometry and behavioural data.
+        Then aligns to cue for ipsi and contra choices.
+        Args:
+            session_data (SessionData): the session object with information about fiber side, dat, mouse ID etc...
+            save_traces (bool): should photometry traces be aligned and saved or only behavioural data?
+        """
         saving_folder = processed_data_path + session_data.mouse + '\\'
         restructured_data_filename = session_data.mouse + '_' + session_data.date + '_' + 'restructured_data.pkl'
         trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
@@ -546,6 +631,7 @@ class CueAlignedData(object):
         params['cue'] = 'low'
         self.low_cue_data = ZScoredTraces(trial_data, dff, params, 0, 0)
         self.low_cue_data.get_peaks(save_traces=save_traces)
+
 
 class CueAlignedSidedData(object):
     def __init__(self, session_data, save_traces=True):
@@ -619,8 +705,16 @@ class CueAlignedEvents(object):
         params['cue'] = 'low'
         self.low_cue_data = BehaviouralEvents(trial_data, dff, params, 0, 0)
 
+
 class RewardAlignedData(object):
     def __init__(self, session_data, save_traces=True):
+        """
+        Creates object and loads session photometry and behavioural data.
+        Then aligns to reward for ipsi and contra choices.
+        Args:
+            session_data (SessionData): the session object with information about fiber side, dat, mouse ID etc...
+            save_traces (bool): should photometry traces be aligned and saved or only behavioural data?
+        """
         saving_folder = processed_data_path + session_data.mouse + '\\'
         restructured_data_filename = session_data.mouse + '_' + session_data.date + '_' + 'restructured_data.pkl'
         trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
@@ -681,6 +775,15 @@ class RewardAlignedEvents(object):
 
 class RewardAndNoRewardAlignedData(object):
     def __init__(self, session_data, save_traces=True):
+        """
+        Creates object and loads session photometry and behavioural data.
+        Then aligns to outcome for ipsi and contra choices.
+        Outcome incudes incorrect trials and can be used in sessions where punishment (timeout) is not used.
+        Here the outcome time on incorrect choice trials is the first incorrect poke.
+        Args:
+            session_data (SessionData): the session object with information about fiber side, dat, mouse ID etc...
+            save_traces (bool): should photometry traces be aligned and saved or only behavioural data?
+        """
         saving_folder = processed_data_path + session_data.mouse + '\\'
         restructured_data_filename = session_data.mouse + '_' + session_data.date + '_' + 'restructured_data.pkl'
         trial_data = pd.read_pickle(saving_folder + restructured_data_filename)

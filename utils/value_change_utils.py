@@ -10,7 +10,7 @@ import pandas as pd
 from utils.plotting import HeatMapParams
 from utils.plotting import get_photometry_around_event
 from scipy import stats
-from utils.individual_trial_analysis_utils import SessionData, get_photometry_around_event, get_next_centre_poke, get_peak_each_trial, get_peak_each_trial_psychometric, get_next_reward_time, HeatMapParams
+from utils.individual_trial_analysis_utils import SessionData, get_photometry_around_event, get_next_centre_poke, get_peak_each_trial, get_peak_each_trial_with_nans, get_next_reward_time, HeatMapParams
 from utils.plotting import calculate_error_bars
 import os
 from set_global_params import experiment_record_path, processed_data_path
@@ -48,7 +48,7 @@ class ZScoredTracesRewardBlocks(object):
             trial_data, dff, self.params, self.reward_block)
 
     def get_peaks(self):
-        self.trial_peaks = get_peak_each_trial_psychometric(self.sorted_traces, self.time_points, self.outcome_times)
+        self.trial_peaks = get_peak_each_trial_with_nans(self.sorted_traces, self.time_points, self.outcome_times)
 
 
 def find_and_z_score_traces_blocks(trial_data, demod_signal, params, reward_block, norm_window=8, sort=False, get_photometry_data=True):
