@@ -164,23 +164,29 @@ def open_one_experiment(experiment):
     return trial_data, session_traces
 
 
-def get_first_x_sessions(sorted_experiment_record, x=3):
+def get_first_x_sessions(experiment_record, mouse_ids, x=3):
     """
     Finds first x sessions for each mouse
     Args:
-        sorted_experiment_record (pd.dataframe): dataframe of experiments (can be mulitple mice)
+        experiment_record (pd.dataframe): dataframe of experiments (can be mulitple mice)
+        mouse_ids (list): mice to be included
         x (int): number of sessions for each mouse
 
     Returns:
         exps (pd.dataframe): the dataframe only containing the first x sessions per mouse
     """
+    experiment_record['date'] = experiment_record['date'].astype(str)
+    clean_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
+    all_experiments_to_process = clean_experiments[
+        (clean_experiments['mouse_id'].isin(mouse_ids)) & (clean_experiments['recording_site'] == site)].reset_index(
+        drop=True)
     i = []
     inds = []
-    for mouse in np.unique(sorted_experiment_record['mouse_id']):
-        i.append(sorted_experiment_record[sorted_experiment_record['mouse_id'] == mouse][0:x].index)
+    for mouse in np.unique(experiment_record['mouse_id']):
+        i.append(experiment_record[experiment_record['mouse_id'] == mouse][0:x].index)
         inds += range(0, x)
     flattened_i = [val for sublist in i for val in sublist]
-    exps = sorted_experiment_record.loc[flattened_i].reset_index(drop=True)
+    exps = experiment_record.loc[flattened_i].reset_index(drop=True)
     exps['session number'] = inds
     return exps
 
