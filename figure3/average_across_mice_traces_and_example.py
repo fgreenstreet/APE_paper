@@ -58,11 +58,11 @@ vs_heat_map_axs = {'contra': [vs_heatmap_contra_ax],
                    'ipsi': [vs_heatmap_ipsi_ax]}
 
 colours = sns.color_palette("Set2")[:2]
-t_axs, t_data, t_wd, t_flip_sort_order, t_y_mins, t_y_maxs = get_data_for_recording_site('TS', ts_heat_map_axs, colours)
-v_axs, v_data, v_wd, v_flip_sort_order, v_y_mins, v_y_maxs = get_data_for_recording_site('VS', vs_heat_map_axs, colours)
+t_axs, t_data, t_wd, t_flip_sort_order, t_y_mins, t_y_maxs = get_data_for_recording_site('TS', ts_heat_map_axs)
+v_axs, v_data, v_wd, v_flip_sort_order, v_y_mins, v_y_maxs = get_data_for_recording_site('VS', vs_heat_map_axs)
 
-heat_map_t = plot_all_heatmaps_same_scale(fig, t_axs, t_data, t_wd, t_flip_sort_order, (np.min(t_y_mins), np.max(t_y_maxs)), cmap=blue_cmap)
-heat_map_v = plot_all_heatmaps_same_scale(fig, v_axs, v_data, v_wd, v_flip_sort_order, (np.min(v_y_mins), np.max(v_y_maxs)), cmap=red_cmap)
+heat_map_t = plot_all_heatmaps_same_scale(t_axs, t_data, t_wd, t_flip_sort_order, (np.min(t_y_mins), np.max(t_y_maxs)), cmap=blue_cmap)
+heat_map_v = plot_all_heatmaps_same_scale(v_axs, v_data, v_wd, v_flip_sort_order, (np.min(v_y_mins), np.max(v_y_maxs)), cmap=red_cmap)
 
 plot_average_trace_all_mice(vs_average_move_ax,  vs_average_outcome_ax, 'Nacc', cmap=['#E95F32', '#F9C0AF'])
 plot_average_trace_all_mice(ts_average_move_ax,  ts_average_outcome_ax, 'tail', cmap=['#002F3A', '#76A8DA'])

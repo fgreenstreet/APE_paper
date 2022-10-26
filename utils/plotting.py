@@ -290,6 +290,17 @@ def multiple_conditions_plot(trial_data, demod_signal, mouse, date, *param_set):
 
 
 def calculate_error_bars(mean_trace, data, error_bar_method='sem'):
+    """
+    Calculates error bars for trace
+    Args:
+        mean_trace (np.array): mean trace (mean of data)
+        data (np.array): all traces
+        error_bar_method (str): ci or sem
+
+    Returns:
+        lower_bound (np.array): lower error bar
+        upper_bound (np.array): upper error bar
+    """
     if error_bar_method == 'sem':
         sem = stats.sem(data, axis=0)
         lower_bound = mean_trace - sem
@@ -300,12 +311,17 @@ def calculate_error_bars(mean_trace, data, error_bar_method='sem'):
 
 
 def bootstrap(data, n_boot=10000, ci=68):
-    """Helper function for lineplot_boot. Bootstraps confidence intervals for plotting time series.
+    """
+    Helper function for lineplot_boot. Bootstraps confidence intervals for plotting time series.
 
-    :param data:
-    :param n_boot:
-    :param ci:
-    :return:
+    Args:
+        data (np.array): data (2D)
+        n_boot (int): number of bootstraps
+        ci (float): confidence interval
+
+    Returns:
+        s1 (np.array): lower bound
+        s2 (np.array): upper bound
     """
     boot_dist = []
     for i in tqdm(range(int(n_boot)), desc='Bootstrapping...'):

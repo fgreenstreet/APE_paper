@@ -1,6 +1,6 @@
 import pickle
 import numpy as np
-from utils.individual_trial_analysis_utils import SessionData
+from utils.individual_trial_analysis_utils import SessionData, ZScoredTraces
 import matplotlib.pyplot as plt
 from scipy.signal import decimate
 import seaborn as sns
@@ -11,6 +11,14 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 def get_data_for_figure(recording_site):
+    """
+    Loads in data for an example mouse for the heatmaps for the heatmaps
+    Args:
+        recording_site (str): 'VS' or 'TS'
+
+    Returns:
+        example_session_data (SessionData): the object containing aligned traces to various behavioural events
+    """
     if recording_site == 'VS':
         example_mouse = 'SNL_photo35'
         example_date = '20201119'
@@ -26,19 +34,43 @@ def get_data_for_figure(recording_site):
 
 
 def get_correct_data_for_plot(session_data, plot_type):
+    """
+    Gets traces aligned to correct behavioural events for plot
+    Args:
+        session_data (SessionData): Object with photometry aligned to all sorts of behavioural events
+        plot_type (str): what is the plot aligned to? (ipsi, contra, rewarded, unrewarded)
+
+    Returns:
+        output_data (ZScoredTraces): Photometry data relevant to behavioural event needed for plot
+    """
     if plot_type == 'ipsi':
-        return session_data.choice_data.ipsi_data, 'event end'
+        output_data = session_data.choice_data.ipsi_data, 'event end'
     elif plot_type == 'contra':
-        return session_data.choice_data.contra_data, 'event end'
+        output_data = session_data.choice_data.contra_data, 'event end'
     elif plot_type == 'rewarded':
-        return session_data.outcome_data.reward_data, 'event start' #'next trial'
+        output_data = session_data.outcome_data.reward_data, 'event start' #'next trial'
     elif plot_type == 'unrewarded':
-        return session_data.outcome_data.no_reward_data, 'event start' #'next trial'
+        output_data = session_data.outcome_data.no_reward_data, 'event start' #'next trial'
     else:
         raise ValueError('Unknown type of plot specified.')
-    
-    
-def get_data_for_recording_site(recording_site, ax, colours):
+    return output_data
+
+
+def get_data_for_recording_site(recording_site, ax):
+    """
+    Gets example mouse data for heatmaps for a given recording site (TS or VS)
+    Args:
+        recording_site (str): 'VS' or 'TS'
+        ax (dict): dict in format {'type of plot': matplotlib.axes._subplots.AxesSubplot}
+
+    Returns:
+        axes (list): all plot types for a recording site
+        all_data (list): list of ZScoredTraces objects containing relevant to the plot types in axes
+        all_white_dot_points (list): list of lists containing reaction times for heatmap white dots
+        all_flip_sort_order (list): list of bools (should fastest or slowest reaction time be top?)
+        ymins (list): min heatmap value per plot
+        ymaxs (list): max heatmap value per plot
+    """
     aligned_session_data = get_data_for_figure(recording_site)
     all_data = []
     all_white_dot_points = []
@@ -46,10 +78,6 @@ def get_data_for_recording_site(recording_site, ax, colours):
     ymins = []
     ymaxs = []
     axes = []
-    if recording_site == 'VS':
-        colour = colours[0]
-    else:
-        colour = colours[1]
     for ax_type, ax in ax.items():
         data, sort_by = get_correct_data_for_plot(aligned_session_data, ax_type)
 
@@ -69,12 +97,23 @@ def get_data_for_recording_site(recording_site, ax, colours):
         ymins.append(ymin)
         ymaxs.append(ymax)
         axes.append(ax[0])
-        #plot_average_trace(ax[1], data, colour=colour)
-        #ax[1].set_xlim([-1.5, 1.5])
     return axes, all_data, all_white_dot_points, all_flip_sort_order, ymins, ymaxs
 
 
-def plot_all_heatmaps_same_scale(fig, axes, all_data, all_white_dot_points, all_flip_sort_order, cb_range, cmap='viridis'):
+def plot_all_heatmaps_same_scale(axes, all_data, all_white_dot_points, all_flip_sort_order, cb_range, cmap='viridis'):
+    """
+    Plots the heatmaps for traces aligned to different behavioural events using the same colorbar
+    Args:
+        axes (list): list of axis label/ axis pairs
+        all_data (list): list of ZScoredTraces objects to be plotted
+        all_white_dot_points (list): list of arrays with the white dot for plots
+        all_flip_sort_order (list): list of bools whether to sort by shortest or longest reaction time
+        cb_range (list): list of min and max values for each heatmap
+        cmap (ListedColormap): colormap to use for heatmap
+
+    Returns:
+        heat_map (AxesImage):
+    """
     for ax_num, ax_id in enumerate(axes):
         heat_map = plot_heat_map(ax_id, all_data[ax_num], all_white_dot_points[ax_num], all_flip_sort_order[ax_num], dff_range=cb_range, cmap=cmap)
         ax_id.set_xlim([-1.5, 1.5])
@@ -85,8 +124,16 @@ def plot_all_heatmaps_same_scale(fig, axes, all_data, all_white_dot_points, all_
     return heat_map
 
 
-
 def get_min_and_max(data):
+    """
+    Finds min and max of array
+    Args:
+        data (np.array): data to analyse
+
+    Returns:
+        ymin (float): min of array
+        ymax (float): max of array
+    """
     ymin = np.min(data.sorted_traces)
     ymax = np.max(data.sorted_traces)
     return ymax, ymin
@@ -148,7 +195,21 @@ def plot_average_trace_all_mice_seperate_ts_and_vs(contra_ax, ipsi_ax, rew_ax, u
         axs[trace_type].set_ylabel('z-score')
         axs[trace_type].set_xlim([-1.5, 1.5])
 
+
 def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5]):
+    """
+    Plots the average trace across mice for movement (contra, ipsi) and outcome (reward, no reward) aligned data
+    Args:
+        move_ax (matplotlib.axes._subplots.AxesSubplot): axes to plot ipsi/ contra movement aligned traces
+        outcome_ax (matplotlib.axes._subplots.AxesSubplot): axes to plot correct/ incorrect outcome aligned data
+        site (str): 'VS' or 'TS'
+        error_bar_method (str): sem or ci or None
+        cmap (list): colours for the two types of data (ipsi vs contra, correct vs incorrect)
+        x_range (list): time windon around behavioural event on x-axis
+
+    Returns:
+
+    """
     all_data = get_all_mouse_data_for_site(site)
     time_stamps = all_data['time_stamps']
     data = dict(all_data)
@@ -182,6 +243,20 @@ def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem
 
 
 def plot_heat_map(ax, data, white_dot_point, flip_sort_order, dff_range=None, x_range=[-1.5, 1.5], cmap='viridis'):
+    """
+    Plots a single heatmap on a single axis
+    Args:
+        ax (matplotlib.axes._subplots.AxesSubplot): axes to plot on
+        data (ZScoredTraces): photometry traces to plot in heatmap
+        white_dot_point (np.array): timestamps (relative to aligned to event) of white dot -normally represents reaction time
+        flip_sort_order (bool): shortest or longest reaction time top?
+        dff_range (tuple): min and max for colorbar
+        x_range (list): time range for x-axis of heatmap (seconds from behavioural event)
+        cmap (ListedColormap): colormap for heatmap
+
+    Returns:
+        heat_im (AxesImage): the heatmap
+    """
     data.sorted_next_poke[-1] = np.nan
     if flip_sort_order:
         arr1inds = (-1 *white_dot_point).argsort()[::-1]
