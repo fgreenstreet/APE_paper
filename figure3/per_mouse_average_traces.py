@@ -4,7 +4,7 @@ import numpy as np
 from utils.post_processing_utils import remove_exps_after_manipulations, get_first_x_sessions
 from tqdm import tqdm
 
-from set_global_params import experiment_record_path
+from set_global_params import experiment_record_path, processed_data_path
 
 
 def get_all_mice_data(experiments_to_process):
@@ -52,7 +52,7 @@ def get_all_mice_average_data(experiments_to_process, time_range=(-1.5, 1.5)):
 
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
         df = experiments_to_process[experiments_to_process.mouse_id == mouse]
-        data_dir = 'W:\\photometry_2AC\\processed_data\\for_figure\\' + mouse + '\\'
+        data_dir = processed_data_path + 'for_figure\\' + mouse + '\\'
 
         mouse_ipsi_choices = []
         mouse_contra_choices = []
@@ -107,7 +107,7 @@ experiments_to_process = get_first_x_sessions(all_experiments_to_process).reset_
     drop=True)
 ipsi_choice, contra_choice, reward, no_reward, cue, time_stamps = get_all_mice_average_data(experiments_to_process)
 
-dir = 'W:\\photometry_2AC\\processed_data\\for_figure\\'
+dir = processed_data_path + 'for_figure\\'
 file_name = 'group_data_avg_across_sessions_' + site +'_new_mice_added_with_cues.npz'
 np.savez(dir + file_name, ipsi_choice=ipsi_choice, contra_choice=contra_choice, reward=reward, no_reward=no_reward, time_stamps=time_stamps, cue=cue)
 
