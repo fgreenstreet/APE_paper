@@ -7,11 +7,10 @@ from matplotlib.colors import ListedColormap
 import matplotlib.colors
 import numpy as np
 import matplotlib
-import colorcet as cc
-import cmasher as cmr
 import cmocean as cmo
 
 from utils.plotting_visuals import makes_plots_pretty
+from set_global_params import figure_directory
 
 font = {'size': 8}
 matplotlib.rc('font', **font)
@@ -22,17 +21,15 @@ matplotlib.rcParams['font.family']
 fig = plt.figure(constrained_layout=True, figsize=[8, 4])
 gs = fig.add_gridspec(nrows=2, ncols=4)
 
-
 cmap_map = matplotlib.cm.get_cmap('cmo.solar') #('cet_fire')#cc.cm['linear_wyor_100_45_c55']) #cc.cm['linear_tritanopic_krw_5_95_c46']) cmo.solar
 cmap_values = cmap_map(np.linspace(0, 1, 1200))
-#cmap_values[:, 3] = 0.8
+
 new_cmap_values = np.copy(cmap_values)
 new_cmap_values[:, 2] = np.copy(cmap_values[:, 0])
 new_cmap_values[:, 0] = np.copy(cmap_values[:, 2])
 
 blue_cmap = ListedColormap(new_cmap_values)
 red_cmap = ListedColormap(cmap_values)
-
 
 ts_heatmap_contra_ax = fig.add_subplot(gs[0, 0])
 ts_heatmap_contra_ax.set_title('TS contra')
@@ -71,9 +68,7 @@ plot_average_trace_all_mice(vs_average_move_ax,  vs_average_outcome_ax, 'Nacc', 
 plot_average_trace_all_mice(ts_average_move_ax,  ts_average_outcome_ax, 'tail', cmap=['#002F3A', '#76A8DA'])
 
 makes_plots_pretty([vs_average_move_ax, ts_average_move_ax, vs_average_outcome_ax, ts_average_outcome_ax])
-
 plt.tight_layout()
-data_directory = 'W:\\paper\\'
-plt.savefig(data_directory + 'Fig3_paper_final_version.pdf', transparent=True, bbox_inches='tight')
 
+plt.savefig(figure_directory + 'Fig3_paper_final_version.pdf', transparent=True, bbox_inches='tight')
 plt.show()
