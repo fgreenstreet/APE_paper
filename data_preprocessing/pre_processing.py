@@ -1,20 +1,27 @@
-import sys
-
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
-
 import nptdms
 import numpy as np
 from data_preprocessing.demodulation import lerner_deisseroth_preprocess
 from data_preprocessing.demodulation import demodulate
 import data_preprocessing.bpod_data_processing as bpod
-from data_preprocessing.session_traces_and_mean import get_all_experimental_records
+from utils.post_processing_utils  import get_all_experimental_records
 import os
 from scipy.signal import medfilt, butter, filtfilt
 from scipy.stats import linregress
+from set_global_params import processed_data_path
 
 
 def pre_process_experiment_lerner_deissroth(mouse, date, protocol):
+    """
+    Pre processes the data according to what is described in the Lerner Deissroth paper.
+    Code written mostly by Steve Lenzi.
+    Args:
+        mouse (str): mouse name
+        date (str): YYYYMMDD
+        protocol (str): bpod protocol
+
+    Returns:
+
+    """
     daq_file = bpod.find_daq_file(mouse, date)
     data = nptdms.TdmsFile(daq_file)
     sampling_rate = 10000
@@ -45,13 +52,9 @@ def pre_process_experiment_lerner_deissroth(mouse, date, protocol):
     clock_diff = np.diff(clock)
     clock_pulses = np.where(clock_diff > 2.6)[0] / sampling_rate
 
-    original_state_data_all_trials = loaded_bpod_file['SessionData']['RawData']['OriginalStateData']
-    original_state_timestamps_all_trials = loaded_bpod_file['SessionData']['RawData']['OriginalStateTimestamps']
-    daq_trials_start_ttls = trial_start_ttls_daq
-
     restructured_data = bpod.restructure_bpod_timestamps(loaded_bpod_file, trial_start_ttls_daq, clock_pulses)
 
-    saving_folder = 'W:\\photometry_2AC\\processed_data\\' + mouse + '\\'
+    saving_folder = processed_data_path + mouse + '\\'
 
     smoothed_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
 
@@ -61,6 +64,17 @@ def pre_process_experiment_lerner_deissroth(mouse, date, protocol):
 
 
 def pre_process_experiment_pyphotometry(mouse, date, protocol):
+    """
+    Preprocesses the photomtery signal using demodulation and filtering similar to that used by pyphotometry paper.
+    Args:
+        mouse (str): mouse name 
+        date (str): date (YYYYMMDD)
+        protocol (str): bpod protocol
+
+    Returns:
+
+    """
+    
     daq_file = bpod.find_daq_file(mouse, date)
     data = nptdms.TdmsFile(daq_file)
 
@@ -85,67 +99,62 @@ def pre_process_experiment_pyphotometry(mouse, date, protocol):
         print(daq_num_trials, 'trials in session')
 
     sampling_rate = 10000
-    signal, back = demodulate(chan_0[sampling_rate * 6:], led465[sampling_rate * 6:], led405[sampling_rate * 6:], 10000)
-
-    GCaMP_raw = signal
-    back_raw = back
-
-    time_seconds = np.arange(GCaMP_raw.shape[0]) / sampling_rate
+    signal, background = demodulate(chan_0[sampling_rate * 6:], led465[sampling_rate * 6:], led405[sampling_rate * 6:], 10000)
 
     # Median filtering to remove electrical artifact.
-    GCaMP_denoised = medfilt(GCaMP_raw, kernel_size=5)
-    back_denoised = medfilt(back_raw, kernel_size=5)
+    signal_denoised = medfilt(signal, kernel_size=5)
+    back_denoised = medfilt(background, kernel_size=5)
 
     # Lowpass filter - zero phase filtering (with filtfilt) is used to avoid distorting the signal.
     b, a = butter(2, 10, btype='low', fs=sampling_rate)
-    GCaMP_denoised = filtfilt(b, a, GCaMP_denoised)
+    signal_denoised = filtfilt(b, a, signal_denoised)
     back_denoised = filtfilt(b, a, back_denoised)
 
     b, a = butter(2, 0.001, btype='high', fs=sampling_rate)
-    GCaMP_highpass = filtfilt(b, a, GCaMP_denoised, padtype='even')
+    signal_highpass = filtfilt(b, a, signal_denoised, padtype='even')
     back_highpass = filtfilt(b, a, back_denoised, padtype='even')
 
-    slope, intercept, r_value, p_value, std_err = linregress(x=back_highpass, y=GCaMP_highpass)
+    slope, intercept, r_value, p_value, std_err = linregress(x=back_highpass, y=signal_highpass)
 
     print('Slope    : {:.3f}'.format(slope))
     print('R-squared: {:.3f}'.format(r_value ** 2))
 
-    GCaMP_est_motion = intercept + slope * back_highpass
-    GCaMP_corrected = GCaMP_highpass - GCaMP_est_motion
+    signal_est_motion = intercept + slope * back_highpass
+    signal_corrected = signal_highpass - signal_est_motion
 
     b, a = butter(2, 0.001, btype='low', fs=sampling_rate)
-    baseline_fluorescence = filtfilt(b, a, GCaMP_denoised, padtype='even')
+    baseline_fluorescence = filtfilt(b, a, signal_denoised, padtype='even')
 
-    GCaMP_dF_F = GCaMP_corrected / baseline_fluorescence
+    signal_dF_F = signal_corrected / baseline_fluorescence
     b, a = butter(2, 3, btype='low', fs=sampling_rate)
-    smoothed_GCaMP = filtfilt(b, a, GCaMP_dF_F, padtype='even')
-    smoothed_GCaMP = np.pad(smoothed_GCaMP, (6 * sampling_rate, 0), mode='median')
+    smoothed_signal = filtfilt(b, a, signal_dF_F, padtype='even')
+    smoothed_signal = np.pad(smoothed_signal, (6 * sampling_rate, 0), mode='median')
     clock_diff = np.diff(clock)
     clock_pulses = np.where(clock_diff > 2.6)[0] / 10000
 
-    original_state_data_all_trials = loaded_bpod_file['SessionData']['RawData']['OriginalStateData']
-    original_state_timestamps_all_trials = loaded_bpod_file['SessionData']['RawData']['OriginalStateTimestamps']
-    daq_trials_start_ttls = trial_start_ttls_daq
-
     restructured_data = bpod.restructure_bpod_timestamps(loaded_bpod_file, trial_start_ttls_daq, clock_pulses)
 
-    saving_folder = 'W:\\photometry_2AC\\processed_data\\' + mouse + '\\'
-    #saving_folder = 'C:\\Users\\francescag\\Documents\\PhD_Project\\SNL_photo_photometry\\processed_data' + mouse + '\\'
+    saving_folder = processed_data_path + mouse + '\\'
     if not os.path.exists(saving_folder):
         os.makedirs(saving_folder)
-    demod_trace_filename = mouse + '_' + date + '_' + 'demod_signal.npy'
+
     smoothed_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
-    background_filename = mouse + '_' + date + '_' + 'background.npy'
-    notdF_filename = mouse + '_' + date + '_' + 'not_regress.npy'
     restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
-    # np.save(saving_folder + demod_trace_filename, GCaMP_dF_F)
-    np.save(saving_folder + smoothed_trace_filename, smoothed_GCaMP)
-    # np.save(saving_folder + background_filename, back_highpass)
-    # np.save(saving_folder + notdF_filename, GCaMP_highpass)
+    np.save(saving_folder + smoothed_trace_filename, smoothed_signal)
     restructured_data.to_pickle(saving_folder + restructured_data_filename)
 
 
 def pre_process_experiments(experiments, method='pyphotometry', protocol='Two_Alternative_Choice'):
+    """
+    Demodulates photometry signal and extracts behavioural events and saves out files.
+    Args:
+        experiments (pd.dataframe): experiments to pre-process
+        method (str): pyphotometry or lerner
+        protocol (str): bpod protocol
+
+    Returns:
+
+    """
     for index, experiment in experiments.iterrows():
         mouse = experiment['mouse_id']
         date = experiment['date']
