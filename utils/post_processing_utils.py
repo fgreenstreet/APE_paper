@@ -191,17 +191,27 @@ def get_first_x_sessions(experiment_record, mouse_ids, x=3):
     return exps
 
 
-def add_experiment_to_aligned_data(experiments_to_add):
+def add_experiment_to_aligned_data(experiments_to_add, for_heat_map_figure=False, cue=True, choice=True, reward=True, outcome=True):
     """
     Aligns photometry data to behavioural events for multiple experiments and saves out formatted data
 
     Args:
         experiments_to_add (pd.dataframe): the experiments that will be processed and saved out as reformatted objects
+        for_heat_map_figure (bool): is this to preprocess data prior to making heatmaps for figure 3?
+        cue (bool): align data to cue?
+        choice (bool): align data to choice?
+        reward (bool): align data to reward? This is only rewarded trials (ipsi vs contra)
+        outcome (bool): align data to outcome? This is correct vs incorrect
 
     Returns:
 
     """
-    data_root = processed_data_path + 'for_figure'
+    if for_heat_map_figure:
+        data_root = processed_data_path + 'for_figure'
+        file_name_tag = 'aligned_traces_for_fig.p'
+    else:
+        data_root = processed_data_path
+        file_name_tag = 'aligned_traces.p'
     for index, experiment in experiments_to_add.iterrows():
         print(experiment['mouse_id'],' ', experiment['date'])
         saving_folder = os.path.join(data_root, experiment['mouse_id'])
@@ -209,11 +219,16 @@ def add_experiment_to_aligned_data(experiments_to_add):
             os.makedirs(saving_folder)
 
         session_traces = SessionData(experiment['fiber_side'], experiment['recording_site'], experiment['mouse_id'], experiment['date'])
-        session_traces.get_choice_responses()
-        session_traces.get_cue_responses()
-        session_traces.get_reward_responses()
-        session_traces.get_outcome_responses()
-        aligned_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'aligned_traces_for_fig.p'
+        if choice:
+            session_traces.get_choice_responses()
+        if cue:
+            session_traces.get_cue_responses()
+        if reward:
+            session_traces.get_reward_responses()
+        if outcome:
+            session_traces.get_outcome_responses()
+        aligned_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + file_name_tag
         save_filename = os.path.join(saving_folder, aligned_filename)
         pickle.dump(session_traces, open(save_filename, "wb"))
+
 

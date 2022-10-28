@@ -25,14 +25,11 @@ def get_valid_traces(mouse, dates, window_around_mean=0.2, recording_site='tail'
     all_actual_trial_numbers = []
     all_traces = []
 
-    # if I can get the trial numbers ever that things belong to, then we are in business
     for date_num, date in enumerate(dates):
         print(date)
         peaks_saving_folder = os.path.join(data_root, mouse)
         aligned_filename = saving_folder + mouse + '_' + date + '_' + 'aligned_traces.p'
-        #filename = mouse + '_' + date + '_' + 'peaks.p'
-        #aligned_filename = os.path.join(peaks_saving_folder, filename)
-        #mean_and_sem_filename = saving_folder + mouse + '_' + date + '_' + 'peaks_' + type_of_session + '_data.p'
+
         with open(aligned_filename, 'rb') as f:
             data = pickle.load(f)
         if recording_site == 'tail':
