@@ -1,4 +1,3 @@
-
 import pickle
 import datetime
 import matplotlib.pyplot as plt
@@ -7,7 +6,7 @@ import numpy as np
 import math
 import pandas as pd
 import os
-from set_global_params import processed_data_path
+from set_global_params import processed_data_path, behavioural_data_path
 
 
 def plot_reaction_times(mouse, dates):
@@ -141,9 +140,19 @@ def get_valid_trials(mouse, dates, window_around_mean=0.2, recording_site='tail'
     valid_reaction_times = np.array(flattened_reaction_times)[valid_trials]
     return(session_starts, valid_trials, valid_reaction_times, valid_peaks, valid_trial_nums)
 
+
 def get_bpod_trial_nums_per_session(mouse, dates):
+    """
+    Finds the number of trials in behavioural training sessions
+    Args:
+        mouse (str): mouse name
+        dates (list): dates of training sessions in YYYYMMDD format
+
+    Returns:
+        session_first_trials (list): trial number of start of sessions in context of all trials ever done
+    """
     BpodProtocol = '/Two_Alternative_Choice/'
-    GeneralDirectory = 'W:/photometry_2AC/bpod_data/'
+    GeneralDirectory = behavioural_data_path
     DFfile = GeneralDirectory + mouse + BpodProtocol + 'Data_Analysis/' + mouse + '_dataframe.pkl'
     behavioural_stats = pd.read_pickle(DFfile)
     sessions = MakeDatesPretty(dates)
@@ -153,11 +162,19 @@ def get_bpod_trial_nums_per_session(mouse, dates):
         session_first_trials.append(session_first_trial)
     return session_first_trials
 
+
 def MakeDatesPretty(inputDates):
-    # assumes input style YYYYMMDD
+    """
+    Converts YYYYMMDD strings to datetime
+    Args:
+        inputDates (list): dates in YYYYMMDD format
+
+    Returns:
+        outputDates (list): dates as datetime
+    """
     outputDates = []
     for date in inputDates:
             x = datetime.datetime(int(date[0:4]), int(date[4:6]), int(date[6:8]))
             outputDates.append(x.strftime("%b%d"))
-    return(outputDates)
+    return outputDates
 

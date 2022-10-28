@@ -135,7 +135,6 @@ def open_experiment(experiment_to_add):
     """
     for index, experiment in experiment_to_add.iterrows():
         saving_folder = processed_data_path + experiment['mouse_id'] + '\\'
-        #saving_folder = 'C:\\Users\\francescag\\Documents\\PhD_Project\\SNL_photo_photometry\\processed_data' + experiment['mouse_id'] + '\\'
         restructured_data_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'restructured_data.pkl'
         trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
         dff_trace_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'smoothed_signal.npy'
