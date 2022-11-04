@@ -163,12 +163,13 @@ def open_one_experiment(experiment):
     return trial_data, session_traces
 
 
-def get_first_x_sessions(experiment_record, mouse_ids, x=3):
+def get_first_x_sessions(experiment_record, mouse_ids, site, x=3):
     """
     Finds first x sessions for each mouse
     Args:
         experiment_record (pd.dataframe): dataframe of experiments (can be mulitple mice)
         mouse_ids (list): mice to be included
+        site (str): recording site
         x (int): number of sessions for each mouse
 
     Returns:
@@ -181,11 +182,11 @@ def get_first_x_sessions(experiment_record, mouse_ids, x=3):
         drop=True)
     i = []
     inds = []
-    for mouse in np.unique(experiment_record['mouse_id']):
-        i.append(experiment_record[experiment_record['mouse_id'] == mouse][0:x].index)
+    for mouse in np.unique(all_experiments_to_process['mouse_id']):
+        i.append(all_experiments_to_process[all_experiments_to_process['mouse_id'] == mouse][0:x].index)
         inds += range(0, x)
     flattened_i = [val for sublist in i for val in sublist]
-    exps = experiment_record.loc[flattened_i].reset_index(drop=True)
+    exps = all_experiments_to_process.loc[flattened_i].reset_index(drop=True)
     exps['session number'] = inds
     return exps
 
