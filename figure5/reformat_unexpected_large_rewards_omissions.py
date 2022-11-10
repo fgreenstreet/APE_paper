@@ -1,24 +1,20 @@
 import os
-import sys
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
-import numpy as np
 import pandas as pd
+from set_global_params import processed_data_path, large_reward_omission_mice
 from utils.post_processing_utils import open_experiment, CustomAlignedData, get_all_experimental_records
 from utils.large_reward_omission_utils import get_traces_and_reward_types
 
+site = 'tail' # or 'Nacc'
 exp_name = 'large_rewards_omissions'
-processed_data_dir = os.path.join('W:\photometry_2AC\processed_data', 'large_rewards_omissions_data')
+mice = large_reward_omission_mice[site]
+processed_data_dir = os.path.join(processed_data_path, 'large_rewards_omissions_data')
 if not os.path.exists(processed_data_dir):
     os.makedirs(processed_data_dir)
-
 all_experiments = get_all_experimental_records()
-mice = ['SNL_photo37', 'SNL_photo43', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26']#['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33', 'SNL_photo32', 'SNL_photo34', 'SNL_photo35']
+processed_data_file = os.path.join(processed_data_dir, 'all_tail_reward_change_data_new.csv')
 
-block_data_file = os.path.join(processed_data_dir, 'all_tail_reward_change_data_new.csv')
-
-if os.path.isfile(block_data_file):
-    all_reward_block_data = pd.read_pickle(block_data_file)
+if os.path.isfile(processed_data_file):
+    all_reward_block_data = pd.read_pickle(processed_data_file)
 else:
     for mouse_num, mouse_id in enumerate(mice):
         sessions = all_experiments[
@@ -46,5 +42,5 @@ else:
             else:
                 all_reward_type_data = session_reward_type_data
 
-    all_reward_type_data.to_pickle(block_data_file)
+    all_reward_type_data.to_pickle(processed_data_file)
 

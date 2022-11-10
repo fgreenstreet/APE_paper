@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 import pandas as pd
-from utils.individual_trial_analysis_utils import ZScoredTraces, SessionData, CueAlignedData
+from utils.individual_trial_analysis_utils import ZScoredTraces, SessionData, HeatMapParams
 from set_global_params import experiment_record_path, processed_data_path
 import pickle
 import os
@@ -232,3 +232,28 @@ def add_experiment_to_aligned_data(experiments_to_add, for_heat_map_figure=False
         pickle.dump(session_traces, open(save_filename, "wb"))
 
 
+class CustomAlignedData(object):
+    def __init__(self, session_data, params, peak_quantification=True):
+        """
+        Creates formatted data object with aligned traces for a given set of parameters
+        Args:
+            session_data (pd.dataframe): experiment record for the session to process
+            params (HeatMapParams): the parameters for how to align the photometry data
+            peak_quantification (bool): whether to get the peaks of the photometry data after the aligned to events
+        """
+        saving_folder = processed_data_path + session_data.mouse + '\\'
+
+        restructured_data_filename = session_data.mouse + '_' + session_data.date + '_' + 'restructured_data.pkl'
+        trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
+        dff_trace_filename = session_data.mouse + '_' + session_data.date + '_' + 'smoothed_signal.npy'
+        dff = np.load(saving_folder + dff_trace_filename)
+
+        fiber_options = np.array(['left', 'right'])
+        fiber_side_numeric = (np.where(fiber_options == session_data.fiber_side)[0] + 1)[0]
+        contra_fiber_side_numeric = (np.where(fiber_options != session_data.fiber_side)[0] + 1)[0]
+
+        self.ipsi_data = ZScoredTraces(trial_data, dff, params, fiber_side_numeric, fiber_side_numeric)
+        self.contra_data = ZScoredTraces(trial_data, dff,params, contra_fiber_side_numeric, contra_fiber_side_numeric)
+        if peak_quantification:
+            self.contra_data.get_peaks()
+            self.ipsi_data.get_peaks()

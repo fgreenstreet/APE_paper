@@ -11,7 +11,17 @@ class HeatMapParams(object):
         """
         Sets the parameters for aligning traces to behavioural events
         Args:
-            params (dict): parameters
+            params (dict): parameters, e.g.
+                        {'state_type_of_interest': 5, # Bpod state number to align to
+                        'outcome': 2,                 # 0=incorrect, 1=correct, 2=correct and incorrect
+                        'last_outcome': 0,            # NOT USED CURRENTLY
+                        'no_repeats': 0,              # is the bpod state allowed to be repeated? 0=no, 1=yes (can only be used with instance=1)
+                        'last_response': 0,           # 0=left and right, 1=left, 2=right
+                        'align_to': 'Time end',       # What time point of bpod state to align to ('Time start' or 'Time end' )
+                        'instance': -1,               # What instance of bpod state to choose for alignment. 1=first, -1=last
+                        'plot_range': [-6, 6],        # How many seconds of photometry data to normalise to and save out aroung event
+                        'first_choice_correct': 0,    # Trials where the first choice is correct? (1=yes, 0=no) Not the same as outcome as in non-punished sessions outcome is always 1.
+                        'cue': 'None'                 # 'None', 'High', 'Low'. If you want a specific cue type.}
             response (int): 1 (left) or 2 (right) - this is the final choice
             first_choice (int): 1 (left) or 2 (right) - the first choice (not always the
              same as final choice in unpunished sessions)
