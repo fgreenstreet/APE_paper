@@ -1,24 +1,29 @@
 import os
-import sys
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
 import numpy as np
 import pandas as pd
+from set_global_params import processed_data_path, value_change_mice
 from utils.post_processing_utils import open_experiment
 from utils.value_change_utils import CustomAlignedDataRewardBlocks, get_all_experimental_records
 
+site = 'tail' # or 'Nacc'
 exp_name = 'value_change'
-processed_data_dir = os.path.join(os.getcwd(), 'value_change_data')
+processed_data_dir = os.path.join(processed_data_path, 'value_change_data')
 if not os.path.exists(processed_data_dir):
     os.makedirs(processed_data_dir)
 
 all_experiments = get_all_experimental_records()
-#block_types = pd.DataFrame({'block type': [1, 2, 3, 4, 5], 'left reward': [6, 4, 2, 2, 2], 'right reward': [2, 2, 2, 4, 6]})
 block_types = pd.DataFrame({'block type': [0, 1, 5], 'left reward': [2, 6, 2], 'right reward': [2, 2, 6]})
-mice = ['SNL_photo70', 'SNL_photo72', 'SNL_photo37', 'SNL_photo43', 'SNL_photo44'] #['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo34', 'SNL_photo35']
-#sessions = ['20210126', '20210127'] #['20200917', '20200918', '20200921'] for tail
 
-block_data_file = os.path.join(processed_data_dir, 'value_switch_all_tail_mice_test_new_mice_added.csv')
+mice = value_change_mice[site]
+if site == 'tail':
+    state_to_align_to = 5
+elif site == 'Nacc':
+    state_to_align_to = 3
+else:
+    print('recording site is not tail or Nacc')
+
+block_data_file = os.path.join(processed_data_dir, exp_name + '_' + site + '.csv')
+# used to be 'value_switch_all_tail_mice_test_new_mice_added.csv'
 
 if os.path.isfile(block_data_file):
     all_reward_block_data = pd.read_pickle(block_data_file)
@@ -28,12 +33,11 @@ else:
         for session_idx, date in enumerate(sessions):
             experiment_to_process = all_experiments[(all_experiments['date'] == date) & (all_experiments['mouse_id'] == mouse_id)]
             session_data, behavioural_data = open_experiment(experiment_to_process)
-            #for reward_block in range(1,6):
             for reward_block in ([0, 1, 5]):
                 one_reward_block_data = {}
                 print(reward_block)
                 try:
-                    params = {'state_type_of_interest': 3, # 5 for tail
+                    params = {'state_type_of_interest': state_to_align_to,
                         'outcome': 1,
                         'last_outcome': 0,  # NOT USED CURRENTLY
                         'no_repeats' : 1,
@@ -83,13 +87,3 @@ else:
                     pass
 
     all_reward_block_data.to_pickle(block_data_file)
-
-timepoints = all_reward_block_data['time points'].iloc[0]
-
-all_reward_block_data['Experiment'] = exp_name
-
-#plot_mean_trace_for_condition(all_reward_block_data[all_reward_block_data['mouse'] == 'SNL_photo28'], timepoints,
-#                              'contra reward amount', error_bar_method='ci', save_location=processed_data_dir)
-
-#plot_mean_trace_for_condition(all_reward_block_data[all_reward_block_data['mouse'] == 'SNL_photo28'], timepoints,
-#                              'relative reward amount', error_bar_method = 'ci', save_location=processed_data_dir)
