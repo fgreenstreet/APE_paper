@@ -1,9 +1,16 @@
+import os
+import peakutils
+from scipy.signal import decimate
+import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 import pandas as pd
-from scipy.signal import decimate
-import os
+from scipy import stats
+from statsmodels.stats.multitest import multipletests
 from utils.plotting import calculate_error_bars
-from matplotlib import cm
+from set_global_params import processed_data_path, fig5_plotting_colours, large_reward_omission_example_mice, daq_sample_rate
+from utils.plotting_visuals import makes_plots_pretty
+from utils.plotting import multi_conditions_plot
 
 
 def find_contra_and_ipsi_traces_for_criterion(pre_trials, post_trials, contra_data, ipsi_data):
@@ -84,42 +91,52 @@ def get_traces_and_reward_types(photometry_data, trial_data):
     return all_reward_type_data
 
 
-def plot_mean_trace_for_condition(ax, block_change_info, time_points, key, error_bar_method=None, save_location=None):
-    mouse = block_change_info['mouse'].iloc[0]
+def plot_mean_trace_for_condition(ax, trial_type_info, time_points, key, error_bar_method=None, save_location=None, colourmap=None):
+    """
+    Plots the average trace across trials for a single mouse for different values of a certain condition (e.g. reward amounts)
+    Args:
+        ax (matplotlib.axes._subplots.AxesSubplot): axes for plot
+        trial_type_info (pd.Dataframe):
+        time_points (np.array): time points for x-axis
+        key (str): column in trial_type_info to separate data by
+        error_bar_method (str): 'SEM', 'ci' or None
+        save_location (str): path where to save error bars or None
+
+    Returns:
+
+    """
+    mouse = trial_type_info['mouse'].iloc[0]
     if key == 'reward ipsi':
         condition = 'reward'
-        leg_title = condition
     elif key == 'side':
         condition = 'side'
-        leg_title = condition
     elif key == 'reward contra':
         condition = 'reward'
-        leg_title = condition
     elif key == 'reward':
         condition = 'reward'
-        leg_title = condition
     else:
         raise ValueError('Condition not recognised')
+    trial_types = np.sort(trial_type_info[condition].unique())
 
-    reward_amounts = np.sort(block_change_info[condition].unique())
-    colours = cm.inferno(np.linspace(0, 0.8, reward_amounts.shape[0]))
+    if not colourmap:
+        colours = colourmap(np.linspace(0, 0.8, trial_types.shape[0]))
+
     all_time_points = decimate(time_points, 10)
-    start_plot = int(all_time_points.shape[0] / 2 - 2 * 1000)
-    end_plot = int(all_time_points.shape[0] / 2 + 2 * 1000)
+    start_plot = int(all_time_points.shape[0] / 2 - 2 * daq_sample_rate/10)
+    end_plot = int(all_time_points.shape[0] / 2 + 2 * daq_sample_rate/10)
     time_points = all_time_points[start_plot: end_plot]
 
-
-    for reward_indx, reward_amount in enumerate(reward_amounts):
-        rows = block_change_info[(block_change_info[condition] == reward_amount)]
+    for trial_type_indx, trial_type in enumerate(trial_types):
+        rows = trial_type_info[(trial_type_info[condition] == trial_type)]
         traces = rows['traces'].values
         flat_traces = np.zeros([traces.shape[0], traces[0].shape[0]])
         for idx, trace in enumerate(traces):
             flat_traces[idx, :] = trace
         mean_trace = decimate(np.mean(flat_traces, axis=0), 10)[start_plot:end_plot]
-        ax.plot(time_points, mean_trace, lw=1.5, color=colours[reward_indx], label=reward_amount)
+        ax.plot(time_points, mean_trace, lw=1.5, color=colours[trial_type_indx], label=trial_type)
         if error_bar_method is not None:
             # bootstrapping takes a long time. calculate once and save:
-            filename = 'errors_clipped_short_{}_{}_{}.npz'.format(mouse, key, reward_amount)
+            filename = 'errors_clipped_short_{}_{}_{}.npz'.format(mouse, key, trial_type)
             if not os.path.isfile(os.path.join(save_location, filename)):
                 error_bar_lower, error_bar_upper = calculate_error_bars(mean_trace,
                                                                     decimate(flat_traces, 10)[:, start_plot:end_plot],
@@ -132,12 +149,90 @@ def plot_mean_trace_for_condition(ax, block_change_info, time_points, key, error
                 error_bar_lower = error_info['error_bar_lower']
                 error_bar_upper = error_info['error_bar_upper']
             ax.fill_between(time_points, error_bar_lower, error_bar_upper, alpha=0.5,
-                             facecolor=colours[reward_indx], linewidth=0)
+                             facecolor=colours[trial_type_indx], linewidth=0)
 
     ax.axvline(0, color='k')
     ax.set_xlim([-2, 2])
     ax.set_xlabel('time (s)')
     ax.set_ylabel('z-scored fluorescence')
-    #ax.set_title(condition)
-    #lg = ax.legend(title=leg_title, bbox_to_anchor=(1., 1.), fontsize=14)
-    #lg.get_title().set_fontsize(14)
+
+
+def get_processed_data_for_example_mouse(mouse_name, site_data):
+    time_points = site_data['time points'].reset_index(drop=True)[0]
+    all_trials = site_data[(site_data['mouse'] == mouse_name)]
+    return all_trials, time_points
+
+
+def make_example_traces_plot(site, site_data):
+    mouse_name = large_reward_omission_example_mice[site]
+    all_trials, time_points = get_processed_data_for_example_mouse(mouse_name, site_data)
+    processed_data_dir = os.path.join(processed_data_path, 'large_rewards_omissions_data')
+
+    fig, ax = plt.subplots(1, 1, figsize=[2.2, 2])
+    plot_mean_trace_for_condition(ax, all_trials, time_points,
+                                  'reward', error_bar_method='sem', save_location=processed_data_dir,
+                                  colourmap=fig5_plotting_colours[site])
+    lg1 = ax.legend(loc='lower left', bbox_to_anchor=(0.6, 0.8), borderaxespad=0, frameon=False, prop={'size': 6})
+    ax.set_ylim([-1.5, 4.1])
+    makes_plots_pretty(ax)
+    plt.tight_layout()
+
+
+def get_unexpected_reward_change_data_for_site(site):
+    processed_data_dir = os.path.join(processed_data_path, 'large_rewards_omissions_data')
+    block_data_file = os.path.join(processed_data_dir, 'all_{}_reward_change_data.csv'.format(site))
+    all_reward_block_data = pd.read_pickle(block_data_file)
+    return all_reward_block_data
+
+
+def compare_peaks_across_trial_types(site_data):
+    # find mean traces and down sample
+    avg_traces = site_data.groupby(['mouse', 'reward'])['traces'].apply(np.mean)
+    decimated = [decimate(trace[int(len(trace)/2):], 10) for trace in avg_traces]
+    avg_traces = avg_traces.reset_index()
+    avg_traces['decimated'] = pd.Series([_ for _ in decimated])
+
+    first_peak_ids = [peakutils.indexes(i)[0] for i in avg_traces['decimated']]
+    avg_traces['peakidx'] = first_peak_ids
+    peaks = [np.mean(trace[:600]) for idx, trace in zip(first_peak_ids, avg_traces['decimated'])]
+    avg_traces['peak'] = peaks
+    avg_traces.set_index(['mouse', 'reward'])
+
+    normal_peak = avg_traces[avg_traces['reward']=='normal']['peak']
+    large_reward_peak = avg_traces[avg_traces['reward']=='large reward']['peak']
+    omission_peak = avg_traces[avg_traces['reward']=='omission']['peak']
+    stat1, pval1 = stats.ttest_rel(normal_peak, large_reward_peak)
+    stat2, pval2 = stats.ttest_rel(normal_peak, omission_peak)
+
+    # Repeated measures anova to check for a main effect of reward.
+    # Subsequently, we want to do pairwise testing between the three reward conditions. Need to correct for multiple comparisons
+
+    reject, corrected_pvals, corrected_alpha_sidak, corrected_bonf = multipletests([pval1, pval2], method='bonferroni')
+
+    print(corrected_pvals)
+
+    df1 = avg_traces
+    df_for_plot = df1.pivot(index='reward', columns='mouse', values='peak').sort_values('reward', ascending=False)
+
+    fig, ax = plt.subplots(figsize=[2,2])
+    multi_conditions_plot(ax, df_for_plot, mean_line_color='#7FB5B5', mean_linewidth=3, show_err_bar=False)
+    plt.xticks([0, 1, 2], ['omission', 'normal\nreward', '3 x normal\nreward'], fontsize=7)
+    plt.ylabel('Z-scored fluorescence', fontsize=7)
+    ax.set_xlabel(' ')
+    #ax.text(1.2, 3, 'p-value = {0:.6f}'.format(corrected_pvals[1]))
+    #ax.text(0.1, 3, 'p-value = {0:.6f}'.format(corrected_pvals[0]))
+
+    # show significance stars
+    # for first comparison
+    y = df_for_plot.T['large reward'].max() + .2
+    h = .1
+    plt.plot([0, 0, 1, 1], [y, y+h, y+h, y],c='k',lw=1)
+    #ax.text(.5, y+h, 'n.s.', ha='center', fontsize=8)
+    #ax.text(.5, y+h, 'n.s.', ha='center', fontsize=8)
+    ax.text(.5, y+h, '****', ha='center', fontsize=8)
+    # for second comparison
+    l = .2
+    plt.plot([1, 1, 2, 2], [y+l, y+h+l, y+h+l, y+l],c='k', linewidth=1)
+    ax.text(1.5, y+h+l, '****', ha='center', fontsize=8)
+    ax.set_ylim([-1, 3.4])
+    plt.tight_layout()
