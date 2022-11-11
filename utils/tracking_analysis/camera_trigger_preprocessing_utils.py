@@ -4,12 +4,11 @@ sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_g
 sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
 import freely_moving_photometry_analysis.data_preprocessing.bpod_data_processing as bpod
 import numpy as np
-
+from set_global_params import daq_sample_rate
 
 def get_camera_trigger_times(mouse, date, protocol):
     daq_file = bpod.find_daq_file(mouse, date)
     data = nptdms.TdmsFile(daq_file)
-    sampling_rate = 10000
 
     main_session_file = bpod.find_bpod_file(mouse, date, protocol)
     loaded_bpod_file, trial_raw_events = bpod.load_bpod_file(main_session_file)
@@ -18,7 +17,7 @@ def get_camera_trigger_times(mouse, date, protocol):
     stim_trigger = data.group_channels('acq_task')[4].data
     stim_trigger_gaps = np.diff(stim_trigger)
     trial_start_ttls_daq_samples = np.where(stim_trigger_gaps > 2.595)
-    trial_start_ttls_daq = trial_start_ttls_daq_samples[0] / sampling_rate
+    trial_start_ttls_daq = trial_start_ttls_daq_samples[0] / daq_sample_rate
     daq_num_trials = trial_start_ttls_daq.shape[0]
     bpod_num_trials = trial_raw_events.shape[0]
     if daq_num_trials != bpod_num_trials:

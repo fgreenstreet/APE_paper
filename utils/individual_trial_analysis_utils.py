@@ -3,7 +3,7 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import peakutils
 import pandas as pd
-from set_global_params import processed_data_path
+from set_global_params import processed_data_path, daq_sample_rate
 
 
 class HeatMapParams(object):
@@ -41,7 +41,7 @@ class HeatMapParams(object):
         self.cue = params['cue']
 
 
-def get_photometry_around_event(all_trial_event_times, demodulated_trace, pre_window=5, post_window=5, sample_rate=10000):
+def get_photometry_around_event(all_trial_event_times, demodulated_trace, pre_window=5, post_window=5, sample_rate=daq_sample_rate):
     """
     Gets photometry traces around behavioural event times
     Args:

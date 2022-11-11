@@ -5,9 +5,10 @@ import pandas as pd
 import pickle
 from sklearn.metrics import explained_variance_score
 from sklearn.linear_model import LinearRegression
+from set_global_params import daq_sample_rate
 
 
-def rolling_zscore(x, window=10*10000):
+def rolling_zscore(x, window=10*daq_sample_rate):
     r = x.rolling(window=window)
     m = r.mean().shift(1)
     s = r.std(ddof=0).shift(1)
@@ -24,28 +25,28 @@ def turn_timestamps_into_continuous(num_samples, *behavioural_events):
     return continuous_parameters
 
 
-def convert_behavioural_timestamps_into_samples(time_stamps, window_to_remove, sample_rate=10000, decimate_factor=100):
+def convert_behavioural_timestamps_into_samples(time_stamps, window_to_remove, sample_rate=daq_sample_rate, decimate_factor=100):
     adjusted_stamps = (time_stamps - window_to_remove)*sample_rate/decimate_factor
     adjusted_stamps = np.round(np.vstack(adjusted_stamps).astype(np.float)).astype(int)
     return adjusted_stamps
 
 
-def make_design_matrix(parameters, window_min=-1*10000/100, window_max=1.5*10000/100):
+def make_design_matrix(parameters, window_min=-1*daq_sample_rate/100, window_max=1.5*daq_sample_rate/100):
     num_parameters = len(parameters)
     shifts = np.arange(window_min, window_max + 1)
     shift_window_size = shifts.shape[0]
     X = np.zeros([parameters[0].shape[0], shift_window_size*num_parameters])
     all_param_indices = []
-    for shift_num, shift_val in  enumerate(shifts):
+    for shift_num, shift_val in enumerate(shifts):
         for param_num, param in enumerate(parameters):
             param_indices = range(param_num*shift_window_size, param_num*shift_window_size + shift_window_size)
             all_param_indices.append(param_indices)
             shifted_param = shift(param, shift_val, cval=0)
             X[:, param_indices[shift_num]] = shifted_param
-    return(all_param_indices, X)
+    return all_param_indices, X
 
 
-def plot_kernels(parameter_names, regression_results, window_min=-1 * 10000 / 100, window_max=1.5 * 10000 / 100):
+def plot_kernels(parameter_names, regression_results, window_min=-1 * daq_sample_rate / 100, window_max=1.5 * daq_sample_rate / 100):
     fig, axs = plt.subplots(nrows=1, ncols=len(parameter_names), sharey=True, figsize=(15, 8))
     axs[0].set_ylabel('Regression coefficient')
     shifts = np.arange(window_min, window_max + 1) / 100
@@ -58,7 +59,7 @@ def plot_kernels(parameter_names, regression_results, window_min=-1 * 10000 / 10
         axs[param_name].axvline(0, color='k')
 
 
-def save_kernels(save_filename, parameter_names, regression_results, downsampled_dff, X, window_min=-1 * 10000 / 100, window_max=1.5 * 10000/ 100):
+def save_kernels(save_filename, parameter_names, regression_results, downsampled_dff, X, window_min=-1 * daq_sample_rate / 100, window_max=1.5 * daq_sample_rate/ 100):
     shifts = np.arange(window_min, window_max + 1) / 100
     shift_window_size = shifts.shape[0]
     param_kernels = {}
@@ -123,7 +124,7 @@ def get_first_x_sessions(sorted_experiment_record, x=3):
     return exps
 
 
-def remove_one_parameter(param_names, params_to_remove, old_coefs, old_X, window_min=-0.5*10000/100, window_max=1.5*10000/100):
+def remove_one_parameter(param_names, params_to_remove, old_coefs, old_X, window_min=-0.5*daq_sample_rate/100, window_max=1.5*daq_sample_rate/100):
     param_df = pd.DataFrame({'parameter': param_names})
     params_to_include = param_df[~param_df['parameter'].isin(params_to_remove)]
     params_to_include = params_to_include.reset_index(drop=False)
@@ -209,12 +210,12 @@ def make_design_matrix_different_shifts(parameters, all_shifts, shift_window_siz
 def make_shifts_for_params(param_names):
     shifts_for_params = []
     shift_window_sizes = []
-    shifts = {'high cues': np.arange(0, 1*10000/100 + 1),
-              'low cues': np.arange(0, 1*10000/100 + 1),
-              'ipsi choices': np.arange(-0.5*10000/100, 1.5*10000/100 + 1),
-              'contra choices': np.arange(-0.5*10000/100, 1.5*10000/100 + 1),
-              'rewards': np.arange(0, 1*10000/100 + 1),
-              'no rewards': np.arange(0, 1*10000/100 + 1)
+    shifts = {'high cues': np.arange(0, 1*daq_sample_rate/100 + 1),
+              'low cues': np.arange(0, 1*daq_sample_rate/100 + 1),
+              'ipsi choices': np.arange(-0.5*daq_sample_rate/100, 1.5*daq_sample_rate/100 + 1),
+              'contra choices': np.arange(-0.5*daq_sample_rate/100, 1.5*daq_sample_rate/100 + 1),
+              'rewards': np.arange(0, 1*daq_sample_rate/100 + 1),
+              'no rewards': np.arange(0, 1*daq_sample_rate/100 + 1)
              }
     for param in param_names:
         shifts_for_params.append(shifts[param])

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats
 from utils.post_processing_utils import remove_manipulation_days, remove_bad_recordings, remove_exps_after_manipulations_not_including_psychometric, get_all_experimental_records, remove_experiments
-from utils.plotting import two_conditions_plot, output_significance_stars_from_pval
+from utils.plotting import multi_conditions_plot, output_significance_stars_from_pval
 from set_global_params import processed_data_path, beginning_and_end_comparison_mice
 
 
@@ -102,7 +102,7 @@ def make_beginning_and_end_comparison_plot(ax, site='tail', colour='grey'):
     last_data = data['last session peak mean']
     stat, pval = stats.ttest_rel(first_data, last_data)
 
-    two_conditions_plot(ax, data.set_index('mouse').T, colour=colour, mean_linewidth=0, show_err_bar=False)
+    multi_conditions_plot(ax, data.set_index('mouse').T, colour=colour, mean_linewidth=0, show_err_bar=False)
 
     ax.set_xticks([0, 1], ['First session peak', 'Last session peak'], fontsize=6)
     ax.set_ylabel('Z-scored fluorescence', fontsize=6)

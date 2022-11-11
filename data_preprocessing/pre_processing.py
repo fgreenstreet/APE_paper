@@ -7,7 +7,7 @@ from utils.post_processing_utils  import get_all_experimental_records
 import os
 from scipy.signal import medfilt, butter, filtfilt
 from scipy.stats import linregress
-from set_global_params import processed_data_path
+from set_global_params import processed_data_path, daq_sample_rate
 
 
 def pre_process_experiment_lerner_deissroth(mouse, date, protocol):
@@ -24,7 +24,6 @@ def pre_process_experiment_lerner_deissroth(mouse, date, protocol):
     """
     daq_file = bpod.find_daq_file(mouse, date)
     data = nptdms.TdmsFile(daq_file)
-    sampling_rate = 10000
 
     main_session_file = bpod.find_bpod_file(mouse, date, protocol)
     loaded_bpod_file, trial_raw_events = bpod.load_bpod_file(main_session_file)
@@ -36,7 +35,7 @@ def pre_process_experiment_lerner_deissroth(mouse, date, protocol):
     stim_trigger = data.group_channels('acq_task')[4].data
     stim_trigger_gaps = np.diff(stim_trigger)
     trial_start_ttls_daq_samples = np.where(stim_trigger_gaps > 2.6)
-    trial_start_ttls_daq = trial_start_ttls_daq_samples[0] / sampling_rate
+    trial_start_ttls_daq = trial_start_ttls_daq_samples[0] / daq_sample_rate
     daq_num_trials = trial_start_ttls_daq.shape[0]
     bpod_num_trials = trial_raw_events.shape[0]
     if daq_num_trials != bpod_num_trials:
@@ -46,11 +45,11 @@ def pre_process_experiment_lerner_deissroth(mouse, date, protocol):
     else:
         print(daq_num_trials, 'trials in session')
 
-    df_clipped = lerner_deisseroth_preprocess(chan_0[sampling_rate * 6:], led465[sampling_rate * 6:],
-                                              led405[sampling_rate * 6:], sampling_rate)
-    df = np.pad(df_clipped, (6 * sampling_rate, 0), mode='median')
+    df_clipped = lerner_deisseroth_preprocess(chan_0[daq_sample_rate * 6:], led465[daq_sample_rate * 6:],
+                                              led405[daq_sample_rate * 6:], daq_sample_rate)
+    df = np.pad(df_clipped, (6 * daq_sample_rate, 0), mode='median')
     clock_diff = np.diff(clock)
-    clock_pulses = np.where(clock_diff > 2.6)[0] / sampling_rate
+    clock_pulses = np.where(clock_diff > 2.6)[0] / daq_sample_rate
 
     restructured_data = bpod.restructure_bpod_timestamps(loaded_bpod_file, trial_start_ttls_daq, clock_pulses)
 
@@ -88,7 +87,7 @@ def pre_process_experiment_pyphotometry(mouse, date, protocol):
     stim_trigger = data.group_channels('acq_task')[4].data
     stim_trigger_gaps = np.diff(stim_trigger)
     trial_start_ttls_daq_samples = np.where(stim_trigger_gaps > 2.595)
-    trial_start_ttls_daq = trial_start_ttls_daq_samples[0] / 10000
+    trial_start_ttls_daq = trial_start_ttls_daq_samples[0] / daq_sample_rate
     daq_num_trials = trial_start_ttls_daq.shape[0]
     bpod_num_trials = trial_raw_events.shape[0]
     if daq_num_trials != bpod_num_trials:
@@ -98,19 +97,19 @@ def pre_process_experiment_pyphotometry(mouse, date, protocol):
     else:
         print(daq_num_trials, 'trials in session')
 
-    sampling_rate = 10000
-    signal, background = demodulate(chan_0[sampling_rate * 6:], led465[sampling_rate * 6:], led405[sampling_rate * 6:], 10000)
+    daq_sample_rate = daq_sample_rate
+    signal, background = demodulate(chan_0[daq_sample_rate * 6:], led465[daq_sample_rate * 6:], led405[daq_sample_rate * 6:], daq_sample_rate)
 
     # Median filtering to remove electrical artifact.
     signal_denoised = medfilt(signal, kernel_size=5)
     back_denoised = medfilt(background, kernel_size=5)
 
     # Lowpass filter - zero phase filtering (with filtfilt) is used to avoid distorting the signal.
-    b, a = butter(2, 10, btype='low', fs=sampling_rate)
+    b, a = butter(2, 10, btype='low', fs=daq_sample_rate)
     signal_denoised = filtfilt(b, a, signal_denoised)
     back_denoised = filtfilt(b, a, back_denoised)
 
-    b, a = butter(2, 0.001, btype='high', fs=sampling_rate)
+    b, a = butter(2, 0.001, btype='high', fs=daq_sample_rate)
     signal_highpass = filtfilt(b, a, signal_denoised, padtype='even')
     back_highpass = filtfilt(b, a, back_denoised, padtype='even')
 
@@ -122,15 +121,15 @@ def pre_process_experiment_pyphotometry(mouse, date, protocol):
     signal_est_motion = intercept + slope * back_highpass
     signal_corrected = signal_highpass - signal_est_motion
 
-    b, a = butter(2, 0.001, btype='low', fs=sampling_rate)
+    b, a = butter(2, 0.001, btype='low', fs=daq_sample_rate)
     baseline_fluorescence = filtfilt(b, a, signal_denoised, padtype='even')
 
     signal_dF_F = signal_corrected / baseline_fluorescence
-    b, a = butter(2, 3, btype='low', fs=sampling_rate)
+    b, a = butter(2, 3, btype='low', fs=daq_sample_rate)
     smoothed_signal = filtfilt(b, a, signal_dF_F, padtype='even')
-    smoothed_signal = np.pad(smoothed_signal, (6 * sampling_rate, 0), mode='median')
+    smoothed_signal = np.pad(smoothed_signal, (6 * daq_sample_rate, 0), mode='median')
     clock_diff = np.diff(clock)
-    clock_pulses = np.where(clock_diff > 2.6)[0] / 10000
+    clock_pulses = np.where(clock_diff > 2.6)[0] / daq_sample_rate
 
     restructured_data = bpod.restructure_bpod_timestamps(loaded_bpod_file, trial_start_ttls_daq, clock_pulses)
 

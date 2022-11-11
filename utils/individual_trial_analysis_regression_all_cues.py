@@ -3,7 +3,7 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import peakutils
 import pandas as pd
-from set_global_params import processed_data_path
+from set_global_params import processed_data_path, daq_sample_rate
 
 class HeatMapParams(object):
     def __init__(self, params, response, first_choice):
@@ -22,7 +22,7 @@ class HeatMapParams(object):
         self.cue = params['cue']
 
 
-def get_photometry_around_event(all_trial_event_times, demodulated_trace, pre_window=5, post_window=5, sample_rate=10000):
+def get_photometry_around_event(all_trial_event_times, demodulated_trace, pre_window=5, post_window=5, sample_rate=daq_sample_rate):
     num_events = len(all_trial_event_times)
     event_photo_traces = np.zeros((num_events, sample_rate*(pre_window + post_window)))
     for event_num, event_time in enumerate(all_trial_event_times):

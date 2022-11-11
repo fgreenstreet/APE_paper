@@ -5,6 +5,7 @@ from matplotlib import colors, cm
 from tqdm import tqdm
 import matplotlib
 from scipy.signal import decimate
+from set_global_params import daq_sample_rate
 
 import seaborn as sns
 from utils.individual_trial_analysis_utils import SessionData, ChoiceAlignedData, ZScoredTraces
@@ -25,7 +26,7 @@ class HeatMapParams(object):
         self.first_choice_correct = first_choice_correct
         self.first_choice = first_choice
 
-def get_photometry_around_event(all_trial_event_times, demodulated_trace, pre_window=5, post_window=5, sample_rate=10000):
+def get_photometry_around_event(all_trial_event_times, demodulated_trace, pre_window=5, post_window=5, sample_rate=daq_sample_rate):
     num_events = len(all_trial_event_times)
     event_photo_traces = np.zeros((num_events, sample_rate*(pre_window + post_window)))
     for event_num, event_time in enumerate(all_trial_event_times):
@@ -416,7 +417,7 @@ class rewardData(object):
         self.contra_CI = dff_events_contra[3]
 
 
-def two_conditions_plot(ax, data, show_err_bar=False, mean_linewidth=4, mean_line_color='blue', colour='grey', legend=False):
+def multi_conditions_plot(ax, data, show_err_bar=False, mean_linewidth=4, mean_line_color='blue', colour='grey', legend=False):
     """Plot lines for all mice from early to late.
     """
     data.plot(ax=ax, color=colour, legend=False)
