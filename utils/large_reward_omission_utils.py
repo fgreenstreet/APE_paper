@@ -10,24 +10,19 @@ from statsmodels.stats.multitest import multipletests
 from utils.plotting import calculate_error_bars
 from set_global_params import processed_data_path, fig5_plotting_colours, large_reward_omission_example_mice, daq_sample_rate
 from utils.plotting_visuals import makes_plots_pretty
-from utils.plotting import multi_conditions_plot
-
-
-def find_contra_and_ipsi_traces_for_criterion(pre_trials, post_trials, contra_data, ipsi_data):
-    _, pre_contra_trials, _ = np.intersect1d(contra_data.trial_nums, pre_trials, return_indices=True)
-    _, post_contra_trials, _ = np.intersect1d(contra_data.trial_nums, post_trials, return_indices=True)
-    _, pre_ipsi_trials, _ = np.intersect1d(ipsi_data.trial_nums, pre_trials, return_indices=True)
-    _, post_ipsi_trials, _ = np.intersect1d(ipsi_data.trial_nums, post_trials, return_indices=True)
-    pre_contra_traces = contra_data.sorted_traces[pre_contra_trials, :]
-    post_contra_traces = contra_data.sorted_traces[post_contra_trials, :]
-    pre_ipsi_traces = contra_data.sorted_traces[pre_ipsi_trials, :]
-    post_ipsi_traces = contra_data.sorted_traces[post_ipsi_trials, :]
-    pre_both_traces = np.concatenate([pre_contra_traces, pre_ipsi_traces])
-    post_both_traces = np.concatenate([post_contra_traces, post_ipsi_traces])
-    return pre_contra_traces, post_contra_traces, pre_ipsi_traces, post_ipsi_traces, pre_both_traces, post_both_traces
+from utils.plotting import multi_conditions_plot, output_significance_stars_from_pval
 
 
 def get_traces_and_reward_types(photometry_data, trial_data):
+    """
+    Reformats photometry data and behavioural data into a dataframe together for unexpected reward change experiment
+    Args:
+        photometry_data (np.array): photometry data
+        trial_data (pd.dataframe): behavioural data
+
+    Returns:
+        all_reward_type_data (pd.dataframe): behavioural data and photometry combined
+    """
     omission_trials = trial_data.loc[trial_data['State type'] == 10]['Trial num'].values
     left_large_reward_trials = trial_data.loc[trial_data['State type'] == 12]['Trial num'].values
     right_large_reward_trials = trial_data.loc[trial_data['State type'] == 13]['Trial num'].values
@@ -55,11 +50,8 @@ def get_traces_and_reward_types(photometry_data, trial_data):
     pre_ipsi_traces = ipsi_data.sorted_traces[pre_ipsi_trials, :]
     post_ipsi_traces = ipsi_data.sorted_traces[post_ipsi_trials, :]
     omission_ipsi_traces = ipsi_data.sorted_traces[omission_ipsi_trials, :]
-    pre_both_traces = np.concatenate([pre_contra_traces, pre_ipsi_traces])
-    post_both_traces = np.concatenate([post_contra_traces, post_ipsi_traces])
     all_contra_trial_nums = np.concatenate([pre_contra_trial_nums, post_contra_trial_nums])
     all_ipsi_trial_nums = np.concatenate([pre_ipsi_trial_nums, post_ipsi_trial_nums])
-    all_pre_trial_nums = np.concatenate([pre_ipsi_trial_nums, pre_contra_trial_nums])
     all_post_trial_nums = np.concatenate([post_contra_trial_nums, post_ipsi_trial_nums])
     all_trial_nums = np.concatenate([all_contra_trial_nums, all_ipsi_trial_nums])
     all_contra_traces = np.concatenate([pre_contra_traces, post_contra_traces])
@@ -120,6 +112,8 @@ def plot_mean_trace_for_condition(ax, trial_type_info, time_points, key, error_b
 
     if not colourmap:
         colours = colourmap(np.linspace(0, 0.8, trial_types.shape[0]))
+    else:
+        colours = colourmap
 
     all_time_points = decimate(time_points, 10)
     start_plot = int(all_time_points.shape[0] / 2 - 2 * daq_sample_rate/10)
@@ -158,12 +152,31 @@ def plot_mean_trace_for_condition(ax, trial_type_info, time_points, key, error_b
 
 
 def get_processed_data_for_example_mouse(mouse_name, site_data):
+    """
+    Gets example mouse data
+    Args:
+        mouse_name (str): example mouse
+        site_data (pd.dataframe): behavioural and photometry data for all mice recorded at a given site
+
+    Returns:
+        all_trials (pd.dataframe): photometry and behavioural data for an example mouse
+        time_points (np.array): time_points for traces for example trace plot
+    """
     time_points = site_data['time points'].reset_index(drop=True)[0]
     all_trials = site_data[(site_data['mouse'] == mouse_name)]
     return all_trials, time_points
 
 
 def make_example_traces_plot(site, site_data):
+    """
+    Maks plot with traces for different reward amounts aligned to outcome for a recording site
+    Args:
+        site (str): Recording site (Nacc or tail)
+        site_data (pd.Dataframe): behavioural and trace data for trials of different reward amounts, for multiple mice,
+            all recorded at the same site
+    Returns:
+
+    """
     mouse_name = large_reward_omission_example_mice[site]
     all_trials, time_points = get_processed_data_for_example_mouse(mouse_name, site_data)
     processed_data_dir = os.path.join(processed_data_path, 'large_rewards_omissions_data')
@@ -179,13 +192,31 @@ def make_example_traces_plot(site, site_data):
 
 
 def get_unexpected_reward_change_data_for_site(site):
+    """
+    Gets behavioural and photometry data for unexpected reward change experiment
+    Args:
+        site (str): recording site (Nacc or tail)
+
+    Returns:
+        all_reward_block_data (pd.dataframe): photometry and behavioural data
+    """
     processed_data_dir = os.path.join(processed_data_path, 'large_rewards_omissions_data')
     block_data_file = os.path.join(processed_data_dir, 'all_{}_reward_change_data.csv'.format(site))
     all_reward_block_data = pd.read_pickle(block_data_file)
     return all_reward_block_data
 
 
-def compare_peaks_across_trial_types(site_data):
+def compare_peaks_across_trial_types(site_data, colour='gray'):
+    """
+    Compares peak response size for different reward amounts
+    Args:
+        site_data (pd.Dataframe): behavioural and trace data for trials of different reward amounts, for multiple mice,
+            all recorded at the same site
+        colour (str): colour for lines in plot
+
+    Returns:
+
+    """
     # find mean traces and down sample
     avg_traces = site_data.groupby(['mouse', 'reward'])['traces'].apply(np.mean)
     decimated = [decimate(trace[int(len(trace)/2):], 10) for trace in avg_traces]
@@ -198,9 +229,9 @@ def compare_peaks_across_trial_types(site_data):
     avg_traces['peak'] = peaks
     avg_traces.set_index(['mouse', 'reward'])
 
-    normal_peak = avg_traces[avg_traces['reward']=='normal']['peak']
-    large_reward_peak = avg_traces[avg_traces['reward']=='large reward']['peak']
-    omission_peak = avg_traces[avg_traces['reward']=='omission']['peak']
+    normal_peak = avg_traces[avg_traces['reward'] == 'normal']['peak']
+    large_reward_peak = avg_traces[avg_traces['reward'] =='large reward']['peak']
+    omission_peak = avg_traces[avg_traces['reward'] =='omission']['peak']
     stat1, pval1 = stats.ttest_rel(normal_peak, large_reward_peak)
     stat2, pval2 = stats.ttest_rel(normal_peak, omission_peak)
 
@@ -214,25 +245,22 @@ def compare_peaks_across_trial_types(site_data):
     df1 = avg_traces
     df_for_plot = df1.pivot(index='reward', columns='mouse', values='peak').sort_values('reward', ascending=False)
 
-    fig, ax = plt.subplots(figsize=[2,2])
-    multi_conditions_plot(ax, df_for_plot, mean_line_color='#7FB5B5', mean_linewidth=3, show_err_bar=False)
+    fig, ax = plt.subplots(figsize=[1.5, 2])
+    multi_conditions_plot(ax, df_for_plot, mean_linewidth=0, show_err_bar=False, colour=colour)
     plt.xticks([0, 1, 2], ['omission', 'normal\nreward', '3 x normal\nreward'], fontsize=7)
     plt.ylabel('Z-scored fluorescence', fontsize=7)
     ax.set_xlabel(' ')
-    #ax.text(1.2, 3, 'p-value = {0:.6f}'.format(corrected_pvals[1]))
-    #ax.text(0.1, 3, 'p-value = {0:.6f}'.format(corrected_pvals[0]))
-
     # show significance stars
     # for first comparison
     y = df_for_plot.T['large reward'].max() + .2
     h = .1
     plt.plot([0, 0, 1, 1], [y, y+h, y+h, y],c='k',lw=1)
-    #ax.text(.5, y+h, 'n.s.', ha='center', fontsize=8)
-    #ax.text(.5, y+h, 'n.s.', ha='center', fontsize=8)
-    ax.text(.5, y+h, '****', ha='center', fontsize=8)
+    significance_stars1 = output_significance_stars_from_pval(corrected_pvals[0])
+    ax.text(.5, y+h, significance_stars1, ha='center', fontsize=8)
     # for second comparison
     l = .2
     plt.plot([1, 1, 2, 2], [y+l, y+h+l, y+h+l, y+l],c='k', linewidth=1)
-    ax.text(1.5, y+h+l, '****', ha='center', fontsize=8)
+    significance_stars2 = output_significance_stars_from_pval(corrected_pvals[1])
+    ax.text(1.5, y+h+l, significance_stars2, ha='center', fontsize=8)
     ax.set_ylim([-1, 3.4])
     plt.tight_layout()
