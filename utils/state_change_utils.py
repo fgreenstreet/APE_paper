@@ -134,7 +134,7 @@ def pre_post_state_change_plot(df_for_plot, colour='gray'):
     post_peaks = df_for_plot.T['post'].values
     stat, pval = stats.ttest_rel(pre_peaks, post_peaks)
 
-    fig, ax = plt.subplots(figsize=[2, 2])
+    fig, ax = plt.subplots(figsize=[1.5, 2])
     multi_conditions_plot(ax, df_for_plot, mean_linewidth=0, show_err_bar=False, colour=colour)
     plt.xticks([0, 1], ['pre state\nchange', 'post state\nchange'], fontsize=8)
     plt.ylabel('Z-scored fluorescence', fontsize=8)
