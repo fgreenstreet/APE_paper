@@ -137,8 +137,6 @@ def open_experiment(experiment_to_add):
         saving_folder = processed_data_path + experiment['mouse_id'] + '\\'
         restructured_data_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'restructured_data.pkl'
         trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
-        dff_trace_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'smoothed_signal.npy'
-        dff = np.load(saving_folder + dff_trace_filename)
         session_traces = SessionData(experiment['fiber_side'], experiment['recording_site'], experiment['mouse_id'], experiment['date'])
     return session_traces, trial_data
 
@@ -157,8 +155,6 @@ def open_one_experiment(experiment):
     saving_folder = processed_data_path + experiment['mouse_id'] + '\\'
     restructured_data_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'restructured_data.pkl'
     trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
-    dff_trace_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'smoothed_signal.npy'
-    dff = np.load(saving_folder + dff_trace_filename)
     session_traces = SessionData(experiment['fiber_side'], experiment['recording_site'], experiment['mouse_id'], experiment['date'])
     return trial_data, session_traces
 

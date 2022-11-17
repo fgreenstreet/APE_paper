@@ -26,6 +26,7 @@ class HeatMapParams(object):
         self.first_choice_correct = first_choice_correct
         self.first_choice = first_choice
 
+
 def get_photometry_around_event(all_trial_event_times, demodulated_trace, pre_window=5, post_window=5, sample_rate=daq_sample_rate):
     num_events = len(all_trial_event_times)
     event_photo_traces = np.zeros((num_events, sample_rate*(pre_window + post_window)))
@@ -41,6 +42,7 @@ def get_photometry_around_event(all_trial_event_times, demodulated_trace, pre_wi
         #   event_photo_traces = event_photo_traces[:event_num,:] 
     print(event_photo_traces.shape)
     return event_photo_traces
+
 
 def get_next_centre_poke(trial_data, events_of_int):
     trial_numbers = events_of_int['Trial num'].values
@@ -259,37 +261,6 @@ def plot_one_side(one_side_data, fig,  ax1, ax2, dff_range=None, error_bar_metho
     return heat_im
 
 
-def multiple_conditions_plot(trial_data, demod_signal, mouse, date, *param_set):
-    norm_window = 10
-    fig, axs = plt.subplots(1, ncols=1, figsize=(4, 7))
-    mean_colours = ['#3F888F', '#CC4F1B', '#7BC17E', '#B39283']
-    sem_colours = ['#7FB5B5', '#CC6600', '#A4D1A2', '#D8CFC4']
-    legend_list = []
-
-    for param_num, params in enumerate(param_set):
-        x_vals, y_vals, sem, sorted_traces, sorted_last_event, state_name, title = get_mean_and_sem(trial_data, demod_signal, params)
-        legend_list.append(title)
-    
-        num_state_types = trial_data['State type'].unique().shape[0]
-        
-        axs.title.set_text(state_name + ' mean')
-        axs.plot(x_vals, y_vals,lw=3,color=mean_colours[param_num], label=title)
-        axs.fill_between(x_vals, y_vals-sem, y_vals+sem, alpha=0.5, facecolor=sem_colours[param_num], linewidth=0)
-
-        #for trace_num in range(0,norm_traces.shape[1]):
-        #    axs[0].plot(x_vals, norm_traces[:,trace_num],alpha=0.5, color='#7FB5B5', lw=0.2)
-
-        axs.axvline(0, color='k', linewidth=2)
-        axs.set_xlim(params.plot_range)
-        axs.set_xlabel('Time (s)')
-        axs.set_ylabel('z-score')
-        axs.set_ylim(-6,6)
-    
-        axs.legend(frameon=False)
-    fig.text(0.06, 0.02, mouse + ' ' + date, fontsize=12)
-    return sorted_traces
-
-
 def calculate_error_bars(mean_trace, data, error_bar_method='sem'):
     """
     Calculates error bars for trace
@@ -335,90 +306,19 @@ def bootstrap(data, n_boot=10000, ci=68):
     return s1, s2
 
 
-class correctData(object):
-    def __init__(self, fiber_side, mouse_id, date, trial_data, dff):
-        
-        self.mouse = mouse_id
-        self.fiber_side = fiber_side
-        self.date = date
-        
-        fiber_options = np.array(['left', 'right'])
-        fiber_side_numeric = (np.where(fiber_options == fiber_side)[0] + 1)[0]
-        
-        state_type_of_interest = 4
-        outcome = 1
-        last_outcome = 0 # NOT USED CURRENLY
-        no_repeats = 1
-        last_response = 0
-        align_to = 'Time start'
-        instance = -1
-        plot_range = [-2,3]
-        first_choice_correct = 1
-           
-        response = fiber_side_numeric
-        first_choice = fiber_side_numeric
-        plotting_params = HeatMapParams(state_type_of_interest, response, first_choice, last_response, outcome, last_outcome, first_choice_correct, align_to, instance, no_repeats, plot_range)
-        dff_events_ipsi = heat_map_and_mean(trial_data,dff, plotting_params, mouse_id, date)
-        
-        self.ipsi_mean_x_vals = dff_events_ipsi[1]
-        self.ipsi_mean_y_vals = dff_events_ipsi[2]
-        self.ipsi_CI = dff_events_ipsi[3]
-        
-        contra_fiber_side_numeric = (np.where(fiber_options != fiber_side)[0] + 1)[0]
-        response = contra_fiber_side_numeric
-        first_choice = contra_fiber_side_numeric
-        plotting_params = HeatMapParams(state_type_of_interest, response, first_choice, last_response, outcome, last_outcome, first_choice_correct, align_to, instance, no_repeats, plot_range)
-        dff_events_contra = heat_map_and_mean(trial_data,dff, plotting_params, mouse_id, date)
-        
-        self.contra_mean_x_vals = dff_events_contra[1]
-        self.contra_mean_y_vals = dff_events_contra[2]
-        self.contra_CI = dff_events_contra[3]
+def multi_conditions_plot(ax, data, show_err_bar=False, mean_linewidth=4, mean_line_color='blue', colour='grey'):
+    """
+    Produces a line plot comparing different conditions for multiple animals, showing significance stars
+    Args:
+        ax (matplotlib.axes._subplots.AxesSubplot): axes for plot
+        data (pd.dataframe): data to plot
+        show_err_bar (bool): produce error bars on mean line?
+        mean_linewidth (float): width of mean line - if no mean line is desired = 0
+        mean_line_color (str): colour for mean line
+        colour (str): colour for individual subject lines
 
+    Returns:
 
-
-class rewardData(object):
-    def __init__(self, fiber_side, mouse_id, date, trial_data, dff):
-        self.mouse = mouse_id
-        self.fiber_side = fiber_side
-        self.date = date
-
-        fiber_options = np.array(['left', 'right'])
-        fiber_side_numeric = (np.where(fiber_options == fiber_side)[0] + 1)[0]
-
-        state_type_of_interest = 5
-        outcome = 1
-        last_outcome = 0  # NOT USED CURRENLY
-        no_repeats = 1
-        last_response = 0
-        align_to = 'Time end'
-        instance = 1
-        plot_range = [-2, 3]
-        first_choice_correct = 1
-
-        response = fiber_side_numeric
-        first_choice = fiber_side_numeric
-        plotting_params = HeatMapParams(state_type_of_interest, response, first_choice, last_response, outcome,
-                                        last_outcome, first_choice_correct, align_to, instance, no_repeats, plot_range)
-        dff_events_ipsi = heat_map_and_mean(trial_data, dff, plotting_params, mouse_id, date)
-
-        self.ipsi_mean_x_vals = dff_events_ipsi[1]
-        self.ipsi_mean_y_vals = dff_events_ipsi[2]
-        self.ipsi_CI = dff_events_ipsi[3]
-
-        contra_fiber_side_numeric = (np.where(fiber_options != fiber_side)[0] + 1)[0]
-        response = contra_fiber_side_numeric
-        first_choice = contra_fiber_side_numeric
-        plotting_params = HeatMapParams(state_type_of_interest, response, first_choice, last_response, outcome,
-                                        last_outcome, first_choice_correct, align_to, instance, no_repeats, plot_range)
-        dff_events_contra = heat_map_and_mean(trial_data, dff, plotting_params, mouse_id, date)
-
-        self.contra_mean_x_vals = dff_events_contra[1]
-        self.contra_mean_y_vals = dff_events_contra[2]
-        self.contra_CI = dff_events_contra[3]
-
-
-def multi_conditions_plot(ax, data, show_err_bar=False, mean_linewidth=4, mean_line_color='blue', colour='grey', legend=False):
-    """Plot lines for all mice from early to late.
     """
     data.plot(ax=ax, color=colour, legend=False)
     data.mean(1).plot(ax=ax, linewidth=mean_linewidth, color=mean_line_color)
@@ -428,10 +328,8 @@ def multi_conditions_plot(ax, data, show_err_bar=False, mean_linewidth=4, mean_l
 
         plt.errorbar(np.array([0, 1]), data.mean(1), yerr, color=mean_line_color, linewidth=4)
 
-    # drop the left and bottom spine for cool looking effect
     ax.spines['left'].set_position(('outward', 10))
     ax.spines['bottom'].set_position(('outward', 10))
-    # Hide the right and top spines
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
 

@@ -1,9 +1,8 @@
 from utils.large_reward_omission_utils import make_example_traces_plot, get_unexpected_reward_change_data_for_site, compare_peaks_across_trial_types
 from utils.plotting_visuals import set_plotting_defaults
 from set_global_params import fig5_plotting_colours
-
-
 import matplotlib.pyplot as plt
+
 sites = ['Nacc', 'tail']
 
 set_plotting_defaults()
