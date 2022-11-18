@@ -5,6 +5,8 @@ from set_global_params import processed_data_path, value_change_mice
 from utils.post_processing_utils import open_experiment
 from utils.value_change_utils import CustomAlignedDataRewardBlocks, get_all_experimental_records
 
+
+# TODO: some of the files are pickle protocol 5
 site = 'tail' # or 'Nacc'
 exp_name = 'value_change'
 processed_data_dir = os.path.join(processed_data_path, 'value_change_data')
@@ -23,7 +25,7 @@ else:
     print('recording site is not tail or Nacc')
 
 block_data_file = os.path.join(processed_data_dir, exp_name + '_' + site + '.csv')
-# used to be 'value_switch_all_tail_mice_test_new_mice_added.csv'
+# used to be 'value_switch_all_tail_mice_test_new_mice_added.csv' and 'value_switch_nacc_mice.csv'
 
 if os.path.isfile(block_data_file):
     all_reward_block_data = pd.read_pickle(block_data_file)
