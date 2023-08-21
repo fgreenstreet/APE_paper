@@ -14,7 +14,7 @@ def get_all_experimental_records():
     Returns:
         experiment_record (pd.dataframe): experimental record
     """
-    experiment_record = pd.read_csv(experiment_record_path)
+    experiment_record = pd.read_csv(experiment_record_path, dtype=str)
     experiment_record['date'] = experiment_record['date'].astype(str)
     return experiment_record
 

@@ -51,6 +51,8 @@ def get_correct_data_for_plot(session_data, plot_type):
         output_data = session_data.outcome_data.reward_data, 'event start' #'next trial'
     elif plot_type == 'unrewarded':
         output_data = session_data.outcome_data.no_reward_data, 'event start' #'next trial'
+    elif plot_type == 'cue':
+        output_data = session_data.cue_data.contra_data, 'event start'
     else:
         raise ValueError('Unknown type of plot specified.')
     return output_data
@@ -157,43 +159,11 @@ def plot_average_trace(ax, data, error_bar_method='sem', colour='navy'):
     ax.set_ylabel('z-score')
 
 
-def get_all_mouse_data_for_site(site):
-    dir = 'W:\\photometry_2AC\\processed_data\\for_figure\\'
-    file_name = 'group_data_avg_across_sessions_' + site + '_new_mice_added_with_cues.npz'  #'group_data_avg_across_sessions_' + site + '.npz'
+def get_all_mouse_data_for_site(site, file_ext='_new_mice_added_with_cues.npz'):
+    dir = 'T:\\photometry_2AC\\processed_data\\for_figure\\'
+    file_name = 'group_data_avg_across_sessions_' + site + file_ext  #'group_data_avg_across_sessions_' + site + '.npz'
     data = np.load(dir + file_name)
     return data
-
-
-def plot_average_trace_all_mice_seperate_ts_and_vs(contra_ax, ipsi_ax, rew_ax, unrew_ax, cue_ax, site, error_bar_method='sem', colour='navy', x_range=[-1.5, 1.5]):
-    all_data = get_all_mouse_data_for_site(site)
-    time_stamps = all_data['time_stamps']
-    data = dict(all_data)
-    del data['time_stamps']
-    axs = {'contra_choice': contra_ax, 'ipsi_choice': ipsi_ax, 'reward': rew_ax, 'no_reward': unrew_ax, 'cue': cue_ax}
-    for trace_type, traces in data.items():
-        mean_trace = decimate(np.mean(traces, axis=0), 10)
-        time_points = decimate(time_stamps, 10)
-        traces = decimate(traces, 10)
-        mean_trace = mean_trace[int(traces.shape[1] / 2) + int(x_range[0] * 1000): int(traces.shape[1] / 2) + int(
-            x_range[1] * 1000)]
-        time_points = time_points[int(traces.shape[1] / 2) + int(x_range[0] * 1000): int(traces.shape[1] / 2) + int(
-            x_range[1] * 1000)]
-        traces = traces[:, int(traces.shape[1] / 2) + int(x_range[0] * 1000): int(traces.shape[1] / 2) + int(
-            x_range[1] * 1000)]
-        axs[trace_type].plot(time_points, mean_trace, lw=1, color=colour)# color='navy')
-
-        if error_bar_method is not None:
-            error_bar_lower, error_bar_upper = calculate_error_bars(mean_trace,
-                                                                    traces,
-                                                                    error_bar_method=error_bar_method)
-            axs[trace_type].fill_between(time_points, error_bar_lower, error_bar_upper, alpha=0.5,
-                                 facecolor=colour, linewidth=0)
-
-
-        axs[trace_type].axvline(0, color='k', linewidth=0.8)
-        axs[trace_type].set_xlabel('Time (s)')
-        axs[trace_type].set_ylabel('z-score')
-        axs[trace_type].set_xlim([-1.5, 1.5])
 
 
 def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5]):
@@ -210,7 +180,7 @@ def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem
     Returns:
 
     """
-    all_data = get_all_mouse_data_for_site(site)
+    all_data = get_all_mouse_data_for_site(site, file_ext='_new_mice_added_with_cues.npz')
     time_stamps = all_data['time_stamps']
     data = dict(all_data)
     del data['time_stamps'], data['cue']
@@ -240,6 +210,55 @@ def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem
         axs[trace_type].set_xlabel('Time (s)')
         axs[trace_type].set_ylabel('z-score')
         axs[trace_type].set_xlim([-1.5, 1.5])
+
+
+def plot_average_trace_all_mice_cue_move_rew(cue_ax, move_ax, outcome_ax, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5]):
+    """
+    Plots the average trace across mice for movement (contra, ipsi) and outcome (reward, no reward) aligned data
+    Args:
+        cue_ax (matplotlib.axes._subplots.AxesSubplot): axes to plot contra cue aligned traces
+        move_ax (matplotlib.axes._subplots.AxesSubplot): axes to plot contra movement aligned traces
+        outcome_ax (matplotlib.axes._subplots.AxesSubplot): axes to plot correct outcome aligned data
+        site (str): 'VS' or 'TS'
+        error_bar_method (str): sem or ci or None
+        cmap (list): colours for the two types of data (TS vs VS)
+        x_range (list): time window around behavioural event on x-axis
+
+    Returns:
+    """
+    sites = ['tail', 'Nacc']
+    for i, site in enumerate(sites):
+        all_data = get_all_mouse_data_for_site(site, file_ext='_new_mice_added_with_cues.npz')
+        time_stamps = all_data['time_stamps']
+        data = dict(all_data)
+        del data['time_stamps'], data['ipsi_choice'], data['no_reward']
+        axs = {'cue': cue_ax, 'contra_choice': move_ax, 'reward': outcome_ax}
+        colours = {'contra_choice': cmap[i], 'cue': cmap[i], 'reward': cmap[i]}
+        for trace_type, traces in data.items():
+            mean_trace = decimate(np.mean(traces, axis=0), 10)
+            time_points = decimate(time_stamps, 10)
+            traces = decimate(traces, 10)
+            mean_trace = mean_trace[int(traces.shape[1] / 2) + int(x_range[0] * 1000): int(traces.shape[1] / 2) + int(
+                x_range[1] * 1000)]
+            time_points = time_points[int(traces.shape[1] / 2) + int(x_range[0] * 1000): int(traces.shape[1] / 2) + int(
+                x_range[1] * 1000)]
+            traces = traces[:, int(traces.shape[1] / 2) + int(x_range[0] * 1000): int(traces.shape[1] / 2) + int(
+                x_range[1] * 1000)]
+            axs[trace_type].plot(time_points, mean_trace, lw=1, color=colours[trace_type])# color='navy')
+
+            if error_bar_method is not None:
+                error_bar_lower, error_bar_upper = calculate_error_bars(mean_trace,
+                                                                        traces,
+                                                                        error_bar_method=error_bar_method)
+                axs[trace_type].fill_between(time_points, error_bar_lower, error_bar_upper, alpha=0.5,
+                                     facecolor=colours[trace_type], linewidth=0)
+
+
+            axs[trace_type].axvline(0, color='k', linewidth=0.8)
+            axs[trace_type].set_xlabel('Time (s)')
+            axs[trace_type].set_ylabel('z-score')
+            axs[trace_type].set_xlim([-1.5, 1.5])
+
 
 
 def plot_heat_map(ax, data, white_dot_point, flip_sort_order, dff_range=None, x_range=[-1.5, 1.5], cmap='viridis'):

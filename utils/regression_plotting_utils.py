@@ -9,7 +9,7 @@ from set_global_params import experiment_record_path, processed_data_path
 
 
 def get_regression_data_for_plot(recording_site='tail'):
-    experiment_record = pd.read_csv(experiment_record_path)
+    experiment_record = pd.read_csv(experiment_record_path, dtype=str)
     experiment_record['date'] = experiment_record['date'].astype(str)
 
     if recording_site == 'tail':

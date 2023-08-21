@@ -2,8 +2,9 @@ import peakutils
 import pickle
 from tqdm import tqdm
 import numpy as np
+import os
 from set_global_params import processed_data_path
-
+import matplotlib.pyplot as plt
 
 def get_peak_times(traces, time_stamps):
     zero_ind = (np.abs(time_stamps)).argmin()
@@ -18,6 +19,15 @@ def get_peak_times(traces, time_stamps):
     return peak_times
 
 
+def get_standard_dev_of_baseline_slopes():
+    dir = processed_data_path + 'for_figure\\'
+    file_name = 'thresholds_for_rise_time.npz'
+    trace_slope_sds = np.load(os.path.join(dir, file_name))
+    all_trace_slope_sds = np.concatenate([trace_slope_sds['VS'], trace_slope_sds['TS']])
+    threshold = np.mean(all_trace_slope_sds)
+    return threshold
+
+
 def get_DA_peak_times_and_slopes_from_cue(experiments_to_process, time_range=(-1.5, 1.5)):
     """
     This takes the peak dopamine response after the cue (before choice is made) for each trial. It finds the time to
@@ -29,6 +39,7 @@ def get_DA_peak_times_and_slopes_from_cue(experiments_to_process, time_range=(-1
     Returns:
 
     """
+    thresholds = []
     mouse_peak_times = []
     mouse_slopes = []
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
@@ -44,24 +55,38 @@ def get_DA_peak_times_and_slopes_from_cue(experiments_to_process, time_range=(-1
                 session_data = pickle.load(f)
             contra_cues = session_data.cue_data.contra_data.sorted_traces
             time_stamps = session_data.choice_data.contra_data.time_points
-            choice_times = session_data.cue_data.contra_data.outcome_times
-            window_start_ind = (np.abs(time_stamps)).argmin()
-            window_end_inds = find_nearest_time_stamp_to_event(choice_times, time_stamps)
-            for trace_num in range(0, contra_cues.shape[0]):
-                time_window = [window_start_ind, window_end_inds[trace_num]]
-                trace = contra_cues[trace_num, :][time_window[0]: time_window[1]]
-                trial_peak_inds = peakutils.indexes(trace.flatten('F'))
-                if trial_peak_inds.shape[0] > 0 or len(trial_peak_inds > 1):
-                    trial_peak_ind = trial_peak_inds[0] + time_window[0]
-                    trial_peak_time = time_stamps[trial_peak_ind]
-                    trial_slope = find_slope_thresh_crossing_time(contra_cues[trace_num, :], time_stamps, time_window, trial_peak_inds)
-                    peak_times.append(trial_peak_time)
-                    trial_slopes.append(trial_slope)
+            contra_choice_times = session_data.cue_data.contra_data.outcome_times
+            peak_times, trial_slopes, thresholds = calc_peak_rise_time_one_side(contra_cues, time_stamps, contra_choice_times, peak_times, trial_slopes, thresholds)
+
+            ipsi_cues = session_data.cue_data.ipsi_data.sorted_traces
+            time_stamps = session_data.choice_data.contra_data.time_points
+            ipsi_choice_times = session_data.cue_data.ipsi_data.outcome_times
+            peak_times, trial_slopes, thresholds = calc_peak_rise_time_one_side(ipsi_cues, time_stamps, ipsi_choice_times, peak_times, trial_slopes,
+                                         thresholds)
+
             date_peak_times.append(np.median(peak_times))
             date_slopes.append(np.nanmedian(trial_slopes))
         mouse_peak_times.append(np.median(date_peak_times))
         mouse_slopes.append(np.median(date_slopes))
-    return mouse_peak_times, mouse_slopes
+    return mouse_peak_times, mouse_slopes, thresholds
+
+
+def calc_peak_rise_time_one_side(cues, time_stamps, choice_times, peak_times, trial_slopes, thresholds):
+    window_start_ind = (np.abs(time_stamps)).argmin()
+    window_end_inds = find_nearest_time_stamp_to_event(choice_times, time_stamps)
+    for trace_num in range(0, cues.shape[0]):
+        time_window = [window_start_ind, window_end_inds[trace_num]]
+        trace = cues[trace_num, :][time_window[0]: time_window[1]]
+        trial_peak_inds = peakutils.indexes(trace.flatten('F'))
+        if trial_peak_inds.shape[0] > 0 or len(trial_peak_inds > 1):
+            trial_peak_ind = trial_peak_inds[0] + time_window[0]
+            trial_peak_time = time_stamps[trial_peak_ind]
+            trial_slope, threshold = find_slope_thresh_crossing_time(cues[trace_num, :], time_stamps,
+                                                                     time_window, trial_peak_ind)
+            peak_times.append(trial_peak_time)
+            trial_slopes.append(trial_slope)
+            thresholds.append(threshold)
+    return peak_times, trial_slopes, thresholds
 
 
 def find_nearest_time_stamp_to_event(event_times, time_stamps):
@@ -69,9 +94,6 @@ def find_nearest_time_stamp_to_event(event_times, time_stamps):
     for event_time in event_times:
         event_inds.append(np.abs(time_stamps - event_time).argmin())
     return event_inds
-
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 def find_slope_to_peak(trace, time_stamps, time_window, trial_peak_inds, deviation_threshold=0.5, plot=False):
@@ -101,10 +123,7 @@ def find_slope_to_peak(trace, time_stamps, time_window, trial_peak_inds, deviati
     return time[deviation_index]
 
 
-def find_slope_thresh_crossing_time(trace, time_stamps, time_window, trial_peak_inds, deviation_threshold=1, plot=True):
-    # Generate example time series data
-    time = time_stamps[time_window[0]: time_window[1]][:trial_peak_inds[0]]
-    data = trace[time_window[0]: time_window[1]][:trial_peak_inds[0]]
+def find_slope_thresh_crossing_time(trace, time_stamps, time_window, trial_peak_inds, deviation_threshold=1, plot=False):
     # Calculate the derivative of the time series
     derivative = np.gradient(trace, time_stamps)
 
@@ -120,7 +139,7 @@ def find_slope_thresh_crossing_time(trace, time_stamps, time_window, trial_peak_
 
     # Find indices where the derivative crosses the threshold
     crossings = np.where(derivative > threshold)[0]
-    valid_crossings = crossings[(crossings >= time_window[0]) & (crossings < time_window[1])]
+    valid_crossings = crossings[(crossings >= time_window[0]) & (crossings < trial_peak_inds)]
 
     if valid_crossings.shape[0] > 0:
         if plot:
@@ -151,6 +170,6 @@ def find_slope_thresh_crossing_time(trace, time_stamps, time_window, trial_peak_
             print(f"Baseline Standard Deviation: {baseline_std}")
             print(f"Threshold: {threshold}")
             print(f"Threshold Crossings at Time Points: {time_stamps[valid_crossings][0]}")
-        return time_stamps[valid_crossings][0]
+        return time_stamps[valid_crossings][0], threshold
     else:
-        return np.nan
+        return np.nan, threshold

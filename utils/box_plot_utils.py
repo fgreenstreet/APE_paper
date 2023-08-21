@@ -49,7 +49,7 @@ def make_box_plot(df, fig_ax, dx='model', dy='explained variance', ort="v",
         fig_ax.text(0.5, 1, label, transform=fig_ax.get_xaxis_transform(), size=8, ha='center')
 
 
-def plot_and_save_comparison(data_df, ylabel, filename, data_dict):
+def plot_and_save_comparison(data_df, ylabel, fig_directory, filename, dx='site', pal = ['#E95F32', '#002F3A'], sig_test=True):
     """
     Plots a comparison box plot and saves it as a PDF file.
 
@@ -63,16 +63,19 @@ def plot_and_save_comparison(data_df, ylabel, filename, data_dict):
         None
     """
     fig, ax = plt.subplots(1, 1, figsize=[2, 2.5])
-    make_box_plot(data_df, ax, dx='site', dy=ylabel, pal=pal)
+    make_box_plot(data_df, ax, dx=dx, dy=ylabel, pal=pal)
 
     # Calculate and plot significance stars
-    p_val = ttest_ind(data_dict['tail'], data_dict['Nacc']).pvalue
-    y = data_df[ylabel].max() + 0.04 * data_df[ylabel].max()
+    if sig_test:
+        VS_data = data_df[data_df[dx] == 'VS']
+        TS_data = data_df[data_df[dx] == 'TS']
+        p_val = ttest_ind(VS_data[ylabel].values, TS_data[ylabel].values).pvalue
+        y = data_df[ylabel].max() + 0.04 * data_df[ylabel].max()
 
-    ax.plot([0, 0, 1, 1], [y, y, y, y], c='k', lw=0.5)
-    significance_stars = output_significance_stars_from_pval(p_val)
-    ax.text(0.5, y + 0.01 * data_df[ylabel].max(), significance_stars, ha='center', fontsize=11)
+        ax.plot([0, 0, 1, 1], [y, y, y, y], c='k', lw=0.5)
+        significance_stars = output_significance_stars_from_pval(p_val)
+        ax.text(0.5, y + 0.01 * data_df[ylabel].max(), significance_stars, ha='center', fontsize=11)
 
     makes_plots_pretty(ax)
     plt.tight_layout()
-    plt.savefig(data_directory + filename, transparent=True, bbox_inches='tight')
+    plt.savefig(fig_directory + filename, transparent=True, bbox_inches='tight')

@@ -11,4 +11,3 @@ for site in sites:
     make_example_plot(site_data, time_points, site)
     make_group_data_plot(site_data, fig5_plotting_colours[site][0])
 plt.show()
-

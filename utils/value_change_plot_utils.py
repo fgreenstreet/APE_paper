@@ -25,10 +25,10 @@ def get_site_data_all_mice(site):
         all_reward_block_data (pd.dataframe): behavioural and photometry data for value change experiment
         all_time_points (np.array): time points for plotting trace (x-axis)
     """
-    site = 'Nacc' #'tail'
     exp_name = 'value_change'
     processed_data_dir = os.path.join(processed_data_path, 'value_change_data')
     block_data_file = os.path.join(processed_data_dir, exp_name + '_' + site + '.csv')
+
     all_reward_block_data = pd.read_pickle(block_data_file)
     all_time_points = all_reward_block_data['time points'].iloc[0]
     return all_reward_block_data, all_time_points
