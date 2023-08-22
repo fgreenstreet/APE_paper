@@ -1,13 +1,11 @@
-import sys
 
 import matplotlib.pylab as plt
 from utils.zscored_plots_utils import get_data_for_recording_site, make_y_lims_same_heat_map, plot_all_heatmaps_same_scale, plot_average_trace_all_mice
 import seaborn as sns
 from matplotlib.colors import ListedColormap
-import matplotlib.colors
 import numpy as np
 import matplotlib
-import cmocean as cmo
+
 
 from utils.plotting_visuals import makes_plots_pretty
 from set_global_params import figure_directory
@@ -72,3 +70,4 @@ plt.tight_layout()
 
 #plt.savefig(figure_directory + 'Fig3_paper_final_version.pdf', transparent=True, bbox_inches='tight')
 plt.show()
+
