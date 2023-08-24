@@ -2,7 +2,8 @@ import os
 import pandas as pd
 from set_global_params import processed_data_path
 from utils.box_plot_utils import *
-
+from utils.plotting import multi_conditions_plot
+from scipy.stats import ttest_rel
 filename = os.path.join(processed_data_path, 'num_pokes_in_punishment.pkl')
 
 pre_silence_poke_count = pd.read_pickle(filename)
@@ -12,8 +13,24 @@ matplotlib.rc('font', **font)
 matplotlib.rcParams['pdf.fonttype'] = 42
 
 
-fig_directory = 'T:\\paper\\revisions\\silent pokes pre silence\\'
+fig_directory = 'T:\\paper\\revisions\\silence\\'
 
 
 # Plot peak time comparison
-plot_and_save_comparison(pre_silence_poke_count, 'count', fig_directory, 'pokes_pre_silence.pdf', dx='stimulus', sig_test=False)
+# plot_and_save_comparison(pre_silence_poke_count, 'count', fig_directory, 'pokes_pre_silence.pdf', dx='stimulus', sig_test=False)
+df_for_plot = pre_silence_poke_count.pivot(index='stimulus', columns='mouse', values='count')
+
+fig, ax = plt.subplots(figsize=[1.5, 2])
+multi_conditions_plot(ax, df_for_plot, mean_linewidth=0)
+ax.set_ylabel('number of pokes', fontsize=7)
+# show significance stars
+pval = ttest_rel(df_for_plot.T['tones'], df_for_plot.T['silence']).pvalue
+y = df_for_plot.to_numpy().max() + .01 * df_for_plot.to_numpy().max()
+
+significance_stars1 = output_significance_stars_from_pval(pval)
+ax.text(.5, y , significance_stars1, ha='center', fontsize=8)
+plt.tight_layout()
+filename = 'pokes_pre_silence.pdf'
+plt.savefig(fig_directory + filename, transparent=True, bbox_inches='tight')
+
+plt.show()

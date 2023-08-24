@@ -50,53 +50,60 @@ for mouse in silence_mice:
         original_state_data_all_trials = loaded_bpod_file['SessionData']['RawData']['OriginalStateData']
         original_state_timestamps_all_trials = loaded_bpod_file['SessionData']['RawData']['OriginalStateTimestamps']
         original_raw_events = loaded_bpod_file['SessionData']['RawEvents']['Trial']
-        if np.all(loaded_bpod_file['SessionData']['Stimulus'][0] ==0):
+        if np.all(loaded_bpod_file['SessionData']['Stimulus'][0] ==0): #it's habituation
             session_silence_contra_choices = (loaded_bpod_file['SessionData']['ChosenSide'] == contra_fiber_ind).sum()
-            num_contra_pokes_after_silence += session_silence_contra_choices
-        for trial, state_timestamps in enumerate(original_state_timestamps_all_trials):
+            session_silence_ipsi_choices = (loaded_bpod_file['SessionData']['ChosenSide'] == ipsi_fiber_ind).sum()
+            num_ipsi_pokes_after_silence += session_silence_ipsi_choices
+        else:
+            for trial, state_timestamps in enumerate(original_state_timestamps_all_trials):
 
-            if loaded_bpod_file['SessionData']['ChosenSide'][trial] == contra_fiber_ind:
-                contra_choice_count += 1
-            elif loaded_bpod_file['SessionData']['ChosenSide'][trial] == ipsi_fiber_ind:
-                ipsi_choice_count += 1
-            else:
-                pass
+                if (loaded_bpod_file['SessionData']['ChosenSide'][trial] == contra_fiber_ind) & (loaded_bpod_file['SessionData']['TrialSide'][trial] == contra_fiber_ind):
+                    contra_choice_count += 1
+                elif (loaded_bpod_file['SessionData']['ChosenSide'][trial] == ipsi_fiber_ind) & (loaded_bpod_file['SessionData']['TrialSide'][trial] == contra_fiber_ind):
+                    ipsi_choice_count += 1
+                else:
+                    pass
 
-            if 'Punish' in original_raw_events[trial]['States']:
-                punish_start = original_raw_events[trial]['States']['Punish'][0]
+                if 'Punish' in original_raw_events[trial]['States']:
+                    punish_start = original_raw_events[trial]['States']['Punish'][0]
 
-                if 'Port2In' in original_raw_events[trial]['Events']:
-                    centre_pokes = np.asarray(original_raw_events[trial]['Events']['Port2In'])
+                    if 'Port2In' in original_raw_events[trial]['Events']:
+                        centre_pokes = np.asarray(original_raw_events[trial]['Events']['Port2In'])
 
-                    if contra_port_in in original_raw_events[trial]['Events']:
-                        contra_pokes = np.asarray(original_raw_events[trial]['Events'][contra_port_in])
-                    else:
-                        contra_pokes = np.array([])  # Empty array if key is missing
-
-                    if ipsi_port_in in original_raw_events[trial]['Events']:
-                        ipsi_pokes = np.asarray(original_raw_events[trial]['Events'][ipsi_port_in])
-                    else:
-                        ipsi_pokes = np.array([])  # Empty array if key is missing
-
-                    centre_pokes_in_punish = centre_pokes[centre_pokes > punish_start]
-                    num_centre_pokes = centre_pokes_in_punish.shape[0]
-                    num_centre_pokes_in_punishment += num_centre_pokes
-
-                if num_centre_pokes >= 1:
-                    for i, silence_poke in enumerate(centre_pokes_in_punish):
-                        if (num_centre_pokes > 1) & (i < (num_centre_pokes - 1)):
-                            next_centre_poke = centre_pokes_in_punish[i + 1]
-                            contra_pokes_after_centre = contra_pokes[(contra_pokes > silence_poke) & (contra_pokes < next_centre_poke)]
-                            ipsi_pokes_after_centre = ipsi_pokes[(ipsi_pokes > silence_poke) & (ipsi_pokes < next_centre_poke)]
+                        if contra_port_in in original_raw_events[trial]['Events']:
+                            contra_pokes = np.asarray(original_raw_events[trial]['Events'][contra_port_in])
                         else:
-                            contra_pokes_after_centre = contra_pokes[(contra_pokes > silence_poke)]
-                            ipsi_pokes_after_centre = ipsi_pokes[(ipsi_pokes > silence_poke)]
-                        num_contra_pokes_after_silence += contra_pokes_after_centre.shape[0]
-                        num_ipsi_pokes_after_silence += ipsi_pokes_after_centre.shape[0]
-    print((num_contra_pokes_after_silence/ contra_choice_count))
+                            contra_pokes = np.array([])  # Empty array if key is missing
+
+                        if ipsi_port_in in original_raw_events[trial]['Events']:
+                            ipsi_pokes = np.asarray(original_raw_events[trial]['Events'][ipsi_port_in])
+                        else:
+                            ipsi_pokes = np.array([])  # Empty array if key is missing
+
+                        centre_pokes_in_punish = centre_pokes[centre_pokes > punish_start]
+                        num_centre_pokes = centre_pokes_in_punish.shape[0]
+                        num_centre_pokes_in_punishment += num_centre_pokes
+
+                    if num_centre_pokes >= 1:
+                        for i, silence_poke in enumerate(centre_pokes_in_punish):
+                            if (num_centre_pokes > 1) & (i < (num_centre_pokes - 1)):
+                                next_centre_poke = centre_pokes_in_punish[i + 1]
+                                contra_pokes_after_centre = contra_pokes[(contra_pokes > silence_poke) & (contra_pokes < next_centre_poke)]
+                                ipsi_pokes_after_centre = ipsi_pokes[(ipsi_pokes > silence_poke) & (ipsi_pokes < next_centre_poke)]
+                            else:
+                                contra_pokes_after_centre = contra_pokes[(contra_pokes > silence_poke)]
+                                ipsi_pokes_after_centre = ipsi_pokes[(ipsi_pokes > silence_poke)]
+                            num_contra_pokes_after_silence += contra_pokes_after_centre.shape[0]
+                            num_ipsi_pokes_after_silence += ipsi_pokes_after_centre.shape[0]
+
+    tone_pokes = contra_choice_count + ipsi_choice_count
+    print('tone ipsi contra: ', ipsi_choice_count/contra_choice_count)
+    silence_pokes = num_contra_pokes_after_silence + num_ipsi_pokes_after_silence
+    print('silence ipsi contra: ', num_ipsi_pokes_after_silence/num_contra_pokes_after_silence)
+    print((silence_pokes/ tone_pokes))
     mouse_names_for_df.extend([mouse] * 2)
     labels_for_df.extend(['tones', 'silence'])
-    values_for_df.extend([contra_choice_count, num_contra_pokes_after_silence])
+    values_for_df.extend([tone_pokes, silence_pokes])
 df_to_save = pd.DataFrame({'mouse': mouse_names_for_df, 'stimulus': labels_for_df, 'count': values_for_df})
 filename = os.path.join(processed_data_path, 'num_pokes_in_punishment.pkl')
 df_to_save.to_pickle(filename)
