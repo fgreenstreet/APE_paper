@@ -133,3 +133,47 @@ def get_all_mice_average_data_only_contra_cues(experiments_to_process, time_rang
     cues = np.array(cues)
     return ipsi_choices, contra_choices, rewards, no_rewards, cues, time_stamps
 
+def get_all_mice_average_data_high_low_cues(experiments_to_process, time_range=(-1.5, 1.5)):
+    """
+    This version takes the average across session for each mouse and then stacks the mouse averages (only for high and low cue aligned).
+    Args:
+        experiments_to_process (pd.dataframe): experimental records for all the mice you want to average the traces for
+        time_range (tuple): time window seconds before and after event to get traces for
+
+    Returns:
+        high_cues (np.array): per mouse mean traces aligned to high cues
+        low_cues (np.array): per mouse mean traces aligned to low cues
+        time_stamps (np.array): time stamps that correspond to traces (seconds)
+    """
+
+    high_cues = []
+    low_cues = []
+
+    for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
+        df = experiments_to_process[experiments_to_process.mouse_id == mouse]
+        data_dir = processed_data_path + 'for_figure\\' + mouse + '\\'
+
+        mouse_high_cues = []
+        mouse_low_cues = []
+
+        for date in df['date']:
+            filename = mouse + '_' + date + '_' + 'aligned_traces_for_fig.p'
+            with open(data_dir + filename, 'rb') as f:
+                session_data = pickle.load(f)
+                time_mask = (session_data.choice_data.contra_data.time_points >= time_range[0]) & (session_data.choice_data.contra_data.time_points <= time_range[-1])
+
+                session_high_cues = session_data.cue_data.high_cue_data.sorted_traces[:, time_mask]
+                session_low_cues = session_data.cue_data.low_cue_data.sorted_traces[:, time_mask]
+                mean_trace_high_cues = np.mean(session_high_cues, axis=0)
+                mean_trace_low_cues = np.mean(session_low_cues, axis=0)
+                time_stamps = session_data.cue_data.high_cue_data.time_points[time_mask]
+
+                mouse_high_cues.append(mean_trace_high_cues)
+                mouse_low_cues.append(mean_trace_low_cues)
+        high_cues.append(np.mean(mouse_high_cues, axis=0))
+        low_cues.append(np.mean(mouse_low_cues, axis=0))
+
+    high_cues = np.array(high_cues)
+    low_cues = np.array(low_cues)
+    return high_cues, low_cues, time_stamps
+

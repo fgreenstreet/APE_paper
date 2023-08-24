@@ -212,6 +212,54 @@ def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem
         axs[trace_type].set_xlim([-1.5, 1.5])
 
 
+def plot_average_trace_all_mice_high_low_cues(ax, site, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5]):
+    """
+    Plots the average trace across mice for movement (contra, ipsi) and outcome (reward, no reward) aligned data
+    Args:
+        ax (matplotlib.axes._subplots.AxesSubplot): axes to plot high/low cue aligned traces
+        site (str): 'VS' or 'TS'
+        error_bar_method (str): sem or ci or None
+        cmap (list): colours for the two types of data (ipsi vs contra, correct vs incorrect)
+        x_range (list): time windon around behavioural event on x-axis
+
+    Returns:
+
+    """
+
+    all_data = get_all_mouse_data_for_site(site, file_ext='_new_mice_added_high_low_cues.npz')
+    time_stamps = all_data['time_stamps']
+    data = dict(all_data)
+    del data['time_stamps']
+    axs = {'high_cues': ax, 'low_cues': ax}
+    colours = {'high_cues': cmap[0], 'low_cues': cmap[1]}
+    labels = {'high_cues': 'high', 'low_cues': 'low'}
+    for trace_type, traces in data.items():
+        mean_trace = decimate(np.mean(traces, axis=0), 10)
+        time_points = decimate(time_stamps, 10)
+        traces = decimate(traces, 10)
+        mean_trace = mean_trace[int(traces.shape[1] / 2) + int(x_range[0] * 1000): int(traces.shape[1] / 2) + int(
+            x_range[1] * 1000)]
+        time_points = time_points[int(traces.shape[1] / 2) + int(x_range[0] * 1000): int(traces.shape[1] / 2) + int(
+            x_range[1] * 1000)]
+        traces = traces[:, int(traces.shape[1] / 2) + int(x_range[0] * 1000): int(traces.shape[1] / 2) + int(
+            x_range[1] * 1000)]
+        axs[trace_type].plot(time_points, mean_trace, lw=1, color=colours[trace_type], label=labels[trace_type])# color='navy')
+
+        if error_bar_method is not None:
+            error_bar_lower, error_bar_upper = calculate_error_bars(mean_trace,
+                                                                    traces,
+                                                                    error_bar_method=error_bar_method)
+            axs[trace_type].fill_between(time_points, error_bar_lower, error_bar_upper, alpha=0.5,
+                                 facecolor=colours[trace_type], linewidth=0)
+
+
+        axs[trace_type].axvline(0, color='k', linewidth=0.8)
+        axs[trace_type].set_xlabel('Time (s)')
+        axs[trace_type].set_ylabel('z-score')
+        axs[trace_type].set_xlim([-1.5, 1.5])
+    ax.legend(frameon=False)
+
+
 def plot_average_trace_all_mice_cue_move_rew(cue_ax, move_ax, outcome_ax, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5]):
     """
     Plots the average trace across mice for movement (contra, ipsi) and outcome (reward, no reward) aligned data
@@ -258,6 +306,9 @@ def plot_average_trace_all_mice_cue_move_rew(cue_ax, move_ax, outcome_ax, error_
             axs[trace_type].set_xlabel('Time (s)')
             axs[trace_type].set_ylabel('z-score')
             axs[trace_type].set_xlim([-1.5, 1.5])
+
+
+
 
 
 
