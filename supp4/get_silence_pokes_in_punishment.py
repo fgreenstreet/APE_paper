@@ -32,8 +32,7 @@ for mouse in silence_mice:
     files_in_bpod_path = os.listdir(Bpod_data_path)
     behaviour_files = sorted([s for s in files_in_bpod_path if '.mat' in s])
 
-    for i, file in enumerate(behaviour_files[0: ]):
-        fiber_side = 'right'
+    for i, file in enumerate(behaviour_files[0:]):
         fiber_options = ['left', 'right']
         if fiber_side == 'left':
             contra_port_in = 'Port3In'
@@ -51,8 +50,8 @@ for mouse in silence_mice:
         original_state_timestamps_all_trials = loaded_bpod_file['SessionData']['RawData']['OriginalStateTimestamps']
         original_raw_events = loaded_bpod_file['SessionData']['RawEvents']['Trial']
         if np.all(loaded_bpod_file['SessionData']['Stimulus'][0] ==0): #it's habituation
-            session_silence_contra_choices = (loaded_bpod_file['SessionData']['ChosenSide'] == contra_fiber_ind).sum()
-            session_silence_ipsi_choices = (loaded_bpod_file['SessionData']['ChosenSide'] == ipsi_fiber_ind).sum()
+            session_silence_contra_choices = (loaded_bpod_file['SessionData']['ChosenSide'] == ipsi_fiber_ind).sum()
+            session_silence_ipsi_choices = (loaded_bpod_file['SessionData']['ChosenSide'] == contra_fiber_ind).sum()
             num_ipsi_pokes_after_silence += session_silence_ipsi_choices
         else:
             for trial, state_timestamps in enumerate(original_state_timestamps_all_trials):
