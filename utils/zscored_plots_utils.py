@@ -10,6 +10,14 @@ from matplotlib import colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
+class ZScoredTracesCuePlotOnly(object):
+    def __init__(self, sorted_traces, outcome_times, reaction_times, sorted_next_poke):
+        self.sorted_traces = sorted_traces
+        self.outcome_times = outcome_times
+        self.reaction_times = reaction_times
+        self.sorted_next_poke = sorted_next_poke
+
+
 def get_data_for_figure(recording_site):
     """
     Loads in data for an example mouse for the heatmaps for the heatmaps
@@ -33,6 +41,17 @@ def get_data_for_figure(recording_site):
     return example_session_data
 
 
+def combine_ipsi_and_contra_cues(contra_data, ipsi_data):
+    all_trial_numbers = np.concatenate([contra_data.trial_nums, ipsi_data.trial_nums])
+    indices = np.argsort(all_trial_numbers)
+    unsorted_traces = np.concatenate([contra_data.sorted_traces, ipsi_data.sorted_traces])[indices, :]
+
+    unsorted_reaction_times = np.concatenate([contra_data.reaction_times, ipsi_data.reaction_times])[indices]
+    unsorted_outcome_times = np.concatenate([contra_data.outcome_times, ipsi_data.outcome_times])[indices]
+    unsorted_next_poke = np.concatenate([contra_data.sorted_next_poke, ipsi_data.sorted_next_poke])[indices]
+    return ZScoredTracesCuePlotOnly(unsorted_traces, unsorted_outcome_times, unsorted_reaction_times, unsorted_next_poke)
+
+
 def get_correct_data_for_plot(session_data, plot_type):
     """
     Gets traces aligned to correct behavioural events for plot
@@ -52,7 +71,11 @@ def get_correct_data_for_plot(session_data, plot_type):
     elif plot_type == 'unrewarded':
         output_data = session_data.outcome_data.no_reward_data, 'event start' #'next trial'
     elif plot_type == 'cue':
-        output_data = session_data.cue_data.contra_data, 'event start'
+        contra_cue = session_data.cue_data.contra_data
+        ipsi_cue = session_data.cue_data.ipsi_data
+        all_cues = combine_ipsi_and_contra_cues(contra_cue, ipsi_cue)
+        output_data = all_cues, 'event start'
+
     else:
         raise ValueError('Unknown type of plot specified.')
     return output_data
@@ -82,7 +105,6 @@ def get_data_for_recording_site(recording_site, ax):
     axes = []
     for ax_type, ax in ax.items():
         data, sort_by = get_correct_data_for_plot(aligned_session_data, ax_type)
-
         if sort_by == 'event end':
             white_dot_point = data.reaction_times
             flip_sort_order = True
@@ -226,13 +248,14 @@ def plot_average_trace_all_mice_high_low_cues(ax, site, error_bar_method='sem', 
 
     """
 
-    all_data = get_all_mouse_data_for_site(site, file_ext='_new_mice_added_high_low_cues.npz')
+    all_data = get_all_mouse_data_for_site(site, file_ext='_new_mice_added_high_low_cues_ipsi_contra.npz')
     time_stamps = all_data['time_stamps']
     data = dict(all_data)
     del data['time_stamps']
-    axs = {'high_cues': ax, 'low_cues': ax}
-    colours = {'high_cues': cmap[0], 'low_cues': cmap[1]}
-    labels = {'high_cues': 'high', 'low_cues': 'low'}
+    axs = {'contra_high_cues': ax[0], 'ipsi_low_cues': ax[0], 'contra_low_cues': ax[1], 'ipsi_high_cues': ax[1]}
+    #contra_high_cues = contra_high_cues, contra_low_cues = contra_low_cues, ipsi_high_cues = ipsi_high_cues, ipsi_low_cues = ipsi_low_cues
+    colours = {'contra_high_cues': cmap[0], 'ipsi_low_cues': cmap[1], 'contra_low_cues': cmap[0], 'ipsi_high_cues': cmap[1]}
+    labels = {'contra_high_cues': 'contra high Hz', 'ipsi_low_cues': 'ipsi low Hz', 'contra_low_cues': 'contra low Hz', 'ipsi_high_cues': 'ipsi high Hz'}
     for trace_type, traces in data.items():
         mean_trace = decimate(np.mean(traces, axis=0), 10)
         time_points = decimate(time_stamps, 10)
@@ -257,7 +280,7 @@ def plot_average_trace_all_mice_high_low_cues(ax, site, error_bar_method='sem', 
         axs[trace_type].set_xlabel('Time (s)')
         axs[trace_type].set_ylabel('z-score')
         axs[trace_type].set_xlim([-1.5, 1.5])
-    ax.legend(frameon=False)
+        axs[trace_type].legend(frameon=False)
 
 
 def plot_average_trace_all_mice_cue_move_rew(cue_ax, move_ax, outcome_ax, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5]):
@@ -345,7 +368,7 @@ def plot_heat_map(ax, data, white_dot_point, flip_sort_order, dff_range=None, x_
     ax.axvline(0, color='w', linewidth=1)
 
     ax.scatter(data.reaction_times,
-               np.arange(data.reaction_times.shape[0]) + 0.5, color='w', s=0.5)
+               np.arange(data.reaction_times.shape[0]) + 0.5, color='w', s=0.01)
     ax.scatter(data.sorted_next_poke,
                np.arange(data.sorted_next_poke.shape[0]) + 0.5, color='k', s=0.5)
     ax.tick_params(labelsize=8)

@@ -30,6 +30,7 @@ y = df_for_plot.to_numpy().max() + .01 * df_for_plot.to_numpy().max()
 significance_stars1 = output_significance_stars_from_pval(pval)
 ax.text(.5, y , significance_stars1, ha='center', fontsize=8)
 plt.tight_layout()
+print( 'mean: ', np.mean(df_for_plot.T['silence']), ', s.d.: ', np.std(df_for_plot.T['silence']))
 filename = 'pokes_pre_silence.pdf'
 plt.savefig(fig_directory + filename, transparent=True, bbox_inches='tight')
 

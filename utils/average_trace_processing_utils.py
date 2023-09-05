@@ -2,7 +2,7 @@ import pickle
 from tqdm import tqdm
 import numpy as np
 from set_global_params import processed_data_path
-
+import pandas as pd
 
 def get_all_mice_average_data(experiments_to_process, time_range=(-1.5, 1.5)):
     """
@@ -146,34 +146,72 @@ def get_all_mice_average_data_high_low_cues(experiments_to_process, time_range=(
         time_stamps (np.array): time stamps that correspond to traces (seconds)
     """
 
-    high_cues = []
-    low_cues = []
+    contra_high_cues = []
+    contra_low_cues = []
+    ipsi_high_cues = []
+    ipsi_low_cues = []
 
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
         df = experiments_to_process[experiments_to_process.mouse_id == mouse]
         data_dir = processed_data_path + 'for_figure\\' + mouse + '\\'
-
-        mouse_high_cues = []
-        mouse_low_cues = []
+        trial_data_folder =  processed_data_path + mouse + '\\'
+        fiber_side = df['fiber_side'].values[0]
+        if fiber_side == 'left':
+            contra_cue = 'low'
+        elif fiber_side == 'right':
+            contra_cue = 'high'
+        mouse_ipsi_high_cues = []
+        mouse_ipsi_low_cues = []
+        mouse_contra_high_cues = []
+        mouse_contra_low_cues = []
 
         for date in df['date']:
+            restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
+            trial_data = pd.read_pickle(trial_data_folder + restructured_data_filename)
             filename = mouse + '_' + date + '_' + 'aligned_traces_for_fig.p'
             with open(data_dir + filename, 'rb') as f:
                 session_data = pickle.load(f)
-                time_mask = (session_data.choice_data.contra_data.time_points >= time_range[0]) & (session_data.choice_data.contra_data.time_points <= time_range[-1])
+                time_mask = (session_data.cue_data.high_cue_data.time_points >= time_range[0]) & (session_data.cue_data.high_cue_data.time_points <= time_range[-1])
+                contra_trial_nums = session_data.choice_data.contra_data.trial_nums
+                ipsi_trial_nums = session_data.choice_data.ipsi_data.trial_nums
+                high_cue_trial_nums = trial_data[trial_data['Trial type'] == 1]['Trial num'].unique()
+                low_cue_trial_nums = trial_data[trial_data['Trial type'] == 7]['Trial num'].unique()
+            if contra_cue == 'high':
+                _, contra_high_cue_inds, _ = np.intersect1d(contra_trial_nums, high_cue_trial_nums,
+                                                            return_indices=True)
+                session_contra_high_cues = session_data.cue_data.contra_data.sorted_traces[contra_high_cue_inds,
+                                           :][:, time_mask]
+                mouse_contra_high_cues.append(np.mean(session_contra_high_cues, axis=0))
+                _, ipsi_low_cue_inds, _ = np.intersect1d(ipsi_trial_nums, low_cue_trial_nums, return_indices=True)
+                session_ipsi_low_cues = session_data.cue_data.ipsi_data.sorted_traces[
+                                        ipsi_low_cue_inds, :][:, time_mask]
+                mouse_ipsi_low_cues.append(np.mean(session_ipsi_low_cues, axis=0))
 
-                session_high_cues = session_data.cue_data.high_cue_data.sorted_traces[:, time_mask]
-                session_low_cues = session_data.cue_data.low_cue_data.sorted_traces[:, time_mask]
-                mean_trace_high_cues = np.mean(session_high_cues, axis=0)
-                mean_trace_low_cues = np.mean(session_low_cues, axis=0)
+            elif contra_cue == 'low':
+                _, contra_low_cue_inds, _ = np.intersect1d(contra_trial_nums, low_cue_trial_nums,
+                                                           return_indices=True)
+                session_contra_low_cues = session_data.cue_data.contra_data.sorted_traces[contra_low_cue_inds, :][
+                                          :, time_mask]
+                mouse_contra_low_cues.append(np.mean(session_contra_low_cues, axis=0))
+
+                _, ipsi_high_cue_inds, _ = np.intersect1d(ipsi_trial_nums, high_cue_trial_nums, return_indices=True)
+                session_ipsi_high_cues = session_data.cue_data.ipsi_data.sorted_traces[
+                                         ipsi_high_cue_inds, :][:, time_mask]
+                mouse_ipsi_high_cues.append(np.mean(session_ipsi_high_cues, axis=0))
+
                 time_stamps = session_data.cue_data.high_cue_data.time_points[time_mask]
 
-                mouse_high_cues.append(mean_trace_high_cues)
-                mouse_low_cues.append(mean_trace_low_cues)
-        high_cues.append(np.mean(mouse_high_cues, axis=0))
-        low_cues.append(np.mean(mouse_low_cues, axis=0))
+        if contra_cue == 'high':
+            contra_high_cues.append(np.mean(mouse_contra_high_cues, axis=0))
+            ipsi_low_cues.append(np.mean(mouse_ipsi_low_cues, axis=0))
+        elif contra_cue == 'low':
+            contra_low_cues.append(np.mean(mouse_contra_low_cues, axis=0))
+            ipsi_high_cues.append(np.mean(mouse_ipsi_high_cues, axis=0))
 
-    high_cues = np.array(high_cues)
-    low_cues = np.array(low_cues)
-    return high_cues, low_cues, time_stamps
+
+    contra_high_cues = np.array(contra_high_cues)
+    contra_low_cues = np.array(contra_low_cues)
+    ipsi_high_cues = np.array(ipsi_high_cues)
+    ipsi_low_cues = np.array(ipsi_low_cues)
+    return contra_high_cues, contra_low_cues, ipsi_high_cues, ipsi_low_cues, time_stamps
 

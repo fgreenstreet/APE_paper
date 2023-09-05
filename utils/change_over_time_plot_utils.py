@@ -26,7 +26,7 @@ def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583
         exp_type = file_name_extras['exp_type']
         file_name_suffix ='_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_{}_contra.npz'.format(exp_type)
     else:
-        file_name_suffix = '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_contra.npz'
+        file_name_suffix = '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks.npz' #'_average_then_peaks_peaks_contra.npz'
     data_root = processed_data_path + 'peak_analysis'
 
     interp_x = []
@@ -46,6 +46,7 @@ def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583
         interp_y.append(ynew)
         axs[0].plot(rolling_mean_x, rolling_mean_peaks, label=mouse)
         axs[1].plot(xnew, ynew, label=mouse)
+    axs[1].legend()
     max_x = max([np.max(i) for i in interp_x])
     size_of_ys = max_x + 1
     all_ys = np.empty((len(interp_y), size_of_ys))
