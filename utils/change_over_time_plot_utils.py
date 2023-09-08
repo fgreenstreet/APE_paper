@@ -9,7 +9,7 @@ from matplotlib.lines import Line2D
 from set_global_params import processed_data_path
 
 
-def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583', line='k', **file_name_extras):
+def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583', line='k', align_to=None, **file_name_extras):
     """
     Makes change over time plot ith mean line across mice and error bars showing SEM
     Args:
@@ -22,16 +22,19 @@ def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583
     Returns:
 
     """
+
     if file_name_extras:
         exp_type = file_name_extras['exp_type']
         file_name_suffix ='_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_{}_contra.npz'.format(exp_type)
     else:
-        file_name_suffix = '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks.npz' #'_average_then_peaks_peaks_contra.npz'
+        file_name_suffix = '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks.npz' #'_average_then_peaks_peaks_contra.npz' # '_average_then_peaks_peaks.npz'
+    if align_to:
+        file_name_suffix = '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_contra_aligned_to_{}.npz'.format(align_to)
     data_root = processed_data_path + 'peak_analysis'
 
     interp_x = []
     interp_y = []
-    fig, axs = plt.subplots(1,2)
+    #fig, axs = plt.subplots(1,2)
     for mouse_num, mouse in enumerate(mice):
         saving_folder = os.path.join(data_root, mouse)
         filename = mouse + file_name_suffix
@@ -44,9 +47,9 @@ def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583
         ynew = f(xnew)
         interp_x.append(xnew)
         interp_y.append(ynew)
-        axs[0].plot(rolling_mean_x, rolling_mean_peaks, label=mouse)
-        axs[1].plot(xnew, ynew, label=mouse)
-    axs[1].legend()
+        #axs[0].plot(rolling_mean_x, rolling_mean_peaks, label=mouse)
+        #axs[1].plot(xnew, ynew, label=mouse)
+    #axs[1].legend()
     max_x = max([np.max(i) for i in interp_x])
     size_of_ys = max_x + 1
     all_ys = np.empty((len(interp_y), size_of_ys))
@@ -89,7 +92,7 @@ def example_scatter_change_over_time(mouse, ax, window_for_binning=40, colour='#
     return ax
 
 
-def make_example_traces_plot(mouse, ax, window_for_binning=50, side='contra', legend=True):
+def make_example_traces_plot(mouse, ax, window_for_binning=50, side='contra', legend=True, align_to='movement'):
     """
     Makes plot showing example mouse change over time showing the mean traces where each trace is made by averaging
     window_for_binning number of trials
@@ -105,7 +108,7 @@ def make_example_traces_plot(mouse, ax, window_for_binning=50, side='contra', le
     """
     data_root = processed_data_path + 'peak_analysis'
     saving_folder = os.path.join(data_root, mouse)
-    filename = mouse + '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_{}.npz'.format(side)
+    filename = mouse + '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_{}_aligned_to_{}.npz'.format(side, align_to)
     save_filename = os.path.join(saving_folder, filename)
     rolling_mean_data = np.load(save_filename)
     rolling_mean_traces = rolling_mean_data['rolling_mean_trace']
