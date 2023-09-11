@@ -14,7 +14,7 @@ peak_times = {}
 rise_times = {}
 for site in sites:
     dir = processed_data_path + 'for_figure\\'
-    file_name = 'peak_times_and_time_to_slope_ipsi_and_contra_{}.npz'.format(site)
+    file_name = 'peak_times_and_time_to_slope_ipsi_and_contra_{}_with_means.npz'.format(site)
     site_data = np.load(dir + file_name)
     peak_times[site] = site_data['peak_times']
     rise_times[site] = site_data['time_to_slope']

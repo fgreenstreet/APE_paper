@@ -133,12 +133,12 @@ def find_slope_thresh_crossing_time(trace, time_stamps, time_window, trial_peak_
 
     # Calculate the standard deviation of the baseline period
     baseline_std = np.std(derivative[baseline_start:baseline_end])
-
+    baseline_mean = np.mean(derivative[baseline_start:baseline_end])
     # Define the threshold as 2 times the baseline standard deviation
     threshold = deviation_threshold * baseline_std
 
     # Find indices where the derivative crosses the threshold
-    crossings = np.where(derivative > threshold)[0]
+    crossings = np.where(derivative > baseline_mean + threshold)[0]
     valid_crossings = crossings[(crossings >= time_window[0]) & (crossings < trial_peak_inds)]
 
     if valid_crossings.shape[0] > 0:

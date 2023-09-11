@@ -29,7 +29,7 @@ for site in sites:
     peak_times[site], trace_slopes[site], thresholds[site] = get_DA_peak_times_and_slopes_from_cue(experiments_to_process)
     # save out these stats for plotting etc
     dir = processed_data_path + 'for_figure\\'
-    file_name = 'peak_times_and_time_to_slope_ipsi_and_contra_{}.npz'.format(site)
+    file_name = 'peak_times_and_time_to_slope_ipsi_and_contra_{}_with_means.npz'.format(site)
     np.savez(dir + file_name, peak_times=peak_times[site], time_to_slope=trace_slopes[site])
 print(ttest_ind(trace_slopes['Nacc'], trace_slopes['tail']))
 print(ttest_ind(peak_times['Nacc'], peak_times['tail']))

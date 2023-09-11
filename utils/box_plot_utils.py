@@ -70,6 +70,7 @@ def plot_and_save_comparison(data_df, ylabel, fig_directory, filename, dx='site'
         VS_data = data_df[data_df[dx] == 'VS']
         TS_data = data_df[data_df[dx] == 'TS']
         p_val = ttest_ind(VS_data[ylabel].values, TS_data[ylabel].values).pvalue
+        print(p_val)
         y = data_df[ylabel].max() + 0.04 * data_df[ylabel].max()
 
         ax.plot([0, 0, 1, 1], [y, y, y, y], c='k', lw=0.5)

@@ -4,6 +4,30 @@ import numpy as np
 from set_global_params import processed_data_path
 import pandas as pd
 
+
+def get_all_mice_average_reaction_times(experiments_to_process):
+    reaction_times = []
+
+    for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
+        df = experiments_to_process[experiments_to_process.mouse_id == mouse]
+        data_dir = processed_data_path + 'for_figure\\' + mouse + '\\'
+
+        mouse_reaction_times = []
+
+        for date in df['date']:
+            filename = mouse + '_' + date + '_' + 'aligned_traces_for_fig.p'
+            with open(data_dir + filename, 'rb') as f:
+                session_data = pickle.load(f)
+            ipsi_choice = session_data.choice_data.ipsi_data.reaction_times
+            contra_choice = session_data.choice_data.contra_data.reaction_times
+            all_reaction_times = np.concatenate([ipsi_choice, contra_choice])
+            mouse_reaction_times.append(np.mean(all_reaction_times))
+
+        reaction_times.append(np.mean(mouse_reaction_times))
+    reaction_times = np.array(reaction_times)
+    return reaction_times
+
+
 def get_all_mice_average_data(experiments_to_process, time_range=(-1.5, 1.5)):
     """
     This version takes the average across session for each mouse and then stacks the mouse averages.
@@ -40,23 +64,23 @@ def get_all_mice_average_data(experiments_to_process, time_range=(-1.5, 1.5)):
             filename = mouse + '_' + date + '_' + 'aligned_traces_for_fig.p'
             with open(data_dir + filename, 'rb') as f:
                 session_data = pickle.load(f)
-                time_mask = (session_data.choice_data.contra_data.time_points >= time_range[0]) & (session_data.choice_data.contra_data.time_points <= time_range[-1])
-                ipsi_choice = session_data.choice_data.ipsi_data.mean_trace[time_mask]
-                contra_choice = session_data.choice_data.contra_data.mean_trace[time_mask]
-                reward = session_data.outcome_data.reward_data.mean_trace[time_mask]
-                no_reward = session_data.outcome_data.no_reward_data.mean_trace[time_mask]
-                # for cues you need to take the mean after combining ipsi and contra
-                contra_cues = session_data.cue_data.contra_data.sorted_traces[:, time_mask]
-                ipsi_cues = session_data.cue_data.ipsi_data.sorted_traces[:, time_mask]
-                all_cues = np.concatenate([ipsi_cues, contra_cues])
-                mean_trace_cues = np.mean(all_cues, axis=0)
-                time_stamps = session_data.choice_data.contra_data.time_points[time_mask]
+            time_mask = (session_data.choice_data.contra_data.time_points >= time_range[0]) & (session_data.choice_data.contra_data.time_points <= time_range[-1])
+            ipsi_choice = session_data.choice_data.ipsi_data.mean_trace[time_mask]
+            contra_choice = session_data.choice_data.contra_data.mean_trace[time_mask]
+            reward = session_data.outcome_data.reward_data.mean_trace[time_mask]
+            no_reward = session_data.outcome_data.no_reward_data.mean_trace[time_mask]
+            # for cues you need to take the mean after combining ipsi and contra
+            contra_cues = session_data.cue_data.contra_data.sorted_traces[:, time_mask]
+            ipsi_cues = session_data.cue_data.ipsi_data.sorted_traces[:, time_mask]
+            all_cues = np.concatenate([ipsi_cues, contra_cues])
+            mean_trace_cues = np.mean(all_cues, axis=0)
+            time_stamps = session_data.choice_data.contra_data.time_points[time_mask]
 
-                mouse_ipsi_choices.append(ipsi_choice)
-                mouse_contra_choices.append(contra_choice)
-                mouse_reward.append(reward)
-                mouse_no_reward.append(no_reward)
-                mouse_cues.append(mean_trace_cues)
+            mouse_ipsi_choices.append(ipsi_choice)
+            mouse_contra_choices.append(contra_choice)
+            mouse_reward.append(reward)
+            mouse_no_reward.append(no_reward)
+            mouse_cues.append(mean_trace_cues)
 
         ipsi_choices.append(np.mean(mouse_ipsi_choices, axis=0))
         contra_choices.append(np.mean(mouse_contra_choices, axis=0))

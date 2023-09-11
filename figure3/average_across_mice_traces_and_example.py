@@ -5,7 +5,7 @@ import seaborn as sns
 from matplotlib.colors import ListedColormap
 import numpy as np
 import matplotlib
-
+import cmocean
 
 from utils.plotting_visuals import makes_plots_pretty
 from set_global_params import figure_directory
@@ -19,7 +19,8 @@ matplotlib.rcParams['font.family']
 fig = plt.figure(constrained_layout=True, figsize=[8, 4])
 gs = fig.add_gridspec(nrows=2, ncols=4)
 
-cmap_map = matplotlib.cm.get_cmap('cmo.solar') #('cet_fire')#cc.cm['linear_wyor_100_45_c55']) #cc.cm['linear_tritanopic_krw_5_95_c46']) cmo.solar
+#cmap_map = matplotlib.cm.get_cmap('cmo.solar') #('cet_fire')#cc.cm['linear_wyor_100_45_c55']) #cc.cm['linear_tritanopic_krw_5_95_c46']) cmo.solar
+cmap_map = cmocean.cm.solar
 cmap_values = cmap_map(np.linspace(0, 1, 1200))
 
 new_cmap_values = np.copy(cmap_values)
