@@ -25,3 +25,4 @@ experiments_to_process = get_first_x_sessions(experiment_record, mouse_ids, site
 
 nacc_reaction_times = get_all_mice_average_reaction_times(experiments_to_process)
 print(np.mean(np.concatenate([tail_reaction_times, nacc_reaction_times])))
+print(np.std(np.concatenate([tail_reaction_times, nacc_reaction_times])))

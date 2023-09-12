@@ -5,7 +5,7 @@ from set_global_params import processed_data_path
 import pandas as pd
 
 
-def get_all_mice_average_reaction_times(experiments_to_process):
+def get_all_mice_average_movement_times(experiments_to_process):
     reaction_times = []
 
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
@@ -22,6 +22,36 @@ def get_all_mice_average_reaction_times(experiments_to_process):
             contra_choice = session_data.choice_data.contra_data.reaction_times
             all_reaction_times = np.concatenate([ipsi_choice, contra_choice])
             mouse_reaction_times.append(np.mean(all_reaction_times))
+
+        reaction_times.append(np.mean(mouse_reaction_times))
+    reaction_times = np.array(reaction_times)
+    return reaction_times
+
+
+
+def get_all_mice_average_reaction_times(experiments_to_process):
+    reaction_times = []
+
+    for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
+        df = experiments_to_process[experiments_to_process.mouse_id == mouse]
+        data_dir = processed_data_path + 'for_figure\\' + mouse + '\\'
+
+        mouse_reaction_times = []
+
+        for date in df['date']:
+            filename = mouse + '_' + date + '_' + 'aligned_traces_for_fig.p'
+            with open(data_dir + filename, 'rb') as f:
+                session_data = pickle.load(f)
+            ipsi_trial_nums = session_data.choice_data.ipsi_data.trial_nums
+            contra_trial_nums = session_data.choice_data.contra_data.trial_nums
+            all_trial_nums = np.concatenate([ipsi_trial_nums, contra_trial_nums])
+            trial_data_folder = processed_data_path + mouse + '\\'
+            restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
+            trial_data = pd.read_pickle(trial_data_folder + restructured_data_filename)
+            trials_of_interest = trial_data[trial_data['Trial num'].isin(all_trial_nums)]
+            states_of_interest = trials_of_interest[trials_of_interest['State type'] == 4]
+            session_reaction_times = states_of_interest['Time end'] - states_of_interest['Time start']
+            mouse_reaction_times.append(np.mean(session_reaction_times.values +  0.1))
 
         reaction_times.append(np.mean(mouse_reaction_times))
     reaction_times = np.array(reaction_times)
@@ -178,7 +208,7 @@ def get_all_mice_average_data_high_low_cues(experiments_to_process, time_range=(
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
         df = experiments_to_process[experiments_to_process.mouse_id == mouse]
         data_dir = processed_data_path + 'for_figure\\' + mouse + '\\'
-        trial_data_folder =  processed_data_path + mouse + '\\'
+        trial_data_folder = processed_data_path + mouse + '\\'
         fiber_side = df['fiber_side'].values[0]
         if fiber_side == 'left':
             contra_cue = 'low'
