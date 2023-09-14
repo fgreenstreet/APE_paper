@@ -84,22 +84,22 @@ for window_num, start in enumerate(window_starts):
                               alpha=0.2,
                               linewidth=0)
     ts_move_ax.add_patch(rect)
-#nacc_exp_var = load_exp_var_data_for_site('Nacc')
-#tail_exp_var = load_exp_var_data_for_site('tail')
+nacc_exp_var = load_exp_var_data_for_site('Nacc')
+tail_exp_var = load_exp_var_data_for_site('tail')
 
-#full_df = get_data_both_sites_for_predictor(nacc_exp_var, tail_exp_var, 'full')
-#cue_df = get_data_both_sites_for_predictor(nacc_exp_var, tail_exp_var, 'cue')
-#choice_df = get_data_both_sites_for_predictor(nacc_exp_var, tail_exp_var, 'choice')
-#outcome_df = get_data_both_sites_for_predictor(nacc_exp_var, tail_exp_var, 'outcome')
+full_df = get_data_both_sites_for_predictor(nacc_exp_var, tail_exp_var, 'full')
+cue_df = get_data_both_sites_for_predictor(nacc_exp_var, tail_exp_var, 'cue')
+choice_df = get_data_both_sites_for_predictor(nacc_exp_var, tail_exp_var, 'choice')
+outcome_df = get_data_both_sites_for_predictor(nacc_exp_var, tail_exp_var, 'outcome')
 
-#make_box_plot(full_df, total_perc_exp, set_ylims=True, label='Full model')
-#make_box_plot(cue_df, perc_exp_cue_ax, label='Cue')
-#make_box_plot(choice_df, perc_exp_move_ax, label='Choice')
-#make_box_plot(outcome_df, perc_exp_rew_ax, label='Outcome')
-#print(full_df.groupby('site')['explained variance'].apply(np.median))
-#print(cue_df.groupby('site')['explained variance'].apply(np.median))
-#print(choice_df.groupby('site')['explained variance'].apply(np.median))
-#print(outcome_df.groupby('site')['explained variance'].apply(np.median))
+make_box_plot(full_df, total_perc_exp, set_ylims=True, label='Full model')
+make_box_plot(cue_df, perc_exp_cue_ax, label='Cue')
+make_box_plot(choice_df, perc_exp_move_ax, label='Choice')
+make_box_plot(outcome_df, perc_exp_rew_ax, label='Outcome')
+print(full_df.groupby('site')['explained variance'].apply(np.median))
+print(cue_df.groupby('site')['explained variance'].apply(np.median))
+print(choice_df.groupby('site')['explained variance'].apply(np.median))
+print(outcome_df.groupby('site')['explained variance'].apply(np.median))
 
 makes_plots_pretty(np.array(
     [ts_move_ax, ts_cue_ax, ts_rew_ax, vs_move_ax, vs_cue_ax, vs_rew_ax, total_perc_exp, perc_exp_cue_ax,

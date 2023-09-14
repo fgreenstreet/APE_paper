@@ -13,7 +13,7 @@ def get_regression_data_for_plot(recording_site='tail'):
     experiment_record['date'] = experiment_record['date'].astype(str)
 
     if recording_site == 'tail':
-        mouse_ids = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57', 'SNL_photo58',  'SNL_photo70', 'SNL_photo72'] #'SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26',
+        mouse_ids = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57',  'SNL_photo70', 'SNL_photo72'] #'SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26',
     elif recording_site == 'Nacc':
         mouse_ids = ['SNL_photo28', 'SNL_photo30', 'SNL_photo32', 'SNL_photo33',
                      'SNL_photo34', 'SNL_photo35']

@@ -6,7 +6,7 @@ from utils.change_over_time_plot_utils import  *
 # this makes the plot in the figure
 font = {'size': 8}
 matplotlib.rc('font', **font)
-fig, ax = plt.subplots(2, 1, figsize=[2,4], constrained_layout=True)
+fig, ax = plt.subplots(2, 1, figsize=[2, 4], constrained_layout=True)
 tail_mice = change_over_time_mice['tail']
 make_change_over_time_plot(tail_mice, ax[0], window_for_binning=50, colour='#002F3A', line='#002F3A')
 

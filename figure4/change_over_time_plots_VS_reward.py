@@ -20,5 +20,5 @@ make_change_over_time_plot(nacc_mice, ax[1], window_for_binning=50, colour='#E95
 makes_plots_pretty([ax[0], ax[1]])
 plt.tight_layout()
 figure_dir = r'T:\paper\revisions\cue movement reward comparisons VS TS'
-plt.savefig(os.path.join(figure_dir, 'VS_reward_and_movement_over_trials.pdf'))
+#plt.savefig(os.path.join(figure_dir, 'VS_reward_and_movement_over_trials.pdf'))
 plt.show()

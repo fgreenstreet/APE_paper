@@ -6,8 +6,9 @@ import seaborn as sns
 from matplotlib import cm
 import os
 from matplotlib.lines import Line2D
+import matplotlib
 from set_global_params import processed_data_path
-
+from utils.plotting_visuals import makes_plots_pretty
 
 def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583', line='k', align_to=None, **file_name_extras):
     """
@@ -34,7 +35,9 @@ def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583
 
     interp_x = []
     interp_y = []
-    #fig, axs = plt.subplots(1,2)
+    font = {'size': 8}
+    matplotlib.rc('font', **font)
+    fig, axs = plt.subplots(1, 1, figsize=[2, 2], constrained_layout=True)
     for mouse_num, mouse in enumerate(mice):
         saving_folder = os.path.join(data_root, mouse)
         filename = mouse + file_name_suffix
@@ -47,16 +50,17 @@ def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583
         ynew = f(xnew)
         interp_x.append(xnew)
         interp_y.append(ynew)
-        #axs[0].plot(rolling_mean_x, rolling_mean_peaks, label=mouse)
-        #axs[1].plot(xnew, ynew, label=mouse)
-    #axs[1].legend()
+
     max_x = max([np.max(i) for i in interp_x])
+    plot_cutoff = min([np.max(i) for i in interp_x])
     size_of_ys = max_x + 1
     all_ys = np.empty((len(interp_y), size_of_ys))
     all_ys[:] = np.NaN
     for mouse_num, mouse_data in enumerate(interp_y):
         xs = interp_x[mouse_num]
         all_ys[mouse_num, xs] = mouse_data
+        plot_cut_off_ind = np.where(interp_x[mouse_num] >= plot_cutoff)[0][0]
+        axs.plot(interp_x[mouse_num][:plot_cut_off_ind], interp_y[mouse_num][:plot_cut_off_ind])
     mean_y = np.mean(all_ys, axis=0)
     error_bar_lower, error_bar_upper = calculate_error_bars(mean_y, all_ys, error_bar_method='sem')
     ax.plot(np.arange(0, size_of_ys), mean_y, color=line, lw=1)
@@ -64,6 +68,12 @@ def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583
                     facecolor=colour, linewidth=0)
     ax.set_ylabel('Peak size (z-score)')
     ax.set_xlabel('Trial number')
+
+    axs.set_ylabel('Peak size (z-score)')
+    axs.set_xlabel('Trial number')
+    axs.sharex(ax)
+    makes_plots_pretty([axs])
+
 
 
 def example_scatter_change_over_time(mouse, ax, window_for_binning=40, colour='#7FB5B5'):
