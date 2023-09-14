@@ -25,9 +25,12 @@ def make_example_plot(site):
     experiment_to_process = all_experiments[
         (all_experiments['experiment_notes'] == 'state change white noise') & (all_experiments['mouse_id'] == mouse_id)]
     session_data, trial_data = open_experiment(experiment_to_process)
-
-    params = {'state_type_of_interest': 5,
-              'outcome': 2,
+    if site == 'tail':
+        state_num = 5
+    elif site == 'Nacc':
+        state_num = 3
+    params = {'state_type_of_interest': state_num,
+              'outcome': 1,
               'last_outcome': 0,  # NOT USED CURRENTLY
               'no_repeats': 1,
               'last_response': 0,
@@ -42,7 +45,7 @@ def make_example_plot(site):
     trials_post_state_change = np.where(aligned_data.contra_data.trial_nums > 149)[0]
 
     fig, axs1 = plt.subplots(1, 1, figsize=[2.5, 2])
-    colours =[fig5_plotting_colours[site][0], fig5_plotting_colours[site][-1]]
+    colours =[fig5_plotting_colours[site][-1], fig5_plotting_colours[site][0]]
     all_time_points = decimate(aligned_data.contra_data.time_points, 10)
     start_plot = int(all_time_points.shape[0] / 2 - 2 * 1000)
     end_plot = int(all_time_points.shape[0] / 2 + 2 * 1000)
@@ -87,7 +90,7 @@ def get_group_data(site, save=False):
         df_for_plot (pd.dataframe): peak size per mouse pre and post state change
     """
     processed_data_dir = os.path.join(processed_data_path, 'state_change_data')
-    state_change_data_file = os.path.join(processed_data_dir, 'state_change_data_{}_mice.csv'.format(site))
+    state_change_data_file = os.path.join(processed_data_dir, 'state_change_data_{}_mice_only_correct.csv'.format(site))
     all_session_change_data = pd.read_pickle(state_change_data_file)
 
     # find mean traces and downsample

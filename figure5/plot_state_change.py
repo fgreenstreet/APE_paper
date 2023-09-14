@@ -11,6 +11,6 @@ for site in sites:
     site_data = get_group_data(site)
     pre_post_state_change_plot(site_data, colour=fig5_plotting_colours[site][0])
 
-plt.show()
+plt.pause(10)
 
 

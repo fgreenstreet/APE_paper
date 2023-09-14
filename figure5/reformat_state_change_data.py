@@ -4,7 +4,7 @@ import os
 
 site = 'tail' # or 'Nacc'
 processed_data_dir = os.path.join(processed_data_path, 'state_change_data')
-state_change_data_file = os.path.join(processed_data_dir, 'state_change_data_{}_mice.csv'.format(site))
+state_change_data_file = os.path.join(processed_data_dir, 'state_change_data_{}_mice_only_correct.csv'.format(site))
 trial_num_of_switch = 150
 mice = state_change_mice[site]
 for mouse_num, mouse_id in enumerate(mice):
@@ -16,7 +16,7 @@ for mouse_num, mouse_id in enumerate(mice):
     session_data = open_experiment(experiment_to_process)[0]
 
     params = {'state_type_of_interest': 3, # 3 for nacc, 5 for tail
-        'outcome': 2,
+        'outcome': 1,
         'last_outcome': 0,  # NOT USED CURRENTLY
         'no_repeats' : 0,
         'last_response': 0,
