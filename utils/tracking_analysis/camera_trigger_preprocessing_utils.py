@@ -1,8 +1,5 @@
-import sys
 import nptdms
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
-import freely_moving_photometry_analysis.data_preprocessing.bpod_data_processing as bpod
+import data_preprocessing.bpod_data_processing as bpod
 import numpy as np
 from set_global_params import daq_sample_rate
 

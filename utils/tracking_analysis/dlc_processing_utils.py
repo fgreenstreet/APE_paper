@@ -1,20 +1,12 @@
-import numpy as np
 from scipy.signal import filtfilt
 from scipy.optimize import curve_fit
 import pickle
-import numpy as np
 import pandas as pd
-from fede_load_tracking import prepare_tracking_data
-from camera_trigger_preprocessing_utils import *
-from plotting import *
-
-from velocity_utils import format_tracking_data_and_photometry, format_only_photometry
+from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
+from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
+from utils.plotting import *
+from utils.tracking_analysis.velocity_utils import format_tracking_data_and_photometry, format_only_photometry
 from set_global_params import processed_data_path
-
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git\\freely_moving_photometry_analysis')
-
 
 def get_x_y_data(data, scorer, bodypart):
     # get x_y_data
@@ -158,8 +150,8 @@ def fit_sigmoid(x_data, y_data):
 
 
 def get_movement_properties_for_session(mouse, date):
-    file_path = 'C:\\Users\\francescag\\Documents\\PhD_Project\\photometry_2AC_dlc\\second_attempt_test_videos\\{}_{}DLC_resnet50_two_acMay10shuffle1_600000.h5'.format(
-        mouse, date)
+    file_path = 'T:\\deeplabcut_tracking\\second_attempt_test_videos\\{}_{}DLC_resnet50_two_acMay10shuffle1_600000.h5'.format(
+        mouse, date) #T:\deeplabcut_tracking\second_attempt_test_videos #'C:\\Users\\francescag\\Documents\\PhD_Project\\photometry_2AC_dlc\\second_attempt_test_videos\\
     body_parts = ('nose', 'left ear', 'right ear', 'tail base', 'tail tip')
     tracking_data = prepare_tracking_data(
         tracking_filepath=file_path,

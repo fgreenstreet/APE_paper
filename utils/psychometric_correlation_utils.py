@@ -83,6 +83,10 @@ def convert_ipsi_contra_last_trial(data):
     return data['previous contra sensory evidence'] if data['side'] == 'contra' else round(1 - data['previous contra sensory evidence'], 2)
 
 
+def categorise_da_responses(response, cutoff=.65):
+    return pd.qcut(response, [0., cutoff, 1.], labels=['low','high'])
+
+
 def get_diff_psychometrics_da_test(df):
     """
     # the code below loops through mice and, for each mouse, subtracts lowcontra-lowipsi, highcontra-highipsi
