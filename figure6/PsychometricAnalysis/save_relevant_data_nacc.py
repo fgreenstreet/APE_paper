@@ -1,16 +1,20 @@
 """In this module, we save only the relevant data from the tail dataframes to a new csv file.
 """
-
+from set_global_params import processed_data_path
 import pandas as pd
+import os
 
-# Set up data directory
-data_dir = '/Users/jessegeerts/Projects/CescaPsychometricAnalysis/psychometric_data'
+# some defaults
+site = 'Nacc'
+alignment = 'reward'
 
 # Load data
-nacc_file = 'all_trial_data_Nacc_contra_ipsi_last_trial_confidence_and_traces_no_tracking_reward_aligned_pk5.pkl'
+save_path = os.path.join(processed_data_path, 'psychometric_data')
+
+nacc_file = os.path.join(save_path,"all_trial_data_{}_contra_ipsi_last_trial_confidence_and_traces_no_tracking_{}_aligned_pk5.pkl".format(site, alignment))
 print('Loading data for nacc...')
-nacc_data = pd.read_pickle(data_dir + '/' + nacc_file)[['mouse', 'session', 'fiber side', 'trial numbers', 'trial type', 'side', 'outcome', 'last trial type', 'last choice', 'last outcome', 'next trial type', 'next choice', 'next outcome', 'norm APE', 'stay or switch']].dropna().reset_index(drop=True)
+nacc_data = pd.read_pickle(nacc_file)[['mouse', 'session', 'fiber side', 'trial numbers', 'trial type', 'side', 'outcome', 'last trial type', 'last choice', 'last outcome', 'next trial type', 'next choice', 'next outcome', 'norm APE', 'stay or switch']].dropna().reset_index(drop=True)
 
 print('Saving only necessary data to new pickle...')
 # nacc_data.to_pickle(data_dir + '/' + 'nacc_data.pkl')
-nacc_data.to_csv(data_dir + '/' + 'nacc_data.csv')
+nacc_data.to_csv(save_path + '/' + 'nacc_data.csv')

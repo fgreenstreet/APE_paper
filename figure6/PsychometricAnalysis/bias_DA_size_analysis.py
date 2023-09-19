@@ -3,10 +3,11 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-
-from utils import categorise_da_responses, get_diff_in_proportion_correct, calculate_statistics, \
-    calculate_psychometric, logistic, output_significance_stars_from_pval, makes_plots_pretty, set_plotting_defaults
-
+from set_global_params import processed_data_path
+from bias_correlation_utils import categorise_da_responses, get_diff_in_proportion_correct, calculate_statistics, \
+    calculate_psychometric, logistic
+from utils.plotting_visuals import makes_plots_pretty, set_plotting_defaults
+from utils.plotting import output_significance_stars_from_pval
 import statsmodels.formula.api as smf
 
 # set some analysis parameters
@@ -32,14 +33,14 @@ for i, site in enumerate(sites):
     print('-' * 50)
 
     # Set up data directory
-    data_dir = 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\CescaPsychometricAnalysis\\psychometric_data'
+    data_dir = os.path.join(processed_data_path, 'psychometric_data')
 
     file_paths = {'tail': os.path.join(data_dir, 'all_tail_data.csv'),
                   'nacc': os.path.join(data_dir, 'nacc_data.csv')}
     file_path = file_paths[site]
 
     # set up results directory
-    results_dir = 'C:\\Users\\francescag\Documents\\SourceTree_repos\\CescaPsychometricAnalysis\\results\\{}'.format(site)
+    results_dir = os.path.join(data_dir, 'results\\{}'.format(site))
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
 
@@ -52,7 +53,7 @@ for i, site in enumerate(sites):
     # calculate bias for each mouse
     bias_df = get_diff_in_proportion_correct(df)
     psymetric_df = calculate_psychometric(df)
-    psymetric_df.to_csv('bias_df_tail.csv')
+    psymetric_df.to_csv(os.path.join(results_dir, 'bias_df_{}.csv'.format(site)))
     print(psymetric_df)
 
     # ---------------------------------------------------------------

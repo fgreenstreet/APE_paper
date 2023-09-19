@@ -12,7 +12,7 @@ site = 'Nacc'
 mouse_ids = bias_analysis_mice[site]
 
 save = False
-num_sessions = 2
+num_sessions = 2 # this is 2 for all NAcc mice, 3 for SNL_photo21, 22 and 26 and 4 for SNL_photo57, 70 and 72
 key = 'fitted max cumsum ang vel'
 alignment = 'reward'
 all_trial_data = get_all_psychometric_session_dlc(mouse_ids, site, save=False, load_saved=False, key=key, get_movement=False, align_to=alignment, num_sessions=num_sessions)

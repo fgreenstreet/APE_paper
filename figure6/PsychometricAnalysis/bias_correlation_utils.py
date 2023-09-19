@@ -1,32 +1,8 @@
 import pandas as pd
 import numpy as np
-import seaborn as sns
-from matplotlib import pyplot as plt
+
 from scipy.optimize import curve_fit
 import matplotlib
-
-
-def makes_plots_pretty(axs):
-    if type(axs) == np.ndarray or type(axs) == list:
-        for ax in axs:
-            ax.spines['right'].set_visible(False)
-            ax.spines['top'].set_visible(False)
-            ax.yaxis.set_ticks_position('left')
-            ax.xaxis.set_ticks_position('bottom')
-    else:
-        axs.spines['right'].set_visible(False)
-        axs.spines['top'].set_visible(False)
-        axs.yaxis.set_ticks_position('left')
-        axs.xaxis.set_ticks_position('bottom')
-
-
-def set_plotting_defaults(font_size=7, font_style='Arial'):
-    font = {'size': font_size}
-    matplotlib.rc('font', **font)
-    matplotlib.rcParams['pdf.fonttype'] = 42
-    matplotlib.rcParams['font.sans-serif'] = font_style
-    matplotlib.rcParams['font.family']
-
 
 # Define mapping for trial type to percentage high tones
 PERCENTAGE_HIGH_TONES = {
@@ -97,15 +73,6 @@ def get_diff_in_proportion_correct(df):
     return difference_df
 
 
-def output_significance_stars_from_pval(pval):
-    if pval >= 0.05:
-        return 'n.s.'
-    elif (pval < 0.05) & (pval >= 0.01):
-        return '*'
-    elif (pval < 0.01) & (pval >= 0.001):
-        return '**'
-    elif pval < 0.001:
-        return '***'
 def calculate_statistics(df):
     """Calculate some useful statistics for the psychometric analysis.
     """
