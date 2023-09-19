@@ -4,9 +4,11 @@ from utils.individual_trial_analysis_utils import SessionData
 import pandas as pd
 from utils.post_processing_utils import remove_exps_after_manipulations, get_first_x_sessions
 from set_global_params import experiment_record_path
+from set_global_params import processed_data_path
+
 
 def add_experiment_to_aligned_data(experiments_to_add):
-    data_root = r'W:\photometry_2AC\processed_data\for_figure'
+    data_root = os.path.join(processed_data_path, 'for_figure')
     for index, experiment in experiments_to_add.iterrows():
         print(experiment['mouse_id'],' ', experiment['date'])
         saving_folder = os.path.join(data_root, experiment['mouse_id'])

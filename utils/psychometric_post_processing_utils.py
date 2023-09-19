@@ -17,7 +17,7 @@ def get_first_x_sessions(sorted_experiment_record, x=3):
     return exps
 
 
-def get_all_psychometric_session_dlc(mouse_ids, site, num_sessions=3, save=False, load_saved=True, key='average speed', get_movement=True, align_to='choice'):
+def get_all_psychometric_session_dlc(mouse_ids, site, num_sessions=3, save=False, load_saved=True, get_movement=True, align_to='choice'):
     save_out_folder = 'T:\\photometry_2AC\\tracking_analysis\\'
     mouse_names = '_'.join(mouse_ids)
     save_out_file = os.path.join(save_out_folder, 'contra_APE_tracking_psychometric_sessions_{}.pkl'.format(num_sessions, mouse_names))
@@ -36,18 +36,13 @@ def get_all_psychometric_session_dlc(mouse_ids, site, num_sessions=3, save=False
             drop=True)
 
         data_to_save, q_data, _, all_trial_data = get_all_mice_data(experiments_to_process, exp_type='_psychometric', shuffle=False, load_saved=False, get_movement=get_movement, align_to=align_to)
-        trial_types = np.sort(all_trial_data['trial type'].unique())
-        colourmap = matplotlib.cm.inferno
-        colours = colourmap(np.linspace(0, 1, np.shape(trial_types)[0]))
-
-        # fig, axs = plt.subplots(1, 3, figsize=(12, 4))
-        norm_cumsum_data = norm_data_for_param(all_trial_data, experiment_record, trial_types, site=site, key=key)
+        norm_cumsum_data = norm_data_for_param(all_trial_data, experiment_record, site=site)
         if save:
             norm_cumsum_data.to_pickle(save_out_file)
     return norm_cumsum_data
 
 
-def norm_data_for_param(all_trial_data, experiment_record, trial_types, site='tail', key='fitted max cumsum ang vel', norm_APE_only=True):
+def norm_data_for_param(all_trial_data, experiment_record, site='tail', key='fitted max cumsum ang vel', norm_APE_only=True):
     for m, mouse in enumerate(all_trial_data['mouse'].unique()):
         mouse_data = all_trial_data[all_trial_data['mouse'] == mouse]
         fiber_side = \

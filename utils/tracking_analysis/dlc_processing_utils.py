@@ -7,6 +7,7 @@ from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 from utils.plotting import *
 from utils.tracking_analysis.velocity_utils import format_tracking_data_and_photometry, format_only_photometry
 from set_global_params import processed_data_path
+import os
 
 def get_x_y_data(data, scorer, bodypart):
     # get x_y_data
@@ -124,7 +125,7 @@ def get_photometry_data(mouse, date):
 
 
 def get_photometry_data_correct_incorrect(mouse, date):
-    saving_folder = 'W:\\photometry_2AC\\processed_data\\for_psychometric\\' + mouse + '\\'
+    saving_folder = os.path.join(processed_data_path, 'for_psychometric\\' + mouse + '\\')
     aligned_filename = saving_folder + mouse + '_' + date + '_' + 'aligned_traces_for_psychometric.p'
     with open(aligned_filename, 'rb') as f:
         data = pickle.load(f)

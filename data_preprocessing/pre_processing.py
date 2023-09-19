@@ -164,7 +164,7 @@ def pre_process_experiments(experiments, method='pyphotometry', protocol='Two_Al
 
 
 if __name__ == "__main__":
-    mouse_ids = ['SNL_photo68']
+    mouse_ids = ['SNL_photo70']
     date = '20220407'
     for mouse_id in mouse_ids:
         all_experiments = get_all_experimental_records()
