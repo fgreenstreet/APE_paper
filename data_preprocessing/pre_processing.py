@@ -62,7 +62,7 @@ def pre_process_experiment_lerner_deissroth(mouse, date, protocol):
     restructured_data.to_pickle(saving_folder + restructured_data_filename)
 
 
-def pre_process_experiment_pyphotometry(mouse, date, protocol):
+def pre_process_experiment_pyphotometry(mouse, date, protocol, daq_sample_rate=daq_sample_rate):
     """
     Preprocesses the photomtery signal using demodulation and filtering similar to that used by pyphotometry paper.
     Args:
@@ -97,7 +97,7 @@ def pre_process_experiment_pyphotometry(mouse, date, protocol):
     else:
         print(daq_num_trials, 'trials in session')
 
-    daq_sample_rate = daq_sample_rate
+
     signal, background = demodulate(chan_0[daq_sample_rate * 6:], led465[daq_sample_rate * 6:], led405[daq_sample_rate * 6:], daq_sample_rate)
 
     # Median filtering to remove electrical artifact.

@@ -67,7 +67,7 @@ for i, site in enumerate(sites):
     g.add_legend()
     plt.savefig(os.path.join(results_dir, 'outcome_vs_contraSensoryEvidence.png'))
 
-    plt.show()
+    
 
     # ---------------------------------------------------------------
     # now show the choices for each mouse as a function of uncertainty
@@ -102,7 +102,7 @@ for i, site in enumerate(sites):
 
     g.add_legend()
     plt.savefig(os.path.join(results_dir, 'choice_vs_contraSensoryEvidence_with_curve.png'))
-    plt.show()
+    
 
 
     # ---------------------------------------------------------------
@@ -131,6 +131,7 @@ for i, site in enumerate(sites):
 
     # ---------------------------------------------------------------
     # plot the difference between ipsi and contra for each mouse, contraSensoryEvidence, and daResponseSize
+    plt.figure()
     sns.lineplot(data=df, x='nextContraSensoryEvidence', y='nextNumericSide', hue='DAresponseSize', style='numericSide')
 
     # Add labels and title
@@ -139,7 +140,7 @@ for i, site in enumerate(sites):
     plt.title('Next Numeric Side vs Next Contra Sensory Evidence')
     plt.legend(title='Dopamine Level / Current Trial Side')
     plt.savefig(os.path.join(results_dir, 'nextNumericSide_vs_nextContraSensoryEvidence.png'))
-    plt.show()
+    
 
     # ---------------------------------------------------------------
     # plot the difference between ipsi and contra for each mouse, nextContraSensoryEvidence, and daResponseSize
@@ -154,13 +155,13 @@ for i, site in enumerate(sites):
 
     # Drop the original ipsi and contra columns and "flatten" the dataframe
     agg_diff = pivot_table.drop(columns=[0, 1])
-
+    plt.figure()
     # Step 2: Plot the results directly
-    sns.lineplot(data=agg_diff, x='nextContraSensoryEvidence', y='diffNextNumericSide', hue='DAresponseSize')
+    sns.lineplot(data=agg_diff, x='nextContraSensoryEvidence', y='diffNextNumericSide', hue='DAresponseSize', ci=68)
     plt.ylabel("Difference in nextNumericSide (Ipsi - Contra)")
     plt.title("Bias dependent on previous trial DA response")
     plt.savefig(os.path.join(results_dir,'diffNextNumericSide.png'))
-    plt.show()
+    
 
 
     # ---------------------------------------------------------------
@@ -181,13 +182,14 @@ for i, site in enumerate(sites):
 
     # Create separate plots for each mouse
     for mouse in agg_diff['mouse'].unique():
+        plt.figure()
         mouse_data = agg_diff[agg_diff['mouse'] == mouse]
 
         sns.lineplot(data=mouse_data, x='nextContraSensoryEvidence', y='diffNextNumericSide', hue='DAresponseSize')
         plt.title(f"Mouse: {mouse}")
         plt.ylabel("Difference in nextNumericSide (Ipsi - Contra)")
         plt.savefig(os.path.join(results_dir, f'diffNextNumericSide_mouse_{mouse}.png'))
-        plt.show()
+        
 
     # ---------------------------------------------------------------
     # now the uncertainty plot (same as above but folded over the middle)
@@ -212,7 +214,9 @@ for i, site in enumerate(sites):
 
     # Group by uncertainty and DAresponseSize and compute the mean difference
     agg_diff_grouped = agg_diff.groupby(['mouse', 'uncertainty', 'DAresponseSize'])['diffNextNumericSide'].mean().reset_index()
-
+    max_values_per_mouse = agg_diff_grouped.groupby('mouse')['diffNextNumericSide'].transform('max')
+    # Normalize 'diffNextNumericSide' by dividing by the maximum value
+    agg_diff_grouped['normalizedDiffNextNumericSide'] = agg_diff_grouped['diffNextNumericSide'] / max_values_per_mouse
     # Plot the average difference as a function of uncertainty
     fig, ax = plt.subplots(figsize=(2, 2.3))
     sns.lineplot(data=agg_diff_grouped, x='uncertainty', y='diffNextNumericSide', hue='DAresponseSize', ci=68, palette=colors[site])
@@ -222,7 +226,7 @@ for i, site in enumerate(sites):
     plt.tight_layout()
     ax.legend(frameon=False)
     plt.savefig(os.path.join(results_dir, 'uncertainty_plot_{}.pdf'.format(site)))
-    plt.show()
+    
 
     model = smf.ols(formula='diffNextNumericSide ~ np.log(uncertainty) * C(DAresponseSize)', data=agg_diff_grouped)
     results = model.fit()
@@ -255,10 +259,10 @@ for i, site in enumerate(sites):
 
     # significance stars
     site_p_vals = p_vals[site]
-    ax.text(x_positions[0],0.2, output_significance_stars_from_pval(site_p_vals[0]), ha='center', fontsize=7)
-    ax.text(x_positions[1], 0.4, output_significance_stars_from_pval(site_p_vals[1]), ha='center', fontsize=7)
-    ax.text(x_positions[2], 0.3, output_significance_stars_from_pval(site_p_vals[2]), ha='center', fontsize=7)
-
+    ax.text(x_positions[0], 1.0, output_significance_stars_from_pval(site_p_vals[0]), ha='center', fontsize=7)
+    ax.text(x_positions[1], 1.0, output_significance_stars_from_pval(site_p_vals[1]), ha='center', fontsize=7)
+    ax.text(x_positions[2], 1.0, output_significance_stars_from_pval(site_p_vals[2]), ha='center', fontsize=7)
+    print('{}: DA size {}, uncertainty {}, interaction {})'.format(site, site_p_vals[0], site_p_vals[1], site_p_vals[2]))
 
 # Customize the plot
 ax.set_xlabel("Regressors")
