@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,24 +10,19 @@ from set_global_params import change_over_time_mice
 from utils.tracking_analysis.first_three_session_cumsum_ang_vel import get_first_three_sessions_dlc
 import scipy.stats as stats
 from utils.regression_plotting_utils import make_box_plot_with_shuffles
-import os
-import seaborn as sns
-from utils.regression_plotting_utils import make_box_plot_with_shuffles
-
 from utils.tracking_analysis.dlc_processing_utils import get_camera_trigger_times, find_nearest_trials
 
 from utils.tracking_analysis.head_angle_plotting_functions import *
 from set_global_params import post_processed_tracking_data_path, processed_data_path
 
 
-
 def create_box_plot_with_shuffles(all_sites_data, shuffle_compare_boxplot_ax, palette=['#FDC5AF', '#fc8d62', '#B6E2D4', '#66c2a5']):
     """
-
+    Creates a box plot comparing actual data to shuffled data
     Args:
-        all_sites_data ():
-        shuffle_compare_boxplot_ax ():
-        palette ():
+        all_sites_data (pandas.core.frame.DataFrame):tail, nacc and both shuffles
+        shuffle_compare_boxplot_ax (matplotlib.axes._subplots.AxesSubplot): axes to plot on
+        palette (list): list of colour strings (hex)
 
     Returns:
 
@@ -47,6 +43,16 @@ def create_box_plot_with_shuffles(all_sites_data, shuffle_compare_boxplot_ax, pa
 
 
 def calculate_p_value_and_proportion(real_data, shuffled_data):
+    """
+    Calculates p-value of data vs shuffled data
+    Args:
+        real_data (pandas.core.frame.DataFrame): real data
+        shuffled_data (pandas.core.frame.DataFrame): shuffled data
+
+    Returns:
+        p_val_data (numpy.float64): p value of t-test of real data fit slopes against shuffled data
+        proportion (numpy.float64): proportion of shuffles with p-value less than real p-value
+    """
     _, p_val_data = stats.ttest_ind(real_data['fit slope'], shuffled_data['fit slope'])
     print('Real data p-value:', p_val_data)
 
@@ -56,18 +62,44 @@ def calculate_p_value_and_proportion(real_data, shuffled_data):
         _, p_val = stats.ttest_ind(real_data['fit slope'], shuffle_subset['fit slope'])
         p_vals.append(p_val)
 
-    proportion = np.sum(np.array(p_vals) <= p_val_data) / len(p_vals)
+    proportion = np.where(np.array(p_vals) <= p_val_data)[0].shape[0]/len(p_vals)
     return p_val_data, proportion
 
 
-def load_tracking_data(site, save=False, mice=change_over_time_mice):
+def load_tracking_data(site, save=False, load_saved=True, mice=change_over_time_mice):
+    """
+    Loads saved out formatted tracking data for a recording site for the first three sessions
+    Args:
+        site (str): 'tail' or 'nacc'
+        save (bool): save new df
+        load_saved (bool): load saved df
+        mice (list): mouse IDs
+
+    Returns:
+        all_data (pandas.core.frame.DataFrame): all data (real and shuffled)
+        q_data (pandas.core.frame.DataFrame): real data with quartiles based on dopamine response size
+        s_data (pandas.core.frame.DataFrame): shuffled data with shuffled quartiles
+    """
     mouse_ids = mice[site]
-    data_to_save, all_data = get_first_three_sessions_dlc(mouse_ids, site, save=save, load_saved=True)
+    data_to_save, all_data = get_first_three_sessions_dlc(mouse_ids, site, save=save, load_saved=load_saved)
     q_data = all_data[all_data['recording site'] == site]
-    s_data = all_data[all_data['recording site'] == f'shuffled {site}']
+    s_data = all_data[all_data['recording site'] == 'shuffled {}'.format(site)]
     return all_data, q_data, s_data
 
+
 def plot_one_trial(x, y, ax=False, cmap='winter', alpha=0.5):
+    """
+    PLots a trace (x vs y) for one trials
+    Args:
+        x (numpy.ndarray): x values to plot
+        y (numpy.ndarray): y values to plot
+        ax (matplotlib.axes._subplots.AxesSubplot): axis to plot on
+        cmap (str): argument for plt.get_cmap
+        alpha (float): alpha for plot
+
+    Returns:
+        ax (matplotlib.axes._subplots.AxesSubplot): axes
+    """
     if not ax:
         fig, ax = plt.subplots(1, 1, figsize=(8, 7))
     MAP = cmap
@@ -82,6 +114,19 @@ def plot_one_trial(x, y, ax=False, cmap='winter', alpha=0.5):
 
 # PLOT HEAD ANGLE
 def plot_one_trial_head_angle(angles, x, y, ax=False, cmap=matplotlib.cm.winter, head_size=50):
+    """
+
+    Args:
+        angles (numpy.ndarray): in degrees
+        x (numpy.ndarray): nose x values to plot
+        y (numpy.ndarray): nose y values to plot
+        ax (matplotlib.axes._subplots.AxesSubplot): axes to plot on
+        cmap (str): argument for plt.get_cmap
+        head_size (int): size fore head triangle
+
+    Returns:
+        ax (matplotlib.axes._subplots.AxesSubplot): axes
+    """
     if not ax:
         fig, ax = plt.subplots(1, 1, figsize=(8, 7))
     NPOINTS = angles.shape[0]
@@ -97,22 +142,21 @@ def plot_one_trial_head_angle(angles, x, y, ax=False, cmap=matplotlib.cm.winter,
     return ax
 
 
-# PLOT PHOTOMETRY SIGNAL BY QUANTILES
 def plot_quantiles_formatted_data(formatted_data, key, sort_by='APE peaks', ax=None, filter_by=None, filter_value=None,
                                   num_divisions=4, colourmap=matplotlib.cm.viridis, plot_means=True, align_end=True):
     """
-
+    Plots data based on key, dividing data into quantiles based on 'sort_by'
     Args:
-        formatted_data ():
-        key ():
-        sort_by ():
-        ax ():
-        filter_by ():
-        filter_value ():
-        num_divisions ():
-        colourmap ():
-        plot_means ():
-        align_end ():
+        formatted_data (pandas.core.frame.DataFrame):
+        key (str):
+        sort_by (str):
+        ax (matplotlib.axes._subplots.AxesSubplot):
+        filter_by (str): column to select data by if not None
+        filter_value (): value to filter data by
+        num_divisions (int): number of quantiles
+        colourmap (matplotlib.colors.ListedColormap): colormap for plot
+        plot_means (bool): plot the mean?
+        align_end (bool): only for time series data, align to start or end?
 
     Returns:
 
@@ -194,19 +238,25 @@ def plot_quantiles_formatted_data(formatted_data, key, sort_by='APE peaks', ax=N
             all_ys.append(mean_ys)
             if plot_means:
                 ax.plot(mean_xs, mean_ys, color=colours[q], lw=1)
-    return all_xs
+
 
 
 def load_example_mouse_movement_data(example_mouse='SNL_photo26', example_date='20200810', example_trial=50):
     """
-
+    Loads example mouse data for movement analysis plot based on dopamine response quartiles
     Args:
-        example_mouse ():
-        example_date ():
-        example_trial ():
+        example_mouse (str): mouse to load example data for
+        example_date (str): YYYYMMDD
+        example_trial (int): trial number
 
     Returns:
-
+        im (numpy.ndarray): image of box with mouse in it to plot the head angle trajectory on top of
+        x (numpy.ndarray): nose x for one trial choice movement
+        y (numpy.ndarray): nose y for one trial choice movement
+        angles (numpy.ndarray): head angles for one trial choice movement
+        cumsum_ang_vel (numpy.ndarray): cumulative angular velocity for one trial choice movement
+        sigmoid_fit (numpy.ndarray): the sigmoid fit for cumsum_ang_vel
+        quantile_data (pandas.core.frame.DataFrame): example mouse movement and dopamine data categorise into quartiles based on dopamine response size
     """
     # load example mouse data
     save_out_folder = post_processed_tracking_data_path + example_mouse
@@ -245,6 +295,15 @@ def load_example_mouse_movement_data(example_mouse='SNL_photo26', example_date='
 
 
 def make_quantile_scatter_plot(example_quantile_data, ax):
+    """
+
+    Args:
+        example_quantile_data ():
+        ax ():
+
+    Returns:
+
+    """
     colourmap = matplotlib.cm.viridis
     colours = colourmap(np.linspace(0, 0.8, 4))
 
@@ -258,7 +317,7 @@ def make_quantile_scatter_plot(example_quantile_data, ax):
         ax.scatter(np.abs(np.nanmedian(trials['fitted max cumsum ang vel'].values)), quantile_midpoint,
                    color=colours[i])
 
-    slope, intercept, r_value, p_value, std_err = sp.stats.linregress(mean_turns, quantile_midpoints)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(mean_turns, quantile_midpoints)
 
     ax.axline((0, intercept), slope=slope, color="k")
     ax.set_xlim([70, 130])

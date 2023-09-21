@@ -4,9 +4,9 @@ from set_global_params import camera_sample_rate
 
 set_plotting_defaults(font_size=8)
 
-# load group data
-all_nacc_data, q_nacc_data, s_nacc_data = load_tracking_data('Nacc', save=False, mice=change_over_time_mice)
-all_data, q_data, s_data = load_tracking_data('tail', save=False, mice=change_over_time_mice)
+# load group data and shuffled_data 
+all_nacc_data, nacc_quantile_data, shuffled_nacc_quantile_data = load_tracking_data('Nacc', save=False, mice=change_over_time_mice)
+all_tail_data, tail_quantile_data, shuffled_tail_quantile_data = load_tracking_data('tail', save=False, mice=change_over_time_mice)
 
 
 
@@ -52,21 +52,21 @@ make_quantile_scatter_plot(example_quantile_data, axs[1, 1])
 
 # Summary plot and stats
 # Data for 'tail' site
-tail_real_data = all_data[all_data['recording site'] == 'tail']
-tail_shuffled_data = s_data[s_data['recording site'] == 'shuffled tail']
+tail_real_data = all_tail_data[all_tail_data['recording site'] == 'tail']
+tail_shuffled_data = shuffled_tail_quantile_data[shuffled_tail_quantile_data['recording site'] == 'shuffled tail']
 
 tail_p_val_data, tail_proportion = calculate_p_value_and_proportion(tail_real_data, tail_shuffled_data)
 print('Tail proportion of shuffles with p-value <= actual p-value:', tail_proportion)
 
 # Data for 'Nacc' site
 nacc_real_data = all_nacc_data[all_nacc_data['recording site'] == 'Nacc']
-nacc_shuffled_data = s_nacc_data[s_nacc_data['recording site'] == 'shuffled Nacc']
+nacc_shuffled_data = shuffled_nacc_quantile_data[shuffled_nacc_quantile_data['recording site'] == 'shuffled Nacc']
 
 nacc_p_val_data, nacc_proportion = calculate_p_value_and_proportion(nacc_real_data, nacc_shuffled_data)
 print('Nacc proportion of shuffles with p-value <= actual p-value:', nacc_proportion)
 
 # Combine tail and nacc data for plot
-all_sites_data = pd.concat([all_data, all_nacc_data])
+all_sites_data = pd.concat([all_tail_data, all_nacc_data])
 
 # Create a box plot with shuffles
 create_box_plot_with_shuffles(all_sites_data, axs[1,2])
