@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
-from utils.tracking_analysis.first_three_session_cumsum_ang_vel_copy import get_all_mice_data
+from utils.tracking_analysis.psychometric_get_movement_and_or_traces import get_all_mice_data
 from utils.plotting import *
 
 

@@ -279,3 +279,18 @@ def make_box_plot(df, fig_ax,  dx ='site', dy = 'explained variance', ort = "v",
         fig_ax.set_ylim([-2, np.max(df[dy]) + 2])
     if label:
         fig_ax.text(0.5, 1, label, transform=fig_ax.get_xaxis_transform(), size=8, ha='center')
+
+
+def make_box_plot_with_shuffles(df, fig_ax,  dx ='site', dy = 'explained variance', ort = "v", pal = "Set2", set_ylims=False, label=None, scatter_size=4):
+    sns.stripplot( x = dx, y = dy, data = df, palette = pal, edgecolor = "white",
+                     size = scatter_size, jitter = 1, zorder = 0, orient = ort, ax=fig_ax)
+    sns.boxplot( x = dx, y = dy, data = df, color = "black", width = .5, zorder = 10,linewidth=0.5, \
+                showcaps = True, boxprops = {'facecolor':'none', "zorder":10},\
+                showfliers=False, whiskerprops = {'linewidth':0.5, "zorder":10},\
+                   saturation = 1, orient = ort, ax=fig_ax)
+    #fig_ax.set_xlim([-0.5, 1.5])
+    if set_ylims:
+        fig_ax.set_ylim([-2, np.max(df[dy]) + 2])
+    if label:
+        fig_ax.text(0.5, 1, label, transform=fig_ax.get_xaxis_transform(), size=8, ha='center')
+

@@ -111,7 +111,7 @@ def get_all_mice_data(experiments_to_process, exp_type='', key='fitted max cumsu
 
 
 def get_first_three_sessions_dlc(mouse_ids, site, num_sessions=3, save=False, load_saved=True):
-    save_out_folder = 'W:\\photometry_2AC\\tracking_analysis\\'
+    save_out_folder = 'T:\\photometry_2AC\\tracking_analysis\\'
     mouse_names = '_'.join(mouse_ids)
     save_out_file_shuffles = os.path.join(save_out_folder, 'contra_APE_tracking_first_{}_sessions_{}_with_shuffles.pkl'.format(num_sessions, mouse_names))
     save_out_file = os.path.join(save_out_folder, 'contra_APE_tracking_first_{}_sessions_{}.pkl'.format(num_sessions, mouse_names))
@@ -119,7 +119,7 @@ def get_first_three_sessions_dlc(mouse_ids, site, num_sessions=3, save=False, lo
         data_to_save = pd.read_pickle(save_out_file)
         all_data = pd.read_pickle(save_out_file_shuffles)
     else:
-        experiment_record = pd.read_csv('W:\\photometry_2AC\\experimental_record.csv', dtype='str')
+        experiment_record = pd.read_csv('T:\\photometry_2AC\\experimental_record.csv', dtype='str')
         experiment_record['date'] = experiment_record['date'].astype(str)
         clean_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
         all_experiments_to_process = clean_experiments[
