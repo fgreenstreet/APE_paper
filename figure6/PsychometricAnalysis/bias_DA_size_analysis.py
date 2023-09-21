@@ -226,15 +226,28 @@ for i, site in enumerate(sites):
     plt.tight_layout()
     ax.legend(frameon=False)
     plt.savefig(os.path.join(results_dir, 'uncertainty_plot_{}.pdf'.format(site)))
-    
 
-    model = smf.ols(formula='diffNextNumericSide ~ np.log(uncertainty) * C(DAresponseSize)', data=agg_diff_grouped)
+    # Apply logarithm transformation to 'uncertainty'
+    agg_diff_grouped['log_uncertainty'] = np.log(agg_diff_grouped['uncertainty'])
+
+    # Plot the average difference as a function of log uncertainty
+    fig, ax = plt.subplots(figsize=(2, 2.3))
+    sns.lineplot(data=agg_diff_grouped, x='log_uncertainty', y='diffNextNumericSide', hue='DAresponseSize',
+                 ci=68, palette=colors[site])
+    plt.ylabel("Contralateral bias")
+    plt.xlabel("Log Perceptual Uncertainty")
+    makes_plots_pretty(ax)
+    plt.tight_layout()
+    ax.legend(frameon=False)
+    plt.savefig(os.path.join(results_dir, 'log_uncertainty_plot_{}.pdf'.format(site)))
+
+    model = smf.ols(formula='diffNextNumericSide ~ log_uncertainty * C(DAresponseSize)', data=agg_diff_grouped)
     results = model.fit()
     print(results.summary())
 
     DA_pval = results.pvalues['C(DAresponseSize)[T.large]']
-    interaction_pval = results.pvalues['np.log(uncertainty):C(DAresponseSize)[T.large]']
-    uncertainty_pval = results.pvalues['np.log(uncertainty)']
+    interaction_pval = results.pvalues['log_uncertainty:C(DAresponseSize)[T.large]']
+    uncertainty_pval = results.pvalues['log_uncertainty']
     p_vals[site] = [DA_pval, uncertainty_pval, interaction_pval]
 
     coefficients = results.params.drop("Intercept")
@@ -259,9 +272,9 @@ for i, site in enumerate(sites):
 
     # significance stars
     site_p_vals = p_vals[site]
-    ax.text(x_positions[0], 1.0, output_significance_stars_from_pval(site_p_vals[0]), ha='center', fontsize=7)
-    ax.text(x_positions[1], 1.0, output_significance_stars_from_pval(site_p_vals[1]), ha='center', fontsize=7)
-    ax.text(x_positions[2], 1.0, output_significance_stars_from_pval(site_p_vals[2]), ha='center', fontsize=7)
+    ax.text(x_positions[0], 0.2, output_significance_stars_from_pval(site_p_vals[0]), ha='center', fontsize=7)
+    ax.text(x_positions[1], 0.4, output_significance_stars_from_pval(site_p_vals[1]), ha='center', fontsize=7)
+    ax.text(x_positions[2], 0.3, output_significance_stars_from_pval(site_p_vals[2]), ha='center', fontsize=7)
     print('{}: DA size {}, uncertainty {}, interaction {})'.format(site, site_p_vals[0], site_p_vals[1], site_p_vals[2]))
 
 # Customize the plot

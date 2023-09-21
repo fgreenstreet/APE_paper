@@ -6,26 +6,34 @@ import sys
 sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
 sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
 from first_three_session_cumsum_ang_vel import get_first_three_sessions_dlc
-from freely_moving_photometry_analysis.utils.regression.regression_plotting_utils import make_box_plot
-from freely_moving_photometry_analysis.utils.plotting_visuals import makes_plots_pretty
+from utils.regression_plotting_utils import make_box_plot
+from utils.plotting_visuals import makes_plots_pretty
 import matplotlib.pyplot as plt
 import matplotlib
 from cycler import cycler
-from dlc_processing_utils import get_camera_trigger_times, find_nearest_trials
+from utils.tracking_analysis.dlc_processing_utils import get_camera_trigger_times, find_nearest_trials
 from matplotlib.patches import Polygon
 from matplotlib.transforms import Affine2D
 import scipy as sp
-from set_global_params import processed_data_path, post_processed_tracking_data_path
+from scipy.stats import shapiro
+import matplotlib
 
-# This came from a different repo so imports are defintely bad
-#   TODO: sort out imports
+font = {'size': 7}
+matplotlib.rc('font', **font)
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['font.sans-serif'] = 'Arial'
+matplotlib.rcParams['font.family']
+
+# TODO: sort out imports (belong to repo DLC_postprocessing)
+# TODO: clean up code
+
 ## load group tail data
 mouse_ids = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26'] #['SNL_photo28', 'SNL_photo30']#['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33', 'SNL_photo34', 'SNL_photo35'] #['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26'] #['SNL_photo28', 'SNL_photo30']
 site = 'tail'
 save = False
 num_sessions = 3
 
-data_to_save, all_data = get_first_three_sessions_dlc(mouse_ids, site, save=False, load_saved=False)
+data_to_save, all_data = get_first_three_sessions_dlc(mouse_ids, site, save=False, load_saved=True)
 q_data = all_data[all_data['recording site'] == site]
 s_data = all_data[all_data['recording site'] == 'shuffled '+ site]
 
@@ -36,7 +44,7 @@ site = 'Nacc'
 save = False
 num_sessions = 3
 
-_, all_nacc_data = get_first_three_sessions_dlc(mouse_ids, site, save=False, load_saved=False)
+_, all_nacc_data = get_first_three_sessions_dlc(mouse_ids, site, save=False, load_saved=True)
 q_nacc_data = all_nacc_data[all_nacc_data['recording site'] == site]
 s_nacc_data = all_nacc_data[all_nacc_data['recording site'] == 'shuffled '+ site]
 
@@ -44,7 +52,7 @@ s_nacc_data = all_nacc_data[all_nacc_data['recording site'] == 'shuffled '+ site
 example_mouse = 'SNL_photo26'
 example_date = '20200810'
 example_trial=50
-save_out_folder = post_processed_tracking_data_path + example_mouse
+save_out_folder = 'W:\\photometry_2AC\\tracking_analysis\\' + example_mouse
 if not os.path.exists(save_out_folder):
     os.makedirs(save_out_folder)
 movement_param_file = os.path.join(save_out_folder, 'contra_APE_tracking{}_{}.pkl'.format(example_mouse, example_date))
@@ -73,7 +81,7 @@ x, y = (quantile_data['head x'].iloc[example_trial], quantile_data['head y'].ilo
 
 ## Load an image
 # first, we need to extract a frame number corresponding to the start of the trajectory for the given trial
-saving_folder = processed_data_path + example_mouse + '\\'
+saving_folder = 'W:\\photometry_2AC\\processed_data\\' + example_mouse + '\\'
 restructured_data_filename = example_mouse + '_' + example_date + '_' + 'restructured_data.pkl'
 trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
 camera_triggers, trial_start_stamps = get_camera_trigger_times(example_mouse, example_date, 'Two_Alternative_Choice')
@@ -328,7 +336,7 @@ shuffle_compare_boxplot_ax.plot([0, 0, 1, 1], [y, y+h, y+h, y], c='k', lw=1)
 shuffle_compare_boxplot_ax.text(.5, y+h, '***', ha='center', fontsize=12)
 shuffle_compare_boxplot_ax.plot([2, 2, 3, 3], [y, y+h, y+h, y], c='k', lw=1)
 shuffle_compare_boxplot_ax.text(2.5, y + 2 * h, 'n.s.', ha='center', fontsize=8)
-shuffle_compare_boxplot_ax.set_ylim([None, y + 4 * h])
+#.set_ylim([None, y + 10 * h])
 
 perc_shuffles_tail_ax.hist(p_vals, color='grey')
 perc_shuffles_tail_ax.axvline(p_val_data, color='#fc8d62')
@@ -354,5 +362,5 @@ makes_plots_pretty(fig.axes)
 plt.tight_layout()
 
 data_directory = 'W:\\thesis\\figures\\'
-plt.savefig(data_directory + 'movement_figure_2.pdf', transparent=True, bbox_inches='tight')
+#plt.savefig(data_directory + 'movement_figure_2.pdf', transparent=True, bbox_inches='tight')
 plt.show()
