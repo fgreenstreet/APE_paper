@@ -6,6 +6,9 @@ from cycler import cycler
 from matplotlib.patches import Polygon
 from matplotlib.transforms import Affine2D
 import matplotlib
+from scipy.stats import shapiro, ttest_1samp
+from utils.plotting import output_significance_stars_from_pval
+import seaborn as sns
 from set_global_params import change_over_time_mice
 from utils.tracking_analysis.first_three_session_cumsum_ang_vel import get_first_three_sessions_dlc
 import scipy.stats as stats
@@ -40,6 +43,56 @@ def create_box_plot_with_shuffles(all_sites_data, shuffle_compare_boxplot_ax, pa
     shuffle_compare_boxplot_ax.text(0.5, y + h, '***', ha='center', fontsize=12)
     shuffle_compare_boxplot_ax.plot([2, 2, 3, 3], [y, y + h, y + h, y], c='k', lw=1)
     shuffle_compare_boxplot_ax.text(2.5, y + 2 * h, 'n.s.', ha='center', fontsize=8)
+
+
+def coefficient_ttest_barplot(tail_mouse_data, nacc_mouse_data, ax):
+    """
+
+    Args:
+        tail_mouse_data ():
+        nacc_mouse_data ():
+        ax ():
+
+    Returns:
+
+    """
+    tail_mouse_means = tail_mouse_data.groupby(['mouse'])['fit slope'].apply(np.mean)
+    nacc_mouse_means = nacc_mouse_data.groupby(['mouse'])['fit slope'].apply(np.mean)
+
+    tail_pval, nacc_pval = ttest_1samp_regression_coefs(tail_mouse_means, nacc_mouse_means)
+    tail_stars = output_significance_stars_from_pval(tail_pval)
+    nacc_stars = output_significance_stars_from_pval(nacc_pval)
+
+    tail_mouse_df = pd.DataFrame({'coefficient': tail_mouse_means, 'recording site': 'TS'})
+    nacc_mouse_df = pd.DataFrame({'coefficient': nacc_mouse_means, 'recording site': 'VS'})
+    all_df = pd.concat([nacc_mouse_df, tail_mouse_df])
+    sns.barplot(data=all_df, x='recording site', y='coefficient', ax=ax, palette='Set2', errwidth=1, alpha=0.4)
+    sns.swarmplot(data=all_df, x='recording site', y='coefficient', ax=ax, palette='Set2', size=5)
+    ax.axhline(0, color='gray')
+    y = all_df.coefficient.max()
+    h = 0.1 * y
+    ax.text(1, y + h, tail_stars, ha='center', fontsize=12)
+    ax.text(0, y + h, nacc_stars, ha='center', fontsize=10)
+    ax.set_ylim(top=y + 3 * h)
+
+
+def ttest_1samp_regression_coefs(tail_mouse_means, nacc_mouse_means):
+    """
+
+    Args:
+        tail_mouse_means ():
+        nacc_mouse_means ():
+
+    Returns:
+
+    """
+    print('shapiro nacc: ', shapiro(nacc_mouse_means))
+    print('shapiro tail: ', shapiro(tail_mouse_means))
+    tail_pval = ttest_1samp(tail_mouse_means, 0)[1]
+    print('ttest pval tail: ', tail_pval)
+    nacc_pval = ttest_1samp(nacc_mouse_means, 0)[1]
+    print('ttest pval nacc: ', nacc_pval)
+    return tail_pval, nacc_pval
 
 
 def calculate_p_value_and_proportion(real_data, shuffled_data):
