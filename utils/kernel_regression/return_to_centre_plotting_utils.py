@@ -3,23 +3,11 @@ sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_g
 sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
 sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git\\freely_moving_photometry_analysis' )
 
-import numpy as np
-from sklearn.linear_model import LinearRegression
-from scipy.ndimage.interpolation import shift
-from scipy.signal import decimate
-from matplotlib import pyplot as plt
-from scipy import stats
-from scipy.stats import sem
-import pandas as pd
-import pickle
-from matplotlib import colors, cm
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
-from utils.linear_regression_utils import *
-import os
-import seaborn as sns
+from utils.kernel_regression.linear_regression_utils import *
 from tqdm import tqdm
 from set_global_params import experiment_record_path, processed_data_path
-from utils.regression_plotting_utils import calculate_significance_windows, organise_data_means_with_rtc, plot_kernels, organise_data_means
+from utils.kernel_regression.regression_plotting_utils import calculate_significance_windows, organise_data_means_with_rtc, plot_kernels, organise_data_means
 
 
 def plot_kernels_for_site(move_axs, cue_axs, reward_axs, return_axs, means, sems, time_stamps, palette=['#E95F32', '#F9C0AF'], legend=False):

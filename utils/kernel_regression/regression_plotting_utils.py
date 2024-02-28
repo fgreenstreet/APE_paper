@@ -1,7 +1,7 @@
 from scipy import stats
 from scipy.stats import sem, shapiro
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
-from utils.linear_regression_utils import *
+from utils.kernel_regression.linear_regression_utils import *
 import os
 import seaborn as sns
 from tqdm import tqdm
