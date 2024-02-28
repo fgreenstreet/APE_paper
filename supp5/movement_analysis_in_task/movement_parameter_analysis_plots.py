@@ -71,7 +71,7 @@ print('Nacc proportion of shuffles with p-value <= actual p-value:', nacc_propor
 all_sites_data = pd.concat([all_tail_data, all_nacc_data])
 
 # Create a box plot with shuffles (used in original pre-print)
-# create_box_plot_with_shuffles(all_sites_data, axs[1,2])
+#create_box_plot_with_shuffles(all_sites_data, axs[1,2])
 
 # ttest coefs against zero and make bar plot
 coefficient_ttest_barplot(tail_real_data, nacc_real_data, axs[1, 2])

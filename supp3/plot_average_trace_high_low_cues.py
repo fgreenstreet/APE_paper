@@ -23,7 +23,7 @@ plt.tight_layout()
 
 fig_directory = 'T:\\paper\\revisions\\cue movement reward comparisons VS TS\\'
 
-plt.savefig(fig_directory + 'high_low_cue_avg_traces.pdf', transparent=True, bbox_inches='tight')
+#plt.savefig(fig_directory + 'high_low_cue_avg_traces.pdf', transparent=True, bbox_inches='tight')
 plt.show()
 
 font = {'size': 8}
@@ -34,7 +34,7 @@ matplotlib.rcParams['font.family']
 
 fig, axs = plt.subplots(1, 2, figsize=[4, 2])
 
-axs.set_title('anterior to tail')
+#axs.set_title('anterior to tail')
 plot_average_trace_all_mice_high_low_cues(axs, 'tail_ant', cmap=['#E95F32', '#F9C0AF'])
 makes_plots_pretty(axs)
 plt.tight_layout()

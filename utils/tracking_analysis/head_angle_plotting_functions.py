@@ -34,7 +34,7 @@ def create_box_plot_with_shuffles(all_sites_data, shuffle_compare_boxplot_ax, pa
                                 scatter_size=3, pal=palette)
 
     # Customize the x-axis labels
-    shuffle_compare_boxplot_ax.set_xticklabels(['shuffled \n AudS', 'AudS', 'shuffled \n VS', 'VS'], rotation=30)
+    #shuffle_compare_boxplot_ax.set_xticklabels(['shuffled \n AudS', 'AudS', 'shuffled \n VS', 'VS'], rotation=30)
 
     # Add significance annotations
     y = 0.5

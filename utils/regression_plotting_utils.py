@@ -294,3 +294,18 @@ def make_box_plot_with_shuffles(df, fig_ax,  dx ='site', dy = 'explained varianc
     if label:
         fig_ax.text(0.5, 1, label, transform=fig_ax.get_xaxis_transform(), size=8, ha='center')
 
+
+def organise_data_means_with_rtc(ipsi_choice_kernel, contra_choice_kernel, ipsi_cue_kernel, contra_cue_kernel, reward_kernel, no_reward_kernel, contra_return_kernel, ipsi_return_kernel):
+    means = {}
+    sems = {}
+    means, sems = calculate_mean_and_sem(ipsi_choice_kernel, 'ipsi choices', means, sems)
+    means, sems = calculate_mean_and_sem(contra_choice_kernel, 'contra choices', means, sems)
+    means, sems = calculate_mean_and_sem(ipsi_cue_kernel, 'ipsi cues', means, sems)
+    means, sems = calculate_mean_and_sem(contra_cue_kernel, 'contra cues', means, sems)
+    means, sems = calculate_mean_and_sem(reward_kernel, 'rewards', means, sems)
+    means, sems = calculate_mean_and_sem(no_reward_kernel, 'no rewards', means, sems)
+    means, sems = calculate_mean_and_sem(contra_return_kernel, 'contra returns', means, sems)
+    means, sems = calculate_mean_and_sem(ipsi_return_kernel, 'ipsi returns', means, sems)
+    return means, sems
+
+

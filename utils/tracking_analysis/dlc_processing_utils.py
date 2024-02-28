@@ -1,11 +1,12 @@
 from scipy.signal import filtfilt
+from utils.tracking_analysis.velocity_utils import format_tracking_data_and_photometry, format_only_photometry
 from scipy.optimize import curve_fit
 import pickle
 import pandas as pd
 from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
 from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 from utils.plotting import *
-from utils.tracking_analysis.velocity_utils import format_tracking_data_and_photometry, format_only_photometry
+
 from set_global_params import processed_data_path
 import os
 
@@ -144,11 +145,22 @@ def sigmoid(x, L, x0, k, b):
     y = L / (1 + np.exp(-k * (x - x0))) + b
     return (y)
 
+
 def fit_sigmoid(x_data, y_data):
     p0 = [max(y_data), np.median(x_data), 1, min(y_data)]  # this is an mandatory initial guess
     popt, pcov = curve_fit(sigmoid, x_data, y_data, p0, method='dogbox')
     return popt, pcov
 
+
+def get_raw_photometry_data(mouse, date):
+    saving_folder = 'T:\\photometry_2AC\\processed_data\\' + mouse + '\\'
+    restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
+    trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
+    with open(saving_folder + restructured_data_filename, "rb") as fh:
+        trial_data = pickle.load(fh)
+    dff_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
+    dff = np.load(saving_folder + dff_trace_filename)
+    return dff, trial_data
 
 def get_movement_properties_for_session(mouse, date):
     file_path = 'T:\\deeplabcut_tracking\\second_attempt_test_videos\\{}_{}DLC_resnet50_two_acMay10shuffle1_600000.h5'.format(
