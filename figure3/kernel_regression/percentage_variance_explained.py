@@ -1,5 +1,5 @@
 import os
-from utils.linear_regression_utils import *
+from utils.kernel_regression.linear_regression_utils import *
 import gc
 import pickle
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings

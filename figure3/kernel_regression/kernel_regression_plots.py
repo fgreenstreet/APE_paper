@@ -1,7 +1,7 @@
 import string
 
 import matplotlib
-from utils.regression_plotting_utils import *
+from utils.kernel_regression.regression_plotting_utils import *
 from utils.plotting_visuals import makes_plots_pretty
 import matplotlib.patches as mpatches
 

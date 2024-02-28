@@ -1,6 +1,6 @@
-from utils.linear_regression_utils import *
-from utils.return_to_centre_regression_utils import run_regression_return_to_centre_one_mouse_one_session, get_first_x_sessions_reg_rtc
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
+from utils.kernel_regression.linear_regression_utils import *
+from utils.kernel_regression.return_to_centre_regression_utils import run_regression_return_to_centre_one_mouse_one_session, get_first_x_sessions_reg_rtc
+from utils.post_processing_utils import remove_exps_after_manipulations
 import gc
 import os
 

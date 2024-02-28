@@ -4,7 +4,7 @@ from utils.individual_trial_analysis_regression_all_cues import SessionEvents
 import pandas as pd
 import os
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
-from utils.linear_regression_utils import get_first_x_sessions
+from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
 
 from set_global_params import experiment_record_path, processed_data_path
 

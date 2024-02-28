@@ -2,8 +2,8 @@ import os
 from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
 from utils.tracking_analysis.dlc_processing_utils import get_raw_photometry_data
 from utils.post_processing_utils import remove_exps_after_manipulations
-from utils.linear_regression_utils import rolling_zscore
-from utils.return_to_centre_regression_utils import get_first_x_sessions_reg_rtc
+from utils.kernel_regression.linear_regression_utils import rolling_zscore
+from utils.kernel_regression.return_to_centre_regression_utils import get_first_x_sessions_reg_rtc
 from utils.return_to_centre_utils import *
 
 mouse_ids = ['SNL_photo57', 'SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72']

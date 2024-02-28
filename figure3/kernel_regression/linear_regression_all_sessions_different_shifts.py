@@ -2,7 +2,7 @@ import sys
 sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
 sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
 
-from utils.linear_regression_utils import *
+from utils.kernel_regression.linear_regression_utils import *
 import gc
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
 from set_global_params import experiment_record_path, processed_data_path

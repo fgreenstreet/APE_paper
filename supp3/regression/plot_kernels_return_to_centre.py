@@ -1,8 +1,7 @@
 import numpy as np
 from utils.plotting_visuals import set_plotting_defaults
-from utils.return_to_centre_plotting_utils import get_regression_data_for_plot, plot_kernels_for_site
+from utils.kernel_regression.return_to_centre_plotting_utils import get_regression_data_for_plot, plot_kernels_for_site
 import matplotlib.pyplot as plt
-import matplotlib
 from utils.plotting_visuals import makes_plots_pretty
 import matplotlib.patches as mpatches
 

@@ -1,9 +1,9 @@
 import os
 from utils.plotting_visuals import set_plotting_defaults
 import matplotlib.pyplot as plt
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
+from utils.post_processing_utils import remove_exps_after_manipulations
 from utils.plotting import calculate_error_bars
-from utils.return_to_centre_regression_utils import get_first_x_sessions_reg_rtc
+from utils.kernel_regression.return_to_centre_regression_utils import get_first_x_sessions_reg_rtc
 import pandas as pd
 from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 from scipy.signal import decimate

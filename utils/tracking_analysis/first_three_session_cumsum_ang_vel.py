@@ -4,7 +4,7 @@ import utils.tracking_analysis.dlc_processing_utils as dlc_processing_utils
 from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 import scipy as sp
 from utils.post_processing_utils import remove_exps_after_manipulations
-from utils.linear_regression_utils import get_first_x_sessions
+from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
 
 
 def get_fit_slopes(quantile_data, experiment):

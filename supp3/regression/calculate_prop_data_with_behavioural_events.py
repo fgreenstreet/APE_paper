@@ -1,8 +1,8 @@
 import os
-from utils.linear_regression_utils import *
+from utils.kernel_regression.linear_regression_utils import *
 import gc
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
-from utils.return_to_centre_regression_utils import get_first_x_sessions_reg_rtc, calculate_prop_data_covered_by_design_matrix
+from utils.kernel_regression.return_to_centre_regression_utils import get_first_x_sessions_reg_rtc, calculate_prop_data_covered_by_design_matrix
 
 mouse_ids = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72'] #'SNL_photo57', 'SNL_photo16', 'SNL_photo17', 'SNL_photo18',
 site = 'tail'

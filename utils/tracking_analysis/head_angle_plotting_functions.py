@@ -12,7 +12,7 @@ import seaborn as sns
 from set_global_params import change_over_time_mice
 from utils.tracking_analysis.first_three_session_cumsum_ang_vel import get_first_three_sessions_dlc
 import scipy.stats as stats
-from utils.regression_plotting_utils import make_box_plot_with_shuffles
+from utils.kernel_regression.regression_plotting_utils import make_box_plot_with_shuffles
 from utils.tracking_analysis.dlc_processing_utils import get_camera_trigger_times, find_nearest_trials
 
 from utils.tracking_analysis.head_angle_plotting_functions import *
