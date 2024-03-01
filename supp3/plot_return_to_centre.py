@@ -7,13 +7,14 @@ from utils.kernel_regression.return_to_centre_regression_utils import get_first_
 import pandas as pd
 from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 from scipy.signal import decimate
+from set_global_params import processed_data_path, experiment_record_path
 
 
 mouse_ids = ['SNL_photo57', 'SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72']
 num_sessions = 3
 site = 'tail'
 
-experiment_record = pd.read_csv('T:\\photometry_2AC\\experimental_record.csv')
+experiment_record = pd.read_csv(experiment_record_path)
 experiment_record['date'] = experiment_record['date'].astype(str)
 clean_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
 all_experiments_to_process = clean_experiments[
@@ -35,7 +36,7 @@ for mouse_num, mouse in enumerate(mouse_ids):
     for index, experiment in experiments.iterrows():
         mouse = experiment['mouse_id']
         date = experiment['date']
-        save_dir = 'T:\\photometry_2AC\\processed_data\\return_to_centre\\{}'.format(mouse)
+        save_dir =  processed_data_path + '\\return_to_centre\\{}'.format(mouse)
         save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_300frame_window.npz'.format(mouse, date)
         traces = np.load(os.path.join(save_dir, save_file))
         print(traces['ipsi_movement'].shape, traces['contra_movement'].shape)

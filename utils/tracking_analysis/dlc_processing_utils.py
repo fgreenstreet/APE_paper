@@ -5,10 +5,18 @@ import pickle
 import pandas as pd
 from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
 from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
-from utils.plotting import *
-
+from utils.tracking_analysis.tracking_plotting import *
 from set_global_params import processed_data_path
 import os
+
+
+def get_photometry_data_correct_incorrect_normal_task(mouse, date):
+    saving_folder = processed_data_path + '\\for_figure\\' + mouse + '\\'
+    aligned_filename = saving_folder + mouse + '_' + date + '_' + 'aligned_traces_correct_incorrect.p'
+    with open(aligned_filename, 'rb') as f:
+        data = pickle.load(f)
+    return data
+
 
 def get_x_y_data(data, scorer, bodypart):
     # get x_y_data
@@ -133,7 +141,6 @@ def get_photometry_data_correct_incorrect(mouse, date):
     return data
 
 
-
 def get_photometry_for_trial_numbers(test_trial_numbers, all_trial_numbers,  photometry_peaks):
     contra_test_trial_nums, inds, _ = np.intersect1d(all_trial_numbers, test_trial_numbers, return_indices=True)
     inds = inds.astype(int)
@@ -153,7 +160,7 @@ def fit_sigmoid(x_data, y_data):
 
 
 def get_raw_photometry_data(mouse, date):
-    saving_folder = 'T:\\photometry_2AC\\processed_data\\' + mouse + '\\'
+    saving_folder = processed_data_path + mouse + '\\'
     restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
     trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
     with open(saving_folder + restructured_data_filename, "rb") as fh:
@@ -161,6 +168,7 @@ def get_raw_photometry_data(mouse, date):
     dff_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
     dff = np.load(saving_folder + dff_trace_filename)
     return dff, trial_data
+
 
 def get_movement_properties_for_session(mouse, date):
     file_path = 'T:\\deeplabcut_tracking\\second_attempt_test_videos\\{}_{}DLC_resnet50_two_acMay10shuffle1_600000.h5'.format(

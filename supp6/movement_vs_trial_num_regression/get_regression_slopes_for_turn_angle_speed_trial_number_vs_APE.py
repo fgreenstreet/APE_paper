@@ -1,23 +1,13 @@
-import numpy as np
-from scipy import stats
-
 import os
 import statsmodels.api as sm
 from sklearn.metrics import explained_variance_score
-
-from camera_trigger_preprocessing_utils import *
-from plotting import *
-from extract_movement_for_all_sessions_utils import *
-
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git\\freely_moving_photometry_analysis')
-
-from freely_moving_photometry_analysis.utils.reaction_time_utils import get_bpod_trial_nums_per_session
-from freely_moving_photometry_analysis.utils.post_processing_utils import get_all_experimental_records
-from freely_moving_photometry_analysis.utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings, remove_manipulation_days
-from freely_moving_photometry_analysis.utils.regression.linear_regression_utils import get_first_x_sessions
-
+from utils.plotting import *
+from utils.tracking_analysis.extract_movement_for_all_sessions_utils import *
+from utils.reaction_time_utils import get_bpod_trial_nums_per_session
+from utils.post_processing_utils import get_all_experimental_records
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings, remove_manipulation_days
+from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
+from set_global_params import processed_data_path, change_over_time_mice, all_sessions_tracking_path
 
 def get_session_with_10000th_trial(mouse, experiments):
     dates = experiments[experiments['mouse_id']==mouse]['date'].unique()
@@ -92,7 +82,7 @@ def create_movement_param_and_APE_df_just_first_3_sessions(mouse, recording_site
     first_3_sessions = get_first_x_sessions(experiments_to_process, x=x)
     dates = first_3_sessions['date'].values
     for i, date in enumerate(dates):
-        save_out_folder = 'S:\\projects\\APE_tracking\\{}\\{}\\'.format(mouse, date)
+        save_out_folder = '{}{}\\{}\\'.format(all_sessions_tracking_path, mouse, date)
         movement_param_file = os.path.join(save_out_folder, 'APE_tracking{}_{}.pkl'.format(mouse, date))
         if os.path.isfile(movement_param_file):
             session_data = pd.read_pickle(movement_param_file)
@@ -100,7 +90,7 @@ def create_movement_param_and_APE_df_just_first_3_sessions(mouse, recording_site
         else:
             print('{} not found'.format(date))
             session_data, trial_data = get_movement_properties_for_session(mouse, date,
-                                                                                protocol='Two_Alternative_Choice_CentrePortHold',
+                                                                                protocol='Two_Alternative_Choice',
                                                                                 multi_session=False)
             session_data.to_pickle(movement_param_file)
         session_data['date'] = date
@@ -214,6 +204,7 @@ def full_model_regression(valid_contra_data):
     r2 = result.rsquared * 100
     return r2
 
+
 def remove_one_parameter(param_names, param_to_remove, old_coefs, old_X):
     param_names.remove(param_to_remove)
     new_params = param_names
@@ -258,9 +249,9 @@ def calculate_r2(valid_contra_data):
 
 if __name__ == '__main__':
     load_saved = True
-    mice = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26']
+    mice = change_over_time_mice['tail']
     for i, mouse in enumerate(mice):
-        df_save_dir = r'T:\photometry_2AC\processed_data\{}\turn_angle_over_time'.format(mouse)
+        df_save_dir = r'{}{}\turn_angle_over_time'.format(processed_data_path, mouse)
         if not os.path.isdir(df_save_dir):
             os.makedirs(df_save_dir)
         df_save_file = os.path.join(df_save_dir, 'movement_params_all_trials_vs_APE_{}.pkl'.format(mouse))
@@ -287,7 +278,7 @@ if __name__ == '__main__':
             mouse_df = pd.DataFrame(reg_dict)
             all_mice_df = pd.concat([all_mice_df, mouse_df])
     all_mice_df = all_mice_df.reset_index(drop=True)
-    all_mice_df_save_dir = r'T:\photometry_2AC\processed_data\turn_angle_over_time'
+    all_mice_df_save_dir = r'{}\turn_angle_over_time'.format(processed_data_path)
     if not os.path.isdir(all_mice_df_save_dir):
         os.makedirs(all_mice_df_save_dir)
     all_mice_df_save_file = os.path.join(all_mice_df_save_dir, 'movement_params_all_trials_vs_APE_regression_coefs_pvals_r2_and_trial_num_correlation_and_full_model.pkl') # 'movement_params_all_trials_vs_APE_regression_coefs_pvals_r2_and_trial_num_correlation.pkl' 'movement_params_all_trials_vs_APE_regression_coefs_pvals_r2.pkl'#'movement_params_all_trials_vs_APE_regression_coefs.pkl' #'movement_params_all_trials_vs_APE_regression_coefs_and_pvals.pkl'

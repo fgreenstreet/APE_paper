@@ -3,8 +3,9 @@ import pandas as pd
 from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 import scipy as sp
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
-from utils.linear_regression_utils import get_first_x_sessions
+from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
 from utils.tracking_analysis import dlc_processing_utils
+from set_global_params import experiment_record_path, post_processed_tracking_data_path
 
 
 def get_fit_slopes(quantile_data, experiment):
@@ -111,7 +112,7 @@ def get_all_mice_data(experiments_to_process, exp_type='', key='fitted max cumsu
 
 
 def get_first_three_sessions_dlc(mouse_ids, site, num_sessions=3, save=False, load_saved=True):
-    save_out_folder = 'T:\\photometry_2AC\\tracking_analysis\\'
+    save_out_folder = post_processed_tracking_data_path
     mouse_names = '_'.join(mouse_ids)
     save_out_file_shuffles = os.path.join(save_out_folder, 'contra_APE_tracking_first_{}_sessions_{}_with_shuffles.pkl'.format(num_sessions, mouse_names))
     save_out_file = os.path.join(save_out_folder, 'contra_APE_tracking_first_{}_sessions_{}.pkl'.format(num_sessions, mouse_names))
@@ -119,7 +120,7 @@ def get_first_three_sessions_dlc(mouse_ids, site, num_sessions=3, save=False, lo
         data_to_save = pd.read_pickle(save_out_file)
         all_data = pd.read_pickle(save_out_file_shuffles)
     else:
-        experiment_record = pd.read_csv('T:\\photometry_2AC\\experimental_record.csv', dtype='str')
+        experiment_record = pd.read_csv(experiment_record_path, dtype='str')
         experiment_record['date'] = experiment_record['date'].astype(str)
         clean_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
         all_experiments_to_process = clean_experiments[
@@ -148,41 +149,3 @@ def get_first_three_sessions_dlc(mouse_ids, site, num_sessions=3, save=False, lo
             data_to_save.to_pickle(save_out_file)
     return data_to_save, all_data
 
-#
-# mouse_ids = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26'] #['SNL_photo28', 'SNL_photo30']
-# site = 'tail'
-# save = False
-# num_sessions = 3
-#
-# data_to_save, all_data = get_first_three_sessions_dlc(mouse_ids, site, save=False, load_saved=False)
-#
-# q_data = all_data[all_data['recording site'] == site]
-# s_data = all_data[all_data['recording site'] == 'shuffled '+ site]
-# p_val_data = sp.stats.ttest_ind(all_data[all_data['recording site'] == site]['fit slope'], all_data[all_data['recording site'] == 'shuffled ' + site]['fit slope'])[1]
-# print('real data p-val:', p_val_data)
-# p_vals = []
-# for shuffle_num in s_data['shuffle number'].unique():
-#     shuffle_data = s_data[s_data['shuffle number'] == shuffle_num]
-#     p_vals.append(sp.stats.ttest_ind(s_data['fit slope'], shuffle_data['fit slope'])[1])
-# print('proportion of shuffles with p-val <= actual p val:', np.where(np.array(p_vals) <= p_val_data)[0].shape[0]/len(p_vals))
-
-# save_out_folder = 'W:\\photometry_2AC\\tracking_analysis\\'
-# mouse_names = '_'.join(mouse_ids)
-# g = sns.scatterplot(x='normalised cumsum ang vel', y='normalised APE quantile midpoint', data=data_to_save, hue='mouse')
-# g.legend(loc='center left', bbox_to_anchor=(1.25, 0.5), ncol=1)
-# fig_name = os.path.join(save_out_folder, 'mean_max_cumsum_ang_vel_APE_contra_{}'.format(mouse_names))
-# plt.savefig(fig_name)
-# mean_data = data_to_save.groupby(['mouse', 'quantile num'])['normalised cumsum ang vel'].apply(np.mean)
-# mean_data = mean_data.reset_index()
-# g = sns.lmplot(x='normalised cumsum ang vel', y='quantile num', data=mean_data, hue='mouse')
-# fig_name = os.path.join(save_out_folder, 'fitted_cumsum_ang_vel_APE_contra_{}'.format(mouse_names))
-# plt.savefig(fig_name)
-# mean_data = data_to_save.groupby(['normalised APE quantile midpoint'])['normalised cumsum ang vel', 'mouse'].apply(np.mean)
-# mean_data = mean_data.reset_index()
-# g = sns.lmplot(x='normalised cumsum ang vel', y='normalised APE quantile midpoint', data=mean_data)
-# #g.map_dataframe(annotate)
-# fig_name = os.path.join(save_out_folder, 'fitted_mean_cumsum_ang_vel_APE_contra_{}'.format(mouse_names))
-# plt.savefig(fig_name)
-# plt.show()
-#
-# #

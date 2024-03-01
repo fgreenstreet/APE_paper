@@ -5,6 +5,7 @@ import peakutils
 import pandas as pd
 from set_global_params import processed_data_path, daq_sample_rate
 
+
 class HeatMapParams(object):
     def __init__(self, params, response, first_choice):
         self.state = params['state_type_of_interest']

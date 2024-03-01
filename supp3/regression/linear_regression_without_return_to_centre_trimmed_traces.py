@@ -3,11 +3,10 @@ from utils.kernel_regression.linear_regression_utils import *
 import gc
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
 from utils.kernel_regression.return_to_centre_regression_utils import get_first_x_sessions_reg_rtc, run_regression_one_mouse_one_session_no_return_no_trim
+from set_global_params import processed_data_path, experiment_record_path
 
 mouse_ids = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72'] #'SNL_photo57', 'SNL_photo16', 'SNL_photo17', 'SNL_photo18',
 site = 'tail'
-experiment_record_path = 'W:\\photometry_2AC\\experimental_record.csv'
-processed_data_path = 'W:\\photometry_2AC\\processed_data\\'
 
 experiment_record = pd.read_csv(experiment_record_path)
 experiment_record['date'] = experiment_record['date'].astype(str)
@@ -22,8 +21,8 @@ for index, experiment in experiments_to_process.iterrows():
     var_exps.append(var_exp)
     scores.append(score)
 file_name = site + '_explained_variances_all_cues_trimmed_traces_only_tracking_mice.p' #'_explained_variances_not_cleaned.p' #'_explained_variances.p'
-processed_data_dir = os.path.join('T:\\photometry_2AC\\processed_data\\linear_regression_data\\')
-saving_filename = os.path.join('T:\\photometry_2AC\\processed_data\\linear_regression_data\\', file_name)
+processed_data_dir = os.path.join(processed_data_path, 'linear_regression_data')
+saving_filename = os.path.join(processed_data_path, 'linear_regression_data', file_name)
 if not os.path.exists(processed_data_dir):
     os.makedirs(processed_data_dir)
 

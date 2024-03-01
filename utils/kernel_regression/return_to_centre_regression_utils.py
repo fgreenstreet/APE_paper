@@ -1,19 +1,9 @@
-import sys
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git\\freely_moving_photometry_analysis')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
-import numpy as np
-from sklearn.linear_model import LinearRegression
-from scipy.ndimage.interpolation import shift
-from matplotlib import pyplot as plt
-from scipy import stats
 import sklearn
-import pandas as pd
-import pickle
-from utils.regression.linear_regression_utils import *
-import gc
+from utils.kernel_regression.linear_regression_utils import *
 import os
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
+from scipy.signal import decimate
 from set_global_params import processed_data_path
+
 
 def get_first_x_sessions_reg_rtc(sorted_experiment_record, x=3):
     i = []
@@ -33,15 +23,15 @@ def get_first_x_sessions_reg_rtc(sorted_experiment_record, x=3):
 
 def run_regression_return_to_centre_one_mouse_one_session(mouse, date, sample_rate=10000, decimate_factor=100, window_size_seconds = 10, reg_type='_return_to_centre'):
     print('proccessing' + mouse + date)
-    dlc_save_dir = 'T:\\photometry_2AC\\processed_data\\return_to_centre\\{}'.format(mouse)
+    dlc_save_dir = processed_data_path + '\\return_to_centre\\{}'.format(mouse)
     if reg_type == '_return_to_centre' or reg_type == '_return_to_centre_trimmed_traces':
         time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times.npz'.format(mouse, date)
     elif reg_type == '_return_to_centre_300frames' or '_return_to_centre_300frames_long_turns':
         time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times_300frame_window_long_turns.npz'.format(mouse, date)
         return_to_centre_timestamps = np.load(os.path.join(dlc_save_dir, time_stamp_save_file))
 
-    saving_folder = 'T:\\photometry_2AC\\processed_data\\' + mouse + '\\'
-    events_folder = 'T:\\photometry_2AC\\processed_data\\' + mouse + '\\linear_regression\\'
+    saving_folder = processed_data_path + mouse + '\\'
+    events_folder = processed_data_path + mouse + '\\linear_regression\\'
     dff_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
     dff = np.load(saving_folder + dff_trace_filename)
 
@@ -175,8 +165,8 @@ def run_regression_return_to_centre_one_mouse_one_session_trimmed_traces(mouse, 
         time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times_300frame_window_long_turns.npz'.format(mouse, date)
         return_to_centre_timestamps = np.load(os.path.join(dlc_save_dir, time_stamp_save_file))
 
-    saving_folder = 'T:\\photometry_2AC\\processed_data\\' + mouse + '\\'
-    events_folder = 'T:\\photometry_2AC\\processed_data\\' + mouse + '\\linear_regression\\'
+    saving_folder = processed_data_path + mouse + '\\'
+    events_folder = processed_data_path + mouse + '\\linear_regression\\'
     dff_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
     dff = np.load(saving_folder + dff_trace_filename)
 

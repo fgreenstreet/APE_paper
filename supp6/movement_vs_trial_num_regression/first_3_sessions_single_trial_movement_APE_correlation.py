@@ -1,30 +1,21 @@
-import numpy as np
-from scipy import stats
 import pandas as pd
 import os
-import statsmodels.api as sm
 from get_regression_slopes_for_turn_angle_speed_trial_number_vs_APE import create_movement_param_and_APE_df_just_first_3_sessions, correlate_movement_with_APE
-from camera_trigger_preprocessing_utils import *
-from plotting import *
+from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
+from set_global_params import experiment_record_path, processed_data_path
 
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git\\freely_moving_photometry_analysis')
-
-from freely_moving_photometry_analysis.utils.regression.linear_regression_utils import get_first_x_sessions
-from freely_moving_photometry_analysis.utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings, remove_manipulation_days
 
 if __name__ == '__main__':
     load_saved = True
-    mice = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo70', 'SNL_photo72', 'SNL_photo58', 'SNL_photo57']
+    mice = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26']
     recording_site = 'tail'
-    experiment_record_path = 'T:\\photometry_2AC\\experimental_record.csv'
     experiment_record = pd.read_csv(experiment_record_path, dtype='str')
     good_experiments = remove_exps_after_manipulations(experiment_record, mice)
     clean_experiments = remove_bad_recordings(good_experiments)
 
     for i, mouse in enumerate(mice):
-        df_save_dir = r'T:\photometry_2AC\processed_data\{}\turn_angle_over_time'.format(mouse)
+        df_save_dir = r'{}{}\turn_angle_over_time'.format(processed_data_path, mouse)
         if not os.path.isdir(df_save_dir):
             os.makedirs(df_save_dir)
         df_save_file = os.path.join(df_save_dir, 'movement_params_all_trials_vs_APE_{}.pkl'.format(mouse))

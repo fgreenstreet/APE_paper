@@ -1,19 +1,16 @@
 from copy import deepcopy
+import os
 from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
 from utils.tracking_analysis.fede_geometry import *
-import matplotlib.pyplot as plt
 import pandas as pd
-from scipy.signal import medfilt
-from scipy.ndimage import binary_dilation, binary_erosion
 from utils.tracking_analysis.transformation_utils import projective_transform_tracks
-import matplotlib
-from matplotlib.patches import Polygon
 import pickle
+from set_global_params import running_in_box_dir, out_of_task_movement_mice_dates
 
 
 def get_movement_properties_for_session(mouse, date):
-    #file_path = 'W:\\deeplabcut_running_in_box\\running_in_box\\{}\\{}\\{}_cameraDLC_mobnet_100_running_in_box_2Jul19shuffle1_200000.h5'.format(mouse, date, mouse)
-    file_path = 'W:\\deeplabcut_running_in_box\\running_in_box\\{}\\{}\\{}_cameraDLC_resnet50_heading_angleMar23shuffle1_1030000.h5'.format(mouse, date, mouse)
+    #file_path = 'T:\\deeplabcut_running_in_box\\running_in_box\\{}\\{}\\{}_cameraDLC_mobnet_100_running_in_box_2Jul19shuffle1_200000.h5'.format(mouse, date, mouse)
+    file_path = 'T:\\deeplabcut_running_in_box\\running_in_box\\{}\\{}\\{}_cameraDLC_resnet50_heading_angleMar23shuffle1_1030000.h5'.format(mouse, date, mouse)
     body_parts = ('nose', 'L_ear', 'R_ear', 'body', 'tail_base', 'tail_tip') #('nose', 'left ear', 'right ear', 'tail base', 'tail tip')
     tracking_data = prepare_tracking_data(
         tracking_filepath=file_path,
@@ -55,7 +52,7 @@ def rolling_zscore(x, window=10*10000):
 
 
 def get_photometry_data(mouse, date):
-    loading_folder = 'W:\\photometry_2AC\\running_in_box_photometry\\processed_data\\' + mouse + '\\'
+    loading_folder = running_in_box_dir + '\\processed_data\\' + mouse + '\\'
     smoothed_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
     clock_filename = mouse + '_' + date + '_' + 'clock.npy'
     photometry_data = np.load(loading_folder + smoothed_trace_filename)
@@ -65,15 +62,16 @@ def get_photometry_data(mouse, date):
 
 
 if __name__ == '__main__':
-    mouse = 'SNL_photo44'  #'SNL_photo37' #'SNL_photo44'  #'SNL_photo43'
-    date_time = '20210610_15_45_19' #'20210610_16_55_04' #'20210610_15_45_19' #'20210610_16_20_18'
-    date = date_time[0:8]
-    tracking_data, untransformed_data, head_angular_velocity, head_ang_accel, speed, move_dir, acceleration, head_angles = get_movement_properties_for_session(mouse, date_time)
+    for mouse, date_time in out_of_task_movement_mice_dates.items():
 
-    photometry_data = get_photometry_data(mouse, date)
+        date = date_time[0:8]
+        tracking_data, untransformed_data, head_angular_velocity, head_ang_accel, speed, move_dir, acceleration, head_angles = get_movement_properties_for_session(mouse, date_time)
 
-    np.savez('preprocessed_speed_by_neurons_transformed_tracking_{}.npz'.format(mouse), speed=speed, acceleration=acceleration, photometry_data=photometry_data,
-             head_angular_velocity=head_angular_velocity, head_ang_accel=head_ang_accel, move_dir=move_dir, head_angles=head_angles, allow_pickle=True)
-    file = open('tracking_data_{}.p'.format(mouse), 'wb')
-    pickle.dump(tracking_data, file)
-    file.close()
+        photometry_data = get_photometry_data(mouse, date)
+        save_dir = running_in_box_dir + '\\processed_data\\'
+        np.savez(os.path.join(save_dir, 'preprocessed_speed_by_neurons_transformed_tracking_{}.npz'.format(mouse)), speed=speed, acceleration=acceleration, photometry_data=photometry_data,
+                 head_angular_velocity=head_angular_velocity, head_ang_accel=head_ang_accel, move_dir=move_dir, head_angles=head_angles, allow_pickle=True)
+        file = open(os.path.join(save_dir, 'tracking_data_{}.p'.format(mouse)), 'wb')
+        pickle.dump(tracking_data, file)
+        file.close()
+

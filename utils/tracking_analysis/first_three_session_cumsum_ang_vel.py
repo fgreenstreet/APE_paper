@@ -5,6 +5,7 @@ from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 import scipy as sp
 from utils.post_processing_utils import remove_exps_after_manipulations
 from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
+from set_global_params import experiment_record_path, post_processed_tracking_data_path
 
 
 def get_fit_slopes(quantile_data, experiment):
@@ -46,7 +47,7 @@ def get_all_mice_data(experiments_to_process, exp_type='', key='fitted max cumsu
     for index, experiment in experiments_to_process.iterrows():
         mouse = experiment['mouse_id']
         date = experiment['date']
-        save_out_folder = 'W:\\photometry_2AC\\tracking_analysis\\' + mouse
+        save_out_folder = post_processed_tracking_data_path + mouse
         if not os.path.exists(save_out_folder):
             os.makedirs(save_out_folder)
         movement_param_file = os.path.join(save_out_folder, 'contra_APE_tracking{}_{}{}.pkl'.format(mouse, date, exp_type))
@@ -93,7 +94,7 @@ def get_all_mice_data(experiments_to_process, exp_type='', key='fitted max cumsu
 
 
 def get_first_three_sessions_dlc(mouse_ids, site, num_sessions=3, save=False, load_saved=True):
-    save_out_folder = 'T:\\photometry_2AC\\tracking_analysis\\'
+    save_out_folder = post_processed_tracking_data_path
     mouse_names = '_'.join(mouse_ids)
     save_out_file_shuffles = os.path.join(save_out_folder, 'contra_APE_tracking_first_{}_sessions_{}_with_shuffles.pkl'.format(num_sessions, mouse_names))
     save_out_file = os.path.join(save_out_folder, 'contra_APE_tracking_first_{}_sessions_{}.pkl'.format(num_sessions, mouse_names))
@@ -101,7 +102,7 @@ def get_first_three_sessions_dlc(mouse_ids, site, num_sessions=3, save=False, lo
         data_to_save = pd.read_pickle(save_out_file)
         all_data = pd.read_pickle(save_out_file_shuffles)
     else:
-        experiment_record = pd.read_csv('T:\\photometry_2AC\\experimental_record.csv')
+        experiment_record = pd.read_csv(experiment_record_path)
         experiment_record['date'] = experiment_record['date'].astype(str)
         clean_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
         all_experiments_to_process = clean_experiments[
@@ -122,5 +123,7 @@ def get_first_three_sessions_dlc(mouse_ids, site, num_sessions=3, save=False, lo
             all_data.to_pickle(save_out_file_shuffles)
             data_to_save.to_pickle(save_out_file)
     return data_to_save, all_data
+
+
 
 

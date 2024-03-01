@@ -10,6 +10,7 @@ import matplotlib
 from set_global_params import processed_data_path
 from utils.plotting_visuals import makes_plots_pretty
 
+
 def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583', line='k', align_to=None, **file_name_extras):
     """
     Makes change over time plot ith mean line across mice and error bars showing SEM

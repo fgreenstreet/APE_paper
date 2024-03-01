@@ -1,10 +1,12 @@
 import os
+from set_global_params import processed_data_path, experiment_record_path, post_processed_tracking_data_path
 from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
 from utils.tracking_analysis.dlc_processing_utils import get_raw_photometry_data
 from utils.post_processing_utils import remove_exps_after_manipulations
 from utils.kernel_regression.linear_regression_utils import rolling_zscore
 from utils.kernel_regression.return_to_centre_regression_utils import get_first_x_sessions_reg_rtc
 from utils.return_to_centre_utils import *
+
 
 mouse_ids = ['SNL_photo57', 'SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72']
 num_sessions = 3
@@ -14,7 +16,7 @@ short_turns = False
 
 
 old_mice = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26']
-experiment_record = pd.read_csv('T:\\photometry_2AC\\experimental_record.csv', dtype=str)
+experiment_record = pd.read_csv(experiment_record_path, dtype=str)
 experiment_record['date'] = experiment_record['date'].astype(str)
 clean_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
 all_experiments_to_process = clean_experiments[
@@ -28,7 +30,7 @@ experiments_to_process = get_first_x_sessions_reg_rtc(all_experiments_to_process
 for index, experiment in experiments_to_process.iterrows():
     mouse = experiment['mouse_id']
     date = experiment['date']
-    save_out_folder = 'T:\\photometry_2AC\\tracking_analysis\\' + mouse
+    save_out_folder = post_processed_tracking_data_path + mouse
 
     port_coords = {'side1': np.array([int(experiments_to_process['left side x'][0]), int(experiments_to_process['left side y'][0])]),
                   'centre': np.array([int(experiments_to_process['centre port x'][0]), int(experiments_to_process['centre port y'][0])]),

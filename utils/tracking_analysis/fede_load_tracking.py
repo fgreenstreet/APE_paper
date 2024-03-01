@@ -15,11 +15,7 @@ from utils.tracking_analysis.fede_geometry import (
 from utils.tracking_analysis.fede_geometry import calc_ang_velocity
 from utils.tracking_analysis.fede_geometry import calc_distance_between_points_2d
 
-
-"""
-    Utility functions to extract and clean up tracking data
-    from DLC and perform operations on tracking data.
-"""
+# Code adapted from Federico Claudi
 
 cm_per_px = 1 / 30.8
 fps = 60

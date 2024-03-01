@@ -6,3 +6,9 @@ set_global_params.py
 .idea/misc.xml
 .idea/vcs.xml
 /supp3/regression/.ipynb_checkpoints/
+/supp5/movement_analysis_out_of_task/.ipynb_checkpoints/
+/supp5/silence/.ipynb_checkpoints/
+/supp6/.ipynb_checkpoints/
+/supp6/state_change/.ipynb_checkpoints/
+/supp6/value_change/.ipynb_checkpoints/
+/supp6/movement_vs_trial_num_regression/.ipynb_checkpoints/

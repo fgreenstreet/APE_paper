@@ -345,4 +345,19 @@ def output_significance_stars_from_pval(pval):
         return '***'
 
 
+def two_point_line_plot(ax, data, show_err_bar=False, mean_linewidth=4, mean_line_color='blue', legend=False):
 
+    data.plot(ax=ax, color='gray', legend=False)
+    data.mean(1).plot(ax=ax,linewidth=mean_linewidth,color=mean_line_color, alpha=0.7)
+
+    if show_err_bar:
+        yerr = data.std(axis=1)
+
+        plt.errorbar(np.array([0,1]), data.mean(1), yerr, color=mean_line_color, linewidth=4)
+
+    # drop the left and bottom spine for cool looking effect
+    ax.spines['left'].set_position(('outward', 10))
+    ax.spines['bottom'].set_position(('outward', 10))
+    # Hide the right and top spines
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)

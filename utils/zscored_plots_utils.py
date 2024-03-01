@@ -8,6 +8,7 @@ from matplotlib.colors import ListedColormap
 from utils.plotting import calculate_error_bars
 from matplotlib import colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from set_global_params import processed_data_path
 
 
 class ZScoredTracesCuePlotOnly(object):
@@ -34,7 +35,7 @@ def get_data_for_figure(recording_site):
         example_mouse = 'SNL_photo26'
         example_date = '20200812'
 
-    saving_folder = 'W:\\photometry_2AC\\processed_data\\for_figure\\' + example_mouse + '\\'
+    saving_folder = 'T:\\photometry_2AC\\processed_data\\for_figure\\' + example_mouse + '\\'
     aligned_filename = example_mouse + '_' + example_date + '_' + 'aligned_traces_for_fig.p'
     save_filename = saving_folder + aligned_filename
     example_session_data = pickle.load(open(save_filename, "rb"))
@@ -182,7 +183,7 @@ def plot_average_trace(ax, data, error_bar_method='sem', colour='navy'):
 
 
 def get_all_mouse_data_for_site(site, file_ext='_new_mice_added_with_cues.npz'):
-    dir = 'T:\\photometry_2AC\\processed_data\\for_figure\\'
+    dir = processed_data_path + '\\for_figure\\'
     file_name = 'group_data_avg_across_sessions_' + site + file_ext  #'group_data_avg_across_sessions_' + site + '.npz'
     data = np.load(dir + file_name)
     return data

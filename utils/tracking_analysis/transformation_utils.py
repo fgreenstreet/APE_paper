@@ -2,6 +2,7 @@ import skimage
 import skimage.transform
 import numpy as np
 
+# Code from Steve Lenzi
 
 def get_box_coordinates_from_file(box_path):
     napari_fmt_coords = np.load(str(box_path))

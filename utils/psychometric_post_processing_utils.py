@@ -1,8 +1,8 @@
 import os
 import pandas as pd
-import numpy as np
 from utils.tracking_analysis.psychometric_get_movement_and_or_traces import get_all_mice_data
 from utils.plotting import *
+from set_global_params import experiment_record_path, post_processed_tracking_data_path
 
 
 def get_first_x_sessions(sorted_experiment_record, x=3):
@@ -18,13 +18,13 @@ def get_first_x_sessions(sorted_experiment_record, x=3):
 
 
 def get_all_psychometric_session_dlc(mouse_ids, site, num_sessions=3, save=False, load_saved=True, get_movement=True, align_to='choice'):
-    save_out_folder = 'T:\\photometry_2AC\\tracking_analysis\\'
+    save_out_folder = post_processed_tracking_data_path
     mouse_names = '_'.join(mouse_ids)
     save_out_file = os.path.join(save_out_folder, 'contra_APE_tracking_psychometric_sessions_{}.pkl'.format(num_sessions, mouse_names))
     if os.path.isfile(save_out_file) and load_saved:
         data_to_save = pd.read_pickle(save_out_file)
     else:
-        experiment_record = pd.read_csv('T:\\photometry_2AC\\experimental_record.csv', dtype='str')
+        experiment_record = pd.read_csv(experiment_record_path, dtype='str')
         experiment_record['date'] = experiment_record['date'].astype(str)
         clean_experiments = experiment_record[(experiment_record['experiment_notes'] == 'psychometric')].reset_index(
             drop=True)

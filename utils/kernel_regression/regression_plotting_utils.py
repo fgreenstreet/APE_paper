@@ -227,8 +227,8 @@ def load_exp_var_data_for_site(site):
         mice = ['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33',
                      'SNL_photo34', 'SNL_photo35']
         file_name = site + '_explained_variances_all_cues.p'
-    processed_data_dir = os.path.join('W:\\photometry_2AC\\processed_data\\linear_regression_data\\')
-    saving_filename = os.path.join('W:\\photometry_2AC\\processed_data\\linear_regression_data\\', file_name)
+    processed_data_dir = os.path.join('T:\\photometry_2AC\\processed_data\\linear_regression_data\\')
+    saving_filename = os.path.join('T:\\photometry_2AC\\processed_data\\linear_regression_data\\', file_name)
 
     reg_stats = pd.read_pickle(saving_filename)
     reg_stats = reg_stats[reg_stats['mouse_id'].isin(mice)]

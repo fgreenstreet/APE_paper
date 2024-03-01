@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import numpy as np
-from set_global_params import processed_data_path
+import os
+from set_global_params import processed_data_path, figure_directory
 from utils.plotting_visuals import makes_plots_pretty
 from utils.plotting import output_significance_stars_from_pval
 from scipy.stats import ttest_ind
@@ -34,12 +35,10 @@ matplotlib.rc('font', **font)
 matplotlib.rcParams['pdf.fonttype'] = 42
 
 
-fig_directory = 'T:\\paper\\revisions\\cue movement reward comparisons VS TS\\'
-
 
 # Plot peak time comparison
-plot_and_save_comparison(peak_times_df, 'peak time (s)', fig_directory, 'peak_time_comparison_TS_VS_ipsi_and_contra.pdf')
+plot_and_save_comparison(peak_times_df, 'peak time (s)', figure_directory, 'peak_time_comparison_TS_VS_ipsi_and_contra.pdf')
 
 # Plot rise time comparison
-plot_and_save_comparison(rise_times_df, 'rise time (s)', fig_directory, 'rise_time_comparison_TS_VS_ipsi_and_contra.pdf')
+plot_and_save_comparison(rise_times_df, 'rise time (s)', figure_directory, 'rise_time_comparison_TS_VS_ipsi_and_contra.pdf')
 plt.show()

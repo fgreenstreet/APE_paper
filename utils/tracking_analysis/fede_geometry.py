@@ -7,6 +7,8 @@ from scipy.spatial import distance
 import math
 from scipy import stats
 
+# coded adapted from Federico Claudi
+
 def r2(x,y):
     return stats.pearsonr(x,y)[0]**2
 

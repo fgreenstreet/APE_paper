@@ -1,13 +1,14 @@
 from utils.kernel_regression.linear_regression_utils import *
 from utils.kernel_regression.return_to_centre_regression_utils import run_regression_return_to_centre_one_mouse_one_session_trimmed_traces, get_first_x_sessions_reg_rtc
 from utils.post_processing_utils import remove_exps_after_manipulations
+from set_global_params import processed_data_path, experiment_record_path
 import gc
 import os
 
 mouse_ids = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72']
 num_sessions = 3
 site = 'tail'
-experiment_record = pd.read_csv('T:\\photometry_2AC\\experimental_record.csv', dtype='str')
+experiment_record = pd.read_csv(experiment_record_path, dtype='str')
 experiment_record['date'] = experiment_record['date'].astype(str)
 clean_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
 all_experiments_to_process = clean_experiments[
@@ -26,7 +27,6 @@ for index, experiment in experiments_to_process.iterrows():
     gc.collect()
 experiments_to_process['var exp'] = var_exps
 
-saving_folder = 'T:\\photometry_2AC\\processed_data\\'
-var_exp_filename = os.path.join(saving_folder, '_'.join(mouse_ids) +  '_var_exp_with_return_to_centre_and_trimmed_traces_300frames_long_turns.p') # '_var_exp_with_return_to_centre.p'
+var_exp_filename = os.path.join(processed_data_path, '_'.join(mouse_ids) +  '_var_exp_with_return_to_centre_and_trimmed_traces_300frames_long_turns.p') # '_var_exp_with_return_to_centre.p'
 with open(var_exp_filename, "wb") as f:
     pickle.dump(experiments_to_process, f)

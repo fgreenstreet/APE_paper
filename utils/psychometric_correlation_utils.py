@@ -1,14 +1,7 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import statsmodels.api as sm
-import statsmodels.formula.api as smf
 import statsmodels as sm
-from scipy.stats import ttest_rel
-from scipy import stats
-from utils.plotting_visuals import makes_plots_pretty
-import os
 
 
 def convert_lateral(data):

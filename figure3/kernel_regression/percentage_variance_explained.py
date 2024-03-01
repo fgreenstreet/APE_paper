@@ -18,8 +18,8 @@ all_experiments_to_process = clean_experiments[(clean_experiments['mouse_id'].is
 experiments_to_process = get_first_x_sessions(all_experiments_to_process)
 
 file_name = site + '_explained_variances_all_cues.p' #'_explained_variances_not_cleaned.p' #'_explained_variances.p'
-processed_data_dir = os.path.join('W:\\photometry_2AC\\processed_data\\linear_regression_data\\')
-saving_filename = os.path.join('W:\\photometry_2AC\\processed_data\\linear_regression_data\\', file_name)
+processed_data_dir = os.path.join('T:\\photometry_2AC\\processed_data\\linear_regression_data\\')
+saving_filename = os.path.join('T:\\photometry_2AC\\processed_data\\linear_regression_data\\', file_name)
 if not os.path.exists(processed_data_dir):
     os.makedirs(processed_data_dir)
 

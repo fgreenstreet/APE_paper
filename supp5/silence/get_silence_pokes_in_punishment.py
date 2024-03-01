@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-from set_global_params import processed_data_path, silence_mice
+from set_global_params import processed_data_path, silence_mice, behavioural_data_path
 import data_preprocessing.bpod_data_processing as bpod
 from utils.post_processing_utils import get_all_experimental_records
 
@@ -28,7 +28,7 @@ for mouse in silence_mice:
     fiber_side = experiments_to_process['fiber_side'].unique()[0]
 
     # get dates of training (not just recording up to silence day)
-    Bpod_data_path = 'T:\\photometry_2AC\\bpod_data\\' + mouse + '\\' + protocol + '\\Session Data\\'
+    Bpod_data_path = behavioural_data_path + mouse + '\\' + protocol + '\\Session Data\\'
     files_in_bpod_path = os.listdir(Bpod_data_path)
     behaviour_files = sorted([s for s in files_in_bpod_path if '.mat' in s])
 

@@ -1,17 +1,12 @@
-import pickle
-import datetime
 import matplotlib.pyplot as plt
-from matplotlib import colors, cm
+from matplotlib import cm
 import numpy as np
-import math
-import pandas as pd
 import scipy as scipy
 from scipy import optimize
-from utils.mean_trace_utils import mouseDates
 from utils.reaction_time_utils import get_valid_trials
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
-from data_preprocessing.session_traces_and_mean import get_all_experimental_records
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings, get_all_experimental_records
 import seaborn as sns
+
 
 def plot_all_valid_trials_over_time(session_starts, valid_peaks, valid_trial_nums):
     num_sessions = len(session_starts)
@@ -36,6 +31,7 @@ def plot_all_valid_trials_over_time(session_starts, valid_peaks, valid_trial_num
         ax.set_xlabel('trial number')
         ax.set_ylabel('z-scored peak')
     plt.show()
+
 
 def plot_binned_valid_trials(valid_peaks, valid_trial_nums, window_size=50, fit_line='exponential decay', plotting=True):
     def exponential(x, a, k, b):
@@ -104,6 +100,7 @@ def plot_binned_valid_trials(valid_peaks, valid_trial_nums, window_size=50, fit_
         plt.show()
     return(x_vals, norm_rolling_mean_peak, x_vals_fit, y_vals_fit)
 
+
 def multi_animal_scatter_and_fit(mice, recording_site='tail', window_size=30, fit_type='exponential decay'):
     fig, ax = plt.subplots(1, ncols=1, figsize=(10, 8))
     fig.subplots_adjust(hspace=0.5, wspace=0.2)
@@ -123,7 +120,6 @@ def multi_animal_scatter_and_fit(mice, recording_site='tail', window_size=30, fi
     ax.set_ylabel('z-scored peak')
     ax.legend(loc='best')
     plt.show()
-
 
 
 def get_dates_for_mouse(mouse, recording_site='tail'):

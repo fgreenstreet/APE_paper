@@ -6,6 +6,7 @@ import os
 from set_global_params import processed_data_path
 import matplotlib.pyplot as plt
 
+
 def get_peak_times(traces, time_stamps):
     zero_ind = (np.abs(time_stamps)).argmin()
     peak_times = []
