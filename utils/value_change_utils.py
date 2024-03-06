@@ -1,9 +1,5 @@
 # Add modules to the path
-import sys
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
 from matplotlib import colors, cm
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import decimate
 import pandas as pd

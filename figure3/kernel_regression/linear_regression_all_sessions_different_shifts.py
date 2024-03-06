@@ -1,23 +1,11 @@
-import sys
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
-
 from utils.kernel_regression.linear_regression_utils import *
 import gc
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
-from set_global_params import experiment_record_path, processed_data_path
+from set_global_params import experiment_record_path, processed_data_path, mice_average_traces
 from scipy.signal import decimate
 
-# This code was used to generate the plots in my thesis with windows of:
-# cues: 0:1, choices: -0.5: 1.5, outcome: 0:1
-# trying new windows of: cues: -0.5:1, choices: -0.5: 1.5, outcome: 0:1
-
-mouse_ids = ['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33', 'SNL_photo34', 'SNL_photo35']
-#['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72']
-#['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33', 'SNL_photo34', 'SNL_photo35']
-#['SNL_photo17', 'SNL_photo16', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26']
-
 site = 'Nacc'
+mouse_ids = mice_average_traces[site]
 
 experiment_record = pd.read_csv(experiment_record_path)
 experiment_record['date'] = experiment_record['date'].astype(str)
@@ -48,7 +36,7 @@ for index, experiment in experiments_to_process.iterrows():
         int(decimate_factor / 10))
 
     num_samples = downsampled_zscored_dff.shape[0]
-    aligned_filename = mouse + '_' + date + '_' + 'behavioural_events_with_no_rewards_all_cues_matched_trials.p'#'behavioural_events_with_no_rewards_added_matched_trials.py' #'behavioural_events_with_no_rewards_added_not_cleaned.py' #'behavioural_events_with_no_rewards_added.py'
+    aligned_filename = mouse + '_' + date + '_' + 'behavioural_events_with_no_rewards_all_cues_matched_trials.p'
     save_filename = events_folder + aligned_filename
     example_session_data = pickle.load(open(save_filename, "rb"))
 

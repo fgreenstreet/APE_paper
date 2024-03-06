@@ -1,5 +1,5 @@
 import os
-from set_global_params import processed_data_path, experiment_record_path, post_processed_tracking_data_path
+from set_global_params import processed_data_path, experiment_record_path, post_processed_tracking_data_path, mice_average_traces
 from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
 from utils.tracking_analysis.dlc_processing_utils import get_raw_photometry_data
 from utils.post_processing_utils import remove_exps_after_manipulations
@@ -8,9 +8,9 @@ from utils.kernel_regression.return_to_centre_regression_utils import get_first_
 from utils.return_to_centre_utils import *
 
 
-mouse_ids = ['SNL_photo57', 'SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72']
 num_sessions = 3
 site = 'tail'
+mouse_ids = mice_average_traces[site]
 use_old_tracking = False
 short_turns = False
 

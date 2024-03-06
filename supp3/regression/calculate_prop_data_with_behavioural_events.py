@@ -4,10 +4,10 @@ import gc
 from set_global_params import experiment_record_path, processed_data_path
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
 from utils.kernel_regression.return_to_centre_regression_utils import get_first_x_sessions_reg_rtc, calculate_prop_data_covered_by_design_matrix
-from set_global_params import processed_data_path
-mouse_ids = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72'] #'SNL_photo57', 'SNL_photo16', 'SNL_photo17', 'SNL_photo18',
-site = 'tail'
+from set_global_params import processed_data_path, mice_average_traces
 
+site = 'tail'
+mouse_ids = mice_average_traces[site]
 experiment_record = pd.read_csv(experiment_record_path)
 experiment_record['date'] = experiment_record['date'].astype(str)
 good_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)

@@ -28,37 +28,35 @@ def get_valid_traces(mouse, dates, window_around_mean=0.2, recording_site='tail'
     """
     session_starts = get_bpod_trial_nums_per_session(mouse, dates)
     saving_folder = processed_data_path + mouse + '\\'
-    data_root = processed_data_path + 'peak_analysis'
     all_bins = []
-    all_reaction_times =[]
+    all_reaction_times = []
     all_trial_numbers = []
     all_actual_trial_numbers = []
     all_traces = []
 
     for date_num, date in enumerate(dates):
-        peaks_saving_folder = os.path.join(data_root, mouse)
         aligned_filename = saving_folder + mouse + '_' + date + '_' + 'aligned_traces.p'
 
         with open(aligned_filename, 'rb') as f:
             data = pickle.load(f)
         if align_to == 'movement':
             if side == 'contra':
-                recording_site_data =data.choice_data.contra_data
-            elif side=='ipsi':
+                recording_site_data = data.choice_data.contra_data
+            elif side == 'ipsi':
                 recording_site_data = data.choice_data.ipsi_data
             else:
                 print('invalid side')
-            trial_nums =  recording_site_data.trial_nums
+            trial_nums = recording_site_data.trial_nums
             reaction_times = recording_site_data.reaction_times
             sorted_traces = recording_site_data.sorted_traces
         elif align_to == 'cue':
             if side == 'contra':
-                recording_site_data =data.cue_data.contra_data
-            elif side=='ipsi':
+                recording_site_data = data.cue_data.contra_data
+            elif side == 'ipsi':
                 recording_site_data = data.cue_data.ipsi_data
             else:
                 print('invalid side')
-            trial_nums =  recording_site_data.trial_nums
+            trial_nums = recording_site_data.trial_nums
             reaction_times = recording_site_data.reaction_times
             sorted_traces = recording_site_data.sorted_traces
 

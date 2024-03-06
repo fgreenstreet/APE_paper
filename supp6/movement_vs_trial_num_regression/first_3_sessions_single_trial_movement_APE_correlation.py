@@ -3,13 +3,13 @@ import os
 from get_regression_slopes_for_turn_angle_speed_trial_number_vs_APE import create_movement_param_and_APE_df_just_first_3_sessions, correlate_movement_with_APE
 from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
-from set_global_params import experiment_record_path, processed_data_path
+from set_global_params import experiment_record_path, processed_data_path, change_over_time_mice
 
 
 if __name__ == '__main__':
     load_saved = True
-    mice = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26']
     recording_site = 'tail'
+    mice = change_over_time_mice[recording_site]
     experiment_record = pd.read_csv(experiment_record_path, dtype='str')
     good_experiments = remove_exps_after_manipulations(experiment_record, mice)
     clean_experiments = remove_bad_recordings(good_experiments)

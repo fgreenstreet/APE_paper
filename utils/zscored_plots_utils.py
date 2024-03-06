@@ -35,7 +35,7 @@ def get_data_for_figure(recording_site):
         example_mouse = 'SNL_photo26'
         example_date = '20200812'
 
-    saving_folder = 'T:\\photometry_2AC\\processed_data\\for_figure\\' + example_mouse + '\\'
+    saving_folder = processed_data_path + 'for_figure\\' + example_mouse + '\\'
     aligned_filename = example_mouse + '_' + example_date + '_' + 'aligned_traces_for_fig.p'
     save_filename = saving_folder + aligned_filename
     example_session_data = pickle.load(open(save_filename, "rb"))

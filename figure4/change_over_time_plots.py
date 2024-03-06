@@ -3,7 +3,7 @@ import matplotlib
 from utils.plotting_visuals import makes_plots_pretty
 from utils.change_over_time_plot_utils import  *
 
-# this makes the plot in the figure
+# this makes the plot in the figure 4 C & G
 font = {'size': 8}
 matplotlib.rc('font', **font)
 fig, ax = plt.subplots(2, 1, figsize=[2, 4], constrained_layout=True)

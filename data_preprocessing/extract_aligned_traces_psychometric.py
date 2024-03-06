@@ -5,8 +5,6 @@ import pandas as pd
 from utils.post_processing_utils import remove_exps_after_manipulations, get_all_experimental_records
 from set_global_params import experiment_record_path
 from set_global_params import processed_data_path
-# this needs to be run for the nacc mice for the psychometric bias analysis
-
 
 def add_experiment_to_aligned_data(experiments_to_add):
     data_root = os.path.join(processed_data_path, 'for_psychometric')
@@ -17,9 +15,9 @@ def add_experiment_to_aligned_data(experiments_to_add):
             os.makedirs(saving_folder)
 
         session_traces = SessionDataPsychometric(experiment['fiber_side'], experiment['recording_site'], experiment['mouse_id'], experiment['date'])
-        #session_traces.get_choice_responses()
-        #session_traces.get_cue_responses()
-        #session_traces.get_reward_responses()
+        session_traces.get_choice_responses()
+        session_traces.get_cue_responses()
+        session_traces.get_reward_responses()
         session_traces.get_outcome_responses()
         aligned_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'aligned_traces_for_psychometric.p'
         save_filename = os.path.join(saving_folder, aligned_filename)
@@ -27,7 +25,7 @@ def add_experiment_to_aligned_data(experiments_to_add):
 
 
 if __name__ == '__main__':
-    mouse_ids = ['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33', 'SNL_photo34', 'SNL_photo35']
+    mouse_ids = ['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33', 'SNL_photo34', 'SNL_photo35'] # just examples
     site = 'Nacc'
     experiment_record = pd.read_csv(experiment_record_path)
     experiment_record['date'] = experiment_record['date'].astype(str)

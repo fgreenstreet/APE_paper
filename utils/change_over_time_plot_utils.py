@@ -29,7 +29,7 @@ def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583
         exp_type = file_name_extras['exp_type']
         file_name_suffix ='_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_{}_contra.npz'.format(exp_type)
     else:
-        file_name_suffix = '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks.npz' #'_average_then_peaks_peaks_contra.npz' # '_average_then_peaks_peaks.npz'
+        file_name_suffix = '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks.npz'
     if align_to:
         file_name_suffix = '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_contra_aligned_to_{}.npz'.format(align_to)
     data_root = processed_data_path + 'peak_analysis'
@@ -74,7 +74,6 @@ def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583
     axs.set_xlabel('Trial number')
     axs.sharex(ax)
     makes_plots_pretty([axs])
-
 
 
 def example_scatter_change_over_time(mouse, ax, window_for_binning=40, colour='#7FB5B5'):

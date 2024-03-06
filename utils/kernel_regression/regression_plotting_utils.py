@@ -5,19 +5,14 @@ from utils.kernel_regression.linear_regression_utils import *
 import os
 import seaborn as sns
 from tqdm import tqdm
-from set_global_params import experiment_record_path, processed_data_path
+from set_global_params import experiment_record_path, processed_data_path, mice_average_traces
 
 
 def get_regression_data_for_plot(recording_site='tail'):
     experiment_record = pd.read_csv(experiment_record_path, dtype=str)
     experiment_record['date'] = experiment_record['date'].astype(str)
 
-    if recording_site == 'tail':
-        mouse_ids = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57',  'SNL_photo70', 'SNL_photo72'] #'SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26',
-    elif recording_site == 'Nacc':
-        mouse_ids = ['SNL_photo28', 'SNL_photo30', 'SNL_photo32', 'SNL_photo33',
-                     'SNL_photo34', 'SNL_photo35']
-
+    mouse_ids = mice_average_traces[recording_site]
     good_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
     clean_experiments = remove_bad_recordings(good_experiments)
     all_experiments_to_process = clean_experiments[
@@ -42,10 +37,7 @@ def get_regression_data_for_plot(recording_site='tail'):
         mouse_no_reward_kernel = []
 
         for date in df['date']:
-            if recording_site == 'tail':
-                filename = mouse + '_' + date + '_' +  'linear_regression_kernels_different_shifts_all_cues_matched_trials.p' # 'linear_regression_kernels_different_shifts_not_cleaned.p' #'linear_regression_kernels_different_shifts.p'
-            else:
-                filename = mouse + '_' + date + '_' + 'linear_regression_kernels_different_shifts_all_cues_matched_trials.p'
+            filename = mouse + '_' + date + '_' + 'linear_regression_kernels_different_shifts_all_cues_matched_trials.p'
 
             fiber_side = df[df.date == date]['fiber_side'].iloc[0]
             if fiber_side == 'left':
@@ -163,6 +155,7 @@ def make_example_figure(ax1, ax2):
         axs[ind].legend(loc='lower left', bbox_to_anchor=(0.2, -0.6),
                    borderaxespad=0, frameon=False, prop={'size': 8})
 
+
 def organise_data_means(ipsi_choice_kernel, contra_choice_kernel, ipsi_cue_kernel, contra_cue_kernel, reward_kernel, no_reward_kernel):
     means = {}
     sems = {}
@@ -219,20 +212,13 @@ def plot_kernels_for_site(move_axs, cue_axs, reward_axs, means, sems, time_stamp
 
 
 def load_exp_var_data_for_site(site):
-    if site == 'tail':
-        mice = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57',
-                'SNL_photo58', 'SNL_photo70', 'SNL_photo72']
-        file_name = site + '_explained_variances_all_cues.p'
-    elif site == 'Nacc':
-        mice = ['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33',
-                     'SNL_photo34', 'SNL_photo35']
-        file_name = site + '_explained_variances_all_cues.p'
-    processed_data_dir = os.path.join('T:\\photometry_2AC\\processed_data\\linear_regression_data\\')
-    saving_filename = os.path.join('T:\\photometry_2AC\\processed_data\\linear_regression_data\\', file_name)
+    mice = mice_average_traces[site]
+    file_name = site + '_explained_variances_all_cues.p'
+    saving_filename = os.path.join(processed_data_path, 'linear_regression_data', file_name)
 
     reg_stats = pd.read_pickle(saving_filename)
     reg_stats = reg_stats[reg_stats['mouse_id'].isin(mice)]
-    mean_stats = reg_stats.groupby(['mouse_id'])[ ['cue explained variance', 'choice explained variance', 'outcome explained variance', 'full model explained variance']].apply(np.mean)
+    mean_stats = reg_stats.groupby(['mouse_id'])[['cue explained variance', 'choice explained variance', 'outcome explained variance', 'full model explained variance']].apply(np.mean)
     types = []
     variances = []
     for ind, row in mean_stats.iterrows():

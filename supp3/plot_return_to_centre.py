@@ -7,12 +7,12 @@ from utils.kernel_regression.return_to_centre_regression_utils import get_first_
 import pandas as pd
 from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 from scipy.signal import decimate
-from set_global_params import processed_data_path, experiment_record_path
+from set_global_params import processed_data_path, experiment_record_path, mice_average_traces
 
 
-mouse_ids = ['SNL_photo57', 'SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72']
 num_sessions = 3
 site = 'tail'
+mouse_ids = mice_average_traces[site]
 
 experiment_record = pd.read_csv(experiment_record_path)
 experiment_record['date'] = experiment_record['date'].astype(str)

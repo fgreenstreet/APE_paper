@@ -1,12 +1,7 @@
-import sys
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos')
-sys.path.insert(0, 'C:\\Users\\francescag\\Documents\\SourceTree_repos\\Python_git\\freely_moving_photometry_analysis' )
-
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
 from utils.kernel_regression.linear_regression_utils import *
 from tqdm import tqdm
-from set_global_params import experiment_record_path, processed_data_path
+from set_global_params import experiment_record_path, processed_data_path, mice_average_traces
 from utils.kernel_regression.regression_plotting_utils import calculate_significance_windows, organise_data_means_with_rtc, plot_kernels, organise_data_means
 
 
@@ -25,8 +20,7 @@ def get_regression_data_for_plot(recording_site='tail', reg_type='_return_to_cen
     experiment_record = pd.read_csv(experiment_record_path, dtype=str)
     experiment_record['date'] = experiment_record['date'].astype(str)
 
-    mouse_ids = ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo58', 'SNL_photo70',
-                 'SNL_photo72']
+    mouse_ids = mice_average_traces[recording_site]
 
     good_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
     clean_experiments = remove_bad_recordings(good_experiments)

@@ -11,8 +11,8 @@ data_root = processed_data_path + 'peak_analysis'
 recording_site = 'Nacc'
 mice = change_over_time_mice[recording_site]
 side = 'contra'
-align_to = 'movement'
-window_for_binning = 50 #50 is default for scatter, 200 for trace
+align_to = 'movement'  # movement for tail in fig3, cue for nacc in fig 3
+window_for_binning = 50  # 50 is default for scatter, 200 for trace
 for mouse_num, mouse in enumerate(mice):
     all_experiments = get_all_experimental_records()
     all_experiments = remove_exps_after_manipulations(all_experiments, [mouse])
@@ -23,7 +23,7 @@ for mouse_num, mouse in enumerate(mice):
     dates = experiments_to_process['date'].values
     rolling_mean_x, rolling_mean_peaks, peak_trace_inds, rolling_mean_traces = get_valid_traces(mouse, dates, window_around_mean=0.2, recording_site=recording_site, side=side, window_size=window_for_binning, align_to=align_to)
     saving_folder = os.path.join(data_root, mouse)
-    filename = mouse + '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_{}_aligned_to_{}.npz'.format(side, align_to) #'_average_then_peaks_peaks_{}.npz' used to be this and tail and nacc were only aligned to movement and cue respectively
+    filename = mouse + '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_{}_aligned_to_{}.npz'.format(side, align_to)
     save_filename = os.path.join(saving_folder, filename)
     np.savez(save_filename, rolling_mean_x=rolling_mean_x, rolling_mean_peaks=rolling_mean_peaks, rolling_mean_trace=rolling_mean_traces, peak_trace_inds=peak_trace_inds)
 

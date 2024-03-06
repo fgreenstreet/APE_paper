@@ -6,7 +6,7 @@ import os
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
 from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
 
-from set_global_params import experiment_record_path, processed_data_path
+from set_global_params import experiment_record_path, processed_data_path, mice_average_traces
 
 
 def get_all_experimental_records():
@@ -56,13 +56,9 @@ def remove_manipulation_days(experiments):
     return cleaned_experiments
 
 
-
 if __name__ == '__main__':
-    mouse_ids = ['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33', 'SNL_photo34', 'SNL_photo35']
-    #['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72']
-    #['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33', 'SNL_photo34', 'SNL_photo35'] #['SNL_photo57', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72']
-        #['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33', 'SNL_photo34', 'SNL_photo35']
     site = 'Nacc'
+    mouse_ids = mice_average_traces[site]
     experiment_record = pd.read_csv(experiment_record_path)
     experiment_record['date'] = experiment_record['date'].astype(str)
     good_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
@@ -72,23 +68,4 @@ if __name__ == '__main__':
         drop=True)
     experiments_to_process = get_first_x_sessions(all_experiments_to_process)
     add_timestamps_to_aligned_data(experiments_to_process)
-
-    # for mouse_id in mouse_ids:
-    #     date = '20201121'
-    #     all_experiments = get_all_experimental_records()
-    #     clean_experiments = remove_exps_after_manipulations(all_experiments, [mouse_id])
-    #     site = 'Nacc'
-    #     index_to_remove = clean_experiments[clean_experiments['recording_site'] != site].index
-    #     cleaned_experiments = clean_experiments.drop(index=index_to_remove)
-    #
-    #
-    #     if (mouse_id =='all') & (date == 'all'):
-    #         experiments_to_process = cleaned_experiments
-    #     elif (mouse_id == 'all') & (date != 'all'):
-    #         experiments_to_process = cleaned_experiments[cleaned_experiments['date'] == date]
-    #     elif (mouse_id != 'all') & (date == 'all'):
-    #         experiments_to_process = cleaned_experiments[cleaned_experiments['mouse_id'] == mouse_id]
-    #     elif (mouse_id != 'all') & (date != 'all'):
-    #         experiments_to_process = cleaned_experiments[(cleaned_experiments['date'] == date) & (cleaned_experiments['mouse_id'] == mouse_id)]
-    #     add_timestamps_to_aligned_data(experiments_to_process)
 
