@@ -302,13 +302,10 @@ def get_peaks_and_trial_types(mouse, date, align_to='choice'):
     trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
     if align_to == 'choice':
         photometry_data = get_photometry_data(mouse, date)
-        #contra_peaks = photometry_data.choice_data.contra_data.trial_peaks
     elif align_to == 'cue':
         photometry_data = get_photometry_data(mouse, date)
-        #contra_peaks = photometry_data.cue_data.contra_data.trial_peaks
     elif align_to == 'reward':
         photometry_data = get_photometry_data_correct_incorrect(mouse, date)
-        #contra_peaks = photometry_data.reward_data.contra_data.trial_peaks
     else:
         print('invalid alignment')
     trial_types = trial_data[['Trial num', 'Trial type']]

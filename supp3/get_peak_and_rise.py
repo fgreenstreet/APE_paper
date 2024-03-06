@@ -8,16 +8,7 @@ from utils.post_processing_utils import remove_exps_after_manipulations, get_fir
 from set_global_params import experiment_record_path, processed_data_path, mice_average_traces
 from utils.average_trace_processing_utils import get_all_mice_average_data_only_contra_cues
 
-#
-# sites = ['tail', 'Nacc']
-# peak_times = {}
-# for site in sites:
-#     all_data = get_all_mouse_data_for_site(site, file_ext='_new_mice_added_with_cues.npz')
-#     time_stamps = all_data['time_stamps']
-#     data = dict(all_data)
-#     cue_traces = data['cue']
-#     peak_times[site] = (get_peak_times(cue_traces, time_stamps))
-# print('a')
+
 sites = ['tail', 'Nacc']
 peak_times = {}
 trace_slopes = {}

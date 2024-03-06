@@ -5,7 +5,7 @@ import scipy as sp
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
 from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
 from utils.tracking_analysis import dlc_processing_utils
-from set_global_params import experiment_record_path, post_processed_tracking_data_path
+from set_global_params import experiment_record_path, post_processed_tracking_data_path, psychometric_data_path
 
 
 def get_fit_slopes(quantile_data, experiment):
@@ -44,12 +44,10 @@ def get_fit_slopes(quantile_data, experiment):
 
 
 def get_all_mice_data(experiments_to_process, exp_type='', key='fitted max cumsum ang vel', shuffle=True, num_shuffles=100, load_saved=True, get_movement=True, align_to='choice'):
-    exp_numbers = []
-    mice = []
     for index, experiment in experiments_to_process.iterrows():
         mouse = experiment['mouse_id']
         date = experiment['date']
-        save_out_folder = 'T:\\photometry_2AC\\tracking_analysis_no_tracking\\' + mouse
+        save_out_folder = psychometric_data_path + mouse
         if not os.path.exists(save_out_folder):
             os.makedirs(save_out_folder)
         movement_param_file = os.path.join(save_out_folder, 'contra_APE_tracking{}_{}{}.pkl'.format(mouse, date, exp_type))
@@ -61,12 +59,11 @@ def get_all_mice_data(experiments_to_process, exp_type='', key='fitted max cumsu
                 quantile_data.to_pickle(movement_param_file)
             else:
                 quantile_data, trial_data = dlc_processing_utils.get_peaks_and_trial_types(mouse, date, align_to=align_to)
-                #quantile_data.to_pickle(movement_param_file)
+                quantile_data.to_pickle(movement_param_file)
         if get_movement:
             non_nan_data = quantile_data[np.invert(np.isnan(quantile_data[key]))]
             slope, intercept, r_value, p_value, std_err = sp.stats.linregress(non_nan_data[key], non_nan_data['APE peaks'])
-        #sns.jointplot(data=quantile_data, x='max cumsum ang vel', y='APE peaks', kind="reg", stat_func=r2)
-        #plt.show()
+
             shuffled_data = quantile_data.copy(deep=False)
             shuffled_data['APE quantile'] = np.random.permutation(quantile_data['APE quantile'].values)
 
@@ -91,9 +88,7 @@ def get_all_mice_data(experiments_to_process, exp_type='', key='fitted max cumsu
                 shuffled_fit_slopes = False
         quantile_data['mouse'] = experiment['mouse_id']
         quantile_data['session'] = experiment['date']
-        #shuffled_df['recording site'] = experiment['recording_site'] + ' shuffled'
         if index == 0:
-            #restructured_data = pd.concat([quantile_df, shuffled_df], ignore_index=True)
             if get_movement:
                 restructured_data = quantile_df
             all_trials_data = quantile_data
@@ -101,7 +96,6 @@ def get_all_mice_data(experiments_to_process, exp_type='', key='fitted max cumsu
             if get_movement:
                 restructured_data = pd.concat([restructured_data, quantile_df], ignore_index=True)
             all_trials_data = pd.concat([all_trials_data, quantile_data])
-            #restructured_data = pd.concat([restructured_data, shuffled_df], ignore_index=True)
             if get_movement:
                 q_data = restructured_data.drop_duplicates(subset=['mouse', 'session number', 'recording site'])
             else:

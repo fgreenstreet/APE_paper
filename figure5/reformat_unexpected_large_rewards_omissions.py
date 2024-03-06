@@ -11,7 +11,7 @@ processed_data_dir = os.path.join(processed_data_path, 'large_rewards_omissions_
 if not os.path.exists(processed_data_dir):
     os.makedirs(processed_data_dir)
 all_experiments = get_all_experimental_records()
-processed_data_file = os.path.join(processed_data_dir, 'all_{}_reward_change_data.csv'.format(site)) #used to be 'all_tail_reward_change_data_new.csv and 'all_nacc_reward_change_data.csv'
+processed_data_file = os.path.join(processed_data_dir, 'all_{}_reward_change_data.csv'.format(site))
 
 for mouse_num, mouse_id in enumerate(mice):
     sessions = all_experiments[

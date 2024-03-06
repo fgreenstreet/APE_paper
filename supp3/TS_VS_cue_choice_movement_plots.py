@@ -33,9 +33,6 @@ all_axs = {'cue': [cue_ax],
 
 
 colours = sns.color_palette("Set2")[:2]
-#t_axs, t_data, t_wd, t_flip_sort_order, t_y_mins, t_y_maxs = get_data_for_recording_site('TS', all_axs)
-#v_axs, v_data, v_wd, v_flip_sort_order, v_y_mins, v_y_maxs = get_data_for_recording_site('VS', all_axs)
-
 
 
 plot_average_trace_all_mice_cue_move_rew(cue_ax, move_ax, reward_ax, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5])

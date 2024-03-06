@@ -125,7 +125,7 @@ def get_group_data(site, save=False):
 
 def pre_post_state_change_plot(df_for_plot, colour='gray'):
     """
-    Plots before nad after state change for each mouse
+    Plots before and after state change for each mouse
     Args:
         df_for_plot (pd.dataframe): data for all mice pre and post state change
         colour (str): line colour for plot

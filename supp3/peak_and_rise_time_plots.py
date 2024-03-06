@@ -1,13 +1,4 @@
-import matplotlib
-import matplotlib.pyplot as plt
-import pandas as pd
-import seaborn as sns
-import numpy as np
-import os
 from set_global_params import processed_data_path, figure_directory
-from utils.plotting_visuals import makes_plots_pretty
-from utils.plotting import output_significance_stars_from_pval
-from scipy.stats import ttest_ind
 from utils.box_plot_utils import *
 
 sites = ['Nacc', 'tail']

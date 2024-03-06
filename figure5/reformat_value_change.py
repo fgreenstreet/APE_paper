@@ -25,7 +25,6 @@ else:
     print('recording site is not tail or Nacc')
 
 block_data_file = os.path.join(processed_data_dir, exp_name + '_' + site + '.csv')
-# used to be 'value_switch_all_tail_mice_test_new_mice_added.csv' and 'value_switch_nacc_mice.csv'
 
 if os.path.isfile(block_data_file):
     all_reward_block_data = pd.read_pickle(block_data_file)

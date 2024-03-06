@@ -6,7 +6,7 @@ from set_global_params import experiment_record_path, processed_data_path, mice_
 from utils.average_trace_processing_utils import get_all_mice_average_data
 
 
-site = 'tail_ant'
+site = 'tail_ant'  # tail # nacc
 mouse_ids = mice_average_traces[site]
 
 # get the first three sessions

@@ -112,3 +112,4 @@ def calculate_psychometric(df):
     psychometric_df = pd.DataFrame(mouse_biases)
 
     return psychometric_df
+
