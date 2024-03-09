@@ -21,9 +21,6 @@ plot_average_trace_all_mice_high_low_cues(axs[1, :], 'Nacc', cmap=['#E95F32', '#
 makes_plots_pretty(np.ravel(axs))
 plt.tight_layout()
 
-fig_directory = 'T:\\paper\\revisions\\cue movement reward comparisons VS TS\\'
-
-#plt.savefig(fig_directory + 'high_low_cue_avg_traces.pdf', transparent=True, bbox_inches='tight')
 plt.show()
 
 font = {'size': 8}
@@ -39,7 +36,4 @@ plot_average_trace_all_mice_high_low_cues(axs, 'tail_ant', cmap=['#E95F32', '#F9
 makes_plots_pretty(axs)
 plt.tight_layout()
 
-fig_directory = 'T:\\paper\\revisions\\DLS recordings\\'
-
-#plt.savefig(fig_directory + 'high_low_cue_avg_traces.pdf', transparent=True, bbox_inches='tight')
 plt.show()

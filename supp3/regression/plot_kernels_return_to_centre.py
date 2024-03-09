@@ -61,6 +61,7 @@ for window_num, start in enumerate(window_starts):
     axs[3].add_patch(rect)
 
 plt.tight_layout()
-figure_dir = r'T:\paper\revisions\return to centre'
-#plt.savefig(os.path.join(figure_dir, 'return_to_centre_regression_kernels.pdf'))
+
+plt.show()
+
 

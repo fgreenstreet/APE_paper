@@ -187,6 +187,7 @@ def get_all_mice_average_data_only_contra_cues(experiments_to_process, time_rang
     cues = np.array(cues)
     return ipsi_choices, contra_choices, rewards, no_rewards, cues, time_stamps
 
+
 def get_all_mice_average_data_high_low_cues(experiments_to_process, time_range=(-1.5, 1.5)):
     """
     This version takes the average across session for each mouse and then stacks the mouse averages (only for high and low cue aligned).

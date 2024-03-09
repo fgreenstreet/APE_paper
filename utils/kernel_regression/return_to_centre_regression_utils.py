@@ -156,7 +156,7 @@ def get_exp_var_only_trials(trials_to_include, parameters, shifts, windows, para
 
 def run_regression_return_to_centre_one_mouse_one_session_trimmed_traces(mouse, date, sample_rate=10000, decimate_factor=100, window_size_seconds = 10, reg_type='_return_to_centre_trimmed_traces'):
     print('proccessing' + mouse + date)
-    dlc_save_dir = 'T:\\photometry_2AC\\processed_data\\return_to_centre\\{}'.format(mouse)
+    dlc_save_dir = os.path.join(processed_data_path, 'return_to_centre\\{}'.format(mouse))
 
     if reg_type == '_return_to_centre_trimmed_traces' or reg_type == '_return_to_centre':
         time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times.npz'.format(mouse, date)

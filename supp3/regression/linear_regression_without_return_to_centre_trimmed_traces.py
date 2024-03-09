@@ -21,7 +21,7 @@ for index, experiment in experiments_to_process.iterrows():
     score, var_exp = run_regression_one_mouse_one_session_no_return_no_trim(experiment)
     var_exps.append(var_exp)
     scores.append(score)
-file_name = site + '_explained_variances_all_cues_trimmed_traces_only_tracking_mice.p' #'_explained_variances_not_cleaned.p' #'_explained_variances.p'
+file_name = site + '_explained_variances_all_cues_trimmed_traces_only_tracking_mice.p'
 processed_data_dir = os.path.join(processed_data_path, 'linear_regression_data')
 saving_filename = os.path.join(processed_data_path, 'linear_regression_data', file_name)
 if not os.path.exists(processed_data_dir):

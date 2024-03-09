@@ -254,7 +254,6 @@ def plot_average_trace_all_mice_high_low_cues(ax, site, error_bar_method='sem', 
     data = dict(all_data)
     del data['time_stamps']
     axs = {'contra_high_cues': ax[0], 'ipsi_low_cues': ax[0], 'contra_low_cues': ax[1], 'ipsi_high_cues': ax[1]}
-    #contra_high_cues = contra_high_cues, contra_low_cues = contra_low_cues, ipsi_high_cues = ipsi_high_cues, ipsi_low_cues = ipsi_low_cues
     colours = {'contra_high_cues': cmap[0], 'ipsi_low_cues': cmap[1], 'contra_low_cues': cmap[0], 'ipsi_high_cues': cmap[1]}
     labels = {'contra_high_cues': 'contra high Hz', 'ipsi_low_cues': 'ipsi low Hz', 'contra_low_cues': 'contra low Hz', 'ipsi_high_cues': 'ipsi high Hz'}
     for trace_type, traces in data.items():

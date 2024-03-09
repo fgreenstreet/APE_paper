@@ -5,6 +5,10 @@ from set_global_params import processed_data_path, experiment_record_path, mice_
 import gc
 import os
 
+"""
+this is the same as in fig 3 but one mouse there is no tracking for one session so this reruns the regression 
+with only the sessions we have tracking for (to make a fair comparison) 
+"""
 site = 'tail'
 mouse_ids = mice_average_traces[site]
 num_sessions = 3

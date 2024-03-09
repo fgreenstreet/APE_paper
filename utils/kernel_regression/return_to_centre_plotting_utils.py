@@ -21,7 +21,7 @@ def get_regression_data_for_plot(recording_site='tail', reg_type='_return_to_cen
     experiment_record['date'] = experiment_record['date'].astype(str)
 
     mouse_ids = mice_average_traces[recording_site]
-
+    mouse_ids.remove('SNL_photo57') # we only have two sessions with tracking for this mouse so we have to process it after (see below)
     good_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
     clean_experiments = remove_bad_recordings(good_experiments)
     all_experiments_to_process = clean_experiments[
@@ -33,6 +33,7 @@ def get_regression_data_for_plot(recording_site='tail', reg_type='_return_to_cen
                     all_experiments_to_process['include'] != 'no')].reset_index(
         drop=True)
     experiments_to_process1 = get_first_x_sessions(all_experiments_to_process).reset_index(drop=True)
+
     mouse_ids2 = ['SNL_photo57']
     good_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids2)
     clean_experiments = remove_bad_recordings(good_experiments)

@@ -36,7 +36,7 @@ for mouse_num, mouse in enumerate(mouse_ids):
     for index, experiment in experiments.iterrows():
         mouse = experiment['mouse_id']
         date = experiment['date']
-        save_dir =  processed_data_path + '\\return_to_centre\\{}'.format(mouse)
+        save_dir = processed_data_path + '\\return_to_centre\\{}'.format(mouse)
         save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_300frame_window.npz'.format(mouse, date)
         traces = np.load(os.path.join(save_dir, save_file))
         print(traces['ipsi_movement'].shape, traces['contra_movement'].shape)
@@ -49,9 +49,6 @@ for mouse_num, mouse in enumerate(mouse_ids):
             ipsi_movement_traces[index, :] = np.nan
     all_mice_ipsi_traces[mouse_num, :] = np.nanmean(ipsi_movement_traces, axis=0)
     all_mice_contra_traces[mouse_num, :] = np.nanmean(contra_movement_traces, axis=0)
-
-
-
 
 window_to_plot = [-0.5, 2]
 inds_to_plot = np.where(np.logical_and(time_points>=window_to_plot[0], time_points<=window_to_plot[1]))
@@ -93,12 +90,7 @@ axs.set_ylabel('z-scored fluorescence')
 axs.set_xlabel('time from movement start (s)')
 plt.tight_layout()
 axs.set_xlim(window_to_plot)
-
-figure_dir = r'T:\paper\revisions\return to centre'
 plt.tight_layout()
-#plt.savefig(os.path.join(figure_dir, 'return_to_centre_average_traces_all_mice_min20trials.pdf'))
-#plt.savefig(os.path.join(figure_dir, 'return_to_centre_average_traces_all_mice_min_20_trials.svg'))
-
 
 # Example mouse
 
@@ -114,7 +106,7 @@ ipsi_movement_traces = np.zeros([num_sessions, 100000])
 for index, experiment in experiments.iterrows():
     mouse = experiment['mouse_id']
     date = experiment['date']
-    save_dir = 'T:\\photometry_2AC\\processed_data\\return_to_centre\\{}'.format(mouse)
+    save_dir = os.path.join(processed_data_path, 'return_to_centre\\{}'.format(mouse))
     save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_300frame_window.npz'.format(mouse, date)
     traces = np.load(os.path.join(save_dir, save_file))
     print(traces['ipsi_movement'].shape, traces['contra_movement'].shape)
@@ -124,8 +116,6 @@ for index, experiment in experiments.iterrows():
     else:
         contra_movement_traces[index, :] = np.nan
         ipsi_movement_traces[index, :] = np.nan
-
-
 
 fig, axs = plt.subplots(1, 1, figsize=[2.5, 2])
 ipsi_mean_trace = decimate(np.nanmean(ipsi_movement_traces, axis=0)[inds_to_plot],10)
@@ -157,10 +147,7 @@ axs.set_xlabel('time from movement start (s)')
 plt.tight_layout()
 axs.set_xlim(window_to_plot)
 
-figure_dir = r'T:\paper\revisions\return to centre'
 plt.tight_layout()
-#plt.savefig(os.path.join(figure_dir, 'return_to_centre_average_traces_example_min20trials.pdf'))
-#plt.savefig(os.path.join(figure_dir, 'return_to_centre_average_traces_example_min_20_trials.svg'))
 
 plt.show()
 

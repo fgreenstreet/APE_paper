@@ -1,5 +1,5 @@
 import os
-from set_global_params import processed_data_path, experiment_record_path, post_processed_tracking_data_path, mice_average_traces
+from set_global_params import processed_data_path, experiment_record_path, post_processed_tracking_data_path, mice_average_traces, old_raw_tracking_path, raw_tracking_path
 from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
 from utils.tracking_analysis.dlc_processing_utils import get_raw_photometry_data
 from utils.post_processing_utils import remove_exps_after_manipulations
@@ -37,14 +37,14 @@ for index, experiment in experiments_to_process.iterrows():
                   'side2': np.array([int(experiments_to_process['right side x'][0]), int(experiments_to_process['right side y'][0])])}
 
     if mouse in old_mice and use_old_tracking:
-        file_path = 'T:\\deeplabcut_tracking\\second_attempt_test_videos\\{}_{}DLC_resnet50_two_acMay10shuffle1_600000.h5'.format(mouse, date)
+        file_path = os.path.join(old_raw_tracking_path, '{}_{}DLC_resnet50_two_acMay10shuffle1_600000.h5'.format(mouse, date))
         protocol = 'Two_Alternative_Choice'
         left_ang_thresh = 85
         right_ang_thresh = 280
 
     else:
-        file_path = 'S:\\projects\\APE_tracking\\{}\\{}\\cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5'.format(
-            mouse, date)
+        file_path = os.path.join(raw_tracking_path, 'cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5'.format(
+            mouse, date))
         protocol = 'Two_Alternative_Choice_CentrePortHold'
         left_ang_thresh = 100
         right_ang_thresh = 300
@@ -111,7 +111,7 @@ for index, experiment in experiments_to_process.iterrows():
                                                                                                      time_frame=300,
                                                                                                      short_turns_only=short_turns)
 
-    save_dir = 'T:\\photometry_2AC\\processed_data\\return_to_centre\\{}'.format(mouse)
+    save_dir = os.path.join(processed_data_path, '\\return_to_centre\\{}'.format(mouse))
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
