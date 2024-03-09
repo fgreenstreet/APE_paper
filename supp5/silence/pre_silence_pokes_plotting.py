@@ -12,12 +12,6 @@ font = {'size': 8.5, 'family': 'sans-serif', 'sans-serif': ['Arial']}
 matplotlib.rc('font', **font)
 matplotlib.rcParams['pdf.fonttype'] = 42
 
-
-fig_directory = 'T:\\paper\\revisions\\silence\\'
-
-
-# Plot peak time comparison
-# plot_and_save_comparison(pre_silence_poke_count, 'count', fig_directory, 'pokes_pre_silence.pdf', dx='stimulus', sig_test=False)
 df_for_plot = pre_silence_poke_count.pivot(index='stimulus', columns='mouse', values='count')
 
 fig, ax = plt.subplots(figsize=[1.5, 2])
@@ -28,10 +22,8 @@ pval = ttest_rel(df_for_plot.T['tones'], df_for_plot.T['silence']).pvalue
 y = df_for_plot.to_numpy().max() + .01 * df_for_plot.to_numpy().max()
 
 significance_stars1 = output_significance_stars_from_pval(pval)
-ax.text(.5, y , significance_stars1, ha='center', fontsize=8)
+ax.text(.5, y, significance_stars1, ha='center', fontsize=8)
 plt.tight_layout()
-print( 'mean: ', np.mean(df_for_plot.T['silence']), ', s.d.: ', np.std(df_for_plot.T['silence']))
-filename = 'pokes_pre_silence.pdf'
-plt.savefig(fig_directory + filename, transparent=True, bbox_inches='tight')
+print('mean: ', np.mean(df_for_plot.T['silence']), ', s.d.: ', np.std(df_for_plot.T['silence']))
 
 plt.show()

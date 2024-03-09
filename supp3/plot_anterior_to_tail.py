@@ -26,8 +26,5 @@ plot_average_trace_all_mice(ant_tail_average_move_ax,  ant_tail_average_outcome_
 makes_plots_pretty([ant_tail_average_move_ax,  ant_tail_average_outcome_ax])
 plt.tight_layout()
 
-fig_directory = 'T:\\paper\\revisions\\DLS recordings\\'
-
-#plt.savefig(fig_directory + 'recording_anterior_to_tail_avg_traces.pdf', transparent=True, bbox_inches='tight')
 plt.show()
 

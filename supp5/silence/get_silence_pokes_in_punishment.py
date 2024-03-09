@@ -5,6 +5,9 @@ from set_global_params import processed_data_path, silence_mice, behavioural_dat
 import data_preprocessing.bpod_data_processing as bpod
 from utils.post_processing_utils import get_all_experimental_records
 
+"""
+Finds the number of times mice have poked into the side ports during the punishment time out in regular training 
+"""
 
 mouse_names_for_df = []
 labels_for_df = []
