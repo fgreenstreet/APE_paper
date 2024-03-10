@@ -278,10 +278,10 @@ if __name__ == '__main__':
             mouse_df = pd.DataFrame(reg_dict)
             all_mice_df = pd.concat([all_mice_df, mouse_df])
     all_mice_df = all_mice_df.reset_index(drop=True)
-    all_mice_df_save_dir = r'{}\turn_angle_over_time'.format(processed_data_path)
+    all_mice_df_save_dir = os.path.join(processed_data_path, 'turn_angle_over_time')
     if not os.path.isdir(all_mice_df_save_dir):
         os.makedirs(all_mice_df_save_dir)
-    all_mice_df_save_file = os.path.join(all_mice_df_save_dir, 'movement_params_all_trials_vs_APE_regression_coefs_pvals_r2_and_trial_num_correlation_and_full_model.pkl') # 'movement_params_all_trials_vs_APE_regression_coefs_pvals_r2_and_trial_num_correlation.pkl' 'movement_params_all_trials_vs_APE_regression_coefs_pvals_r2.pkl'#'movement_params_all_trials_vs_APE_regression_coefs.pkl' #'movement_params_all_trials_vs_APE_regression_coefs_and_pvals.pkl'
+    all_mice_df_save_file = os.path.join(all_mice_df_save_dir, 'movement_params_all_trials_vs_APE_regression_coefs_pvals_r2_and_trial_num_correlation_and_full_model.pkl')
     all_mice_df.to_pickle(all_mice_df_save_file)
 
 

@@ -50,8 +50,8 @@ if __name__ == '__main__':
             all_mice_df = pd.concat([all_mice_df, mouse_df])
 
     all_mice_df = all_mice_df.reset_index(drop=True)
-    all_mice_df_save_dir = r'T:\photometry_2AC\processed_data\turn_angle_over_time'
+    all_mice_df_save_dir = os.path.join(processed_data_path, 'turn_angle_over_time')
     if not os.path.isdir(all_mice_df_save_dir):
         os.makedirs(all_mice_df_save_dir)
-    all_mice_df_save_file = os.path.join(all_mice_df_save_dir, 'movement_params_first_3_sessions_vs_APE_regression_coefs_and_pvals.pkl') #'movement_params_first_3_sessions_vs_APE_regression_coefs.pkl
+    all_mice_df_save_file = os.path.join(all_mice_df_save_dir, 'movement_params_first_3_sessions_vs_APE_regression_coefs_and_pvals.pkl')
     all_mice_df.to_pickle(all_mice_df_save_file)
