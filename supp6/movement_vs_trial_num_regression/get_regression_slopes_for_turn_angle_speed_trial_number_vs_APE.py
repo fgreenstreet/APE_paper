@@ -7,7 +7,7 @@ from utils.reaction_time_utils import get_bpod_trial_nums_per_session
 from utils.post_processing_utils import get_all_experimental_records
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings, remove_manipulation_days
 from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
-from set_global_params import processed_data_path, change_over_time_mice, all_sessions_tracking_path
+from set_global_params import processed_data_path, change_over_time_mice, raw_tracking_path
 
 def get_session_with_10000th_trial(mouse, experiments):
     dates = experiments[experiments['mouse_id']==mouse]['date'].unique()
@@ -82,7 +82,7 @@ def create_movement_param_and_APE_df_just_first_3_sessions(mouse, recording_site
     first_3_sessions = get_first_x_sessions(experiments_to_process, x=x)
     dates = first_3_sessions['date'].values
     for i, date in enumerate(dates):
-        save_out_folder = '{}{}\\{}\\'.format(all_sessions_tracking_path, mouse, date)
+        save_out_folder = '{}{}\\{}\\'.format(raw_tracking_path, mouse, date)
         movement_param_file = os.path.join(save_out_folder, 'APE_tracking{}_{}.pkl'.format(mouse, date))
         if os.path.isfile(movement_param_file):
             session_data = pd.read_pickle(movement_param_file)

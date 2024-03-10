@@ -43,7 +43,7 @@ for index, experiment in experiments_to_process.iterrows():
         right_ang_thresh = 280
 
     else:
-        file_path = os.path.join(raw_tracking_path, 'cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5'.format(
+        file_path = os.path.join(raw_tracking_path, '{}\\{}\\cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5'.format(
             mouse, date))
         protocol = 'Two_Alternative_Choice_CentrePortHold'
         left_ang_thresh = 100

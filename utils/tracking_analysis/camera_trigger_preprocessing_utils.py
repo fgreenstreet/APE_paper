@@ -3,6 +3,7 @@ import data_preprocessing.bpod_data_processing as bpod
 import numpy as np
 from set_global_params import daq_sample_rate
 
+
 def get_camera_trigger_times(mouse, date, protocol):
     daq_file = bpod.find_daq_file(mouse, date)
     data = nptdms.TdmsFile(daq_file)

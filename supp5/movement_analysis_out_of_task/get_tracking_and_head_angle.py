@@ -5,13 +5,12 @@ from utils.tracking_analysis.fede_geometry import *
 import pandas as pd
 from utils.tracking_analysis.transformation_utils import projective_transform_tracks
 import pickle
-from set_global_params import running_in_box_dir, out_of_task_movement_mice_dates
+from set_global_params import running_in_box_dir, out_of_task_movement_mice_dates, running_in_box_tracking_dir
 
 
 def get_movement_properties_for_session(mouse, date):
-    #file_path = 'T:\\deeplabcut_running_in_box\\running_in_box\\{}\\{}\\{}_cameraDLC_mobnet_100_running_in_box_2Jul19shuffle1_200000.h5'.format(mouse, date, mouse)
-    file_path = 'T:\\deeplabcut_running_in_box\\running_in_box\\{}\\{}\\{}_cameraDLC_resnet50_heading_angleMar23shuffle1_1030000.h5'.format(mouse, date, mouse)
-    body_parts = ('nose', 'L_ear', 'R_ear', 'body', 'tail_base', 'tail_tip') #('nose', 'left ear', 'right ear', 'tail base', 'tail tip')
+    file_path = os.path.join(running_in_box_tracking_dir,  '{}\\{}\\{}_cameraDLC_resnet50_heading_angleMar23shuffle1_1030000.h5'.format(mouse, date, mouse))
+    body_parts = ('nose', 'L_ear', 'R_ear', 'body', 'tail_base', 'tail_tip')
     tracking_data = prepare_tracking_data(
         tracking_filepath=file_path,
         tracking=None,

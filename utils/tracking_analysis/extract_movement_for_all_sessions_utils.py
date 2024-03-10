@@ -1,5 +1,6 @@
+import os
 from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
-from set_global_params import processed_data_path
+from set_global_params import processed_data_path, raw_tracking_path
 from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 from utils.tracking_analysis.tracking_plotting import *
 from utils.tracking_analysis.dlc_processing_utils import get_photometry_data, get_photometry_data_correct_incorrect_normal_task
@@ -25,8 +26,8 @@ def get_actual_trial_numbers(per_session_trial_nums, date, mouse, recording_site
 
 
 def get_movement_properties_for_session(mouse, date, protocol='Two_Alternative_Choice', multi_session=True):
-    file_path = 'S:\\projects\\APE_tracking\\{}\\{}\\cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5'.format(
-        mouse, date)
+    file_path = os.path.join(raw_tracking_path, '{}\\{}\\cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5'.format(
+        mouse, date))
     body_parts = ('nose', 'left ear', 'right ear', 'tail base', 'tail tip')
     tracking_data = prepare_tracking_data(
         tracking_filepath=file_path,

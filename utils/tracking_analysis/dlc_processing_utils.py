@@ -6,7 +6,7 @@ import pandas as pd
 from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
 from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 from utils.tracking_analysis.tracking_plotting import *
-from set_global_params import processed_data_path
+from set_global_params import processed_data_path, old_raw_tracking_path
 import os
 
 
@@ -171,8 +171,8 @@ def get_raw_photometry_data(mouse, date):
 
 
 def get_movement_properties_for_session(mouse, date):
-    file_path = 'T:\\deeplabcut_tracking\\second_attempt_test_videos\\{}_{}DLC_resnet50_two_acMay10shuffle1_600000.h5'.format(
-        mouse, date) #T:\deeplabcut_tracking\second_attempt_test_videos #'C:\\Users\\francescag\\Documents\\PhD_Project\\photometry_2AC_dlc\\second_attempt_test_videos\\
+    file_path = os.path.join(old_raw_tracking_path, '\{}_{}DLC_resnet50_two_acMay10shuffle1_600000.h5'.format(
+        mouse, date))
     body_parts = ('nose', 'left ear', 'right ear', 'tail base', 'tail tip')
     tracking_data = prepare_tracking_data(
         tracking_filepath=file_path,
