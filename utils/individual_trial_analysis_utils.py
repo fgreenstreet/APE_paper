@@ -422,7 +422,7 @@ def get_peak_each_trial_with_nans(sorted_traces, time_points, sorted_other_event
 class SessionData(object):
     def __init__(self, fiber_side, recording_site, mouse_id, date):
         """
-        Creates object that will contain photometry aligned to all sorts of behvaioural events
+        Creates object that will contain photometry aligned to all sorts of behavioural events
         Args:
             fiber_side (str): 'left' or 'right'
             recording_site (str): 'Nacc' or 'tail'

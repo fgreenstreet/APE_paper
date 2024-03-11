@@ -11,8 +11,8 @@ def get_camera_trigger_times(mouse, date, protocol):
     main_session_file = bpod.find_bpod_file(mouse, date, protocol)
     loaded_bpod_file, trial_raw_events = bpod.load_bpod_file(main_session_file)
 
-    clock = data.group_channels('acq_task')[3].data
-    stim_trigger = data.group_channels('acq_task')[4].data
+    clock = data['acq_task'].channels()[3]
+    stim_trigger = data['acq_task'].channels()[4].data
     stim_trigger_gaps = np.diff(stim_trigger)
     trial_start_ttls_daq_samples = np.where(stim_trigger_gaps > 2.595)
     trial_start_ttls_daq = trial_start_ttls_daq_samples[0] / daq_sample_rate

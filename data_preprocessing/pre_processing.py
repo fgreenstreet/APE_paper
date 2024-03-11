@@ -3,7 +3,7 @@ import numpy as np
 from data_preprocessing.demodulation import lerner_deisseroth_preprocess
 from data_preprocessing.demodulation import demodulate
 import data_preprocessing.bpod_data_processing as bpod
-from utils.post_processing_utils  import get_all_experimental_records
+from utils.post_processing_utils import get_all_experimental_records
 import os
 from scipy.signal import medfilt, butter, filtfilt
 from scipy.stats import linregress
@@ -28,11 +28,18 @@ def pre_process_experiment_lerner_deissroth(mouse, date, protocol):
     main_session_file = bpod.find_bpod_file(mouse, date, protocol)
     loaded_bpod_file, trial_raw_events = bpod.load_bpod_file(main_session_file)
 
-    chan_0 = data.group_channels('acq_task')[0].data
-    led405 = data.group_channels('acq_task')[2].data
-    led465 = data.group_channels('acq_task')[1].data
-    clock = data.group_channels('acq_task')[3].data
-    stim_trigger = data.group_channels('acq_task')[4].data
+    chan_0 = data['acq_task'].channels()[0]
+    led405 = data['acq_task'].channels()[2]
+    led465 = data['acq_task'].channels()[1]
+    clock = data['acq_task'].channels()[3]
+    stim_trigger = data['acq_task'].channels()[4]
+    #for python 3.6 with tdms version 0.27.0
+    #chan_0 = data.group_channels('acq_task')[0].data
+    #led405 = data.group_channels('acq_task')[2].data
+    #led465 = data.group_channels('acq_task')[1].data
+    #clock = data.group_channels('acq_task')[3].data
+    #stim_trigger = data.group_channels('acq_task')[4].data
+
     stim_trigger_gaps = np.diff(stim_trigger)
     trial_start_ttls_daq_samples = np.where(stim_trigger_gaps > 2.6)
     trial_start_ttls_daq = trial_start_ttls_daq_samples[0] / daq_sample_rate
@@ -80,11 +87,17 @@ def pre_process_experiment_pyphotometry(mouse, date, protocol, daq_sample_rate=d
     main_session_file = bpod.find_bpod_file(mouse, date, protocol)
     loaded_bpod_file, trial_raw_events = bpod.load_bpod_file(main_session_file)
 
-    chan_0 = data.group_channels('acq_task')[0].data
-    led405 = data.group_channels('acq_task')[2].data
-    led465 = data.group_channels('acq_task')[1].data
-    clock = data.group_channels('acq_task')[3].data
-    stim_trigger = data.group_channels('acq_task')[4].data
+    chan_0 = data['acq_task'].channels()[0]
+    led405 = data['acq_task'].channels()[2]
+    led465 = data['acq_task'].channels()[1]
+    clock = data['acq_task'].channels()[3]
+    stim_trigger = data['acq_task'].channels()[4]
+    #for python 3.6 with tdms version 0.27.0
+    #chan_0 = data.group_channels('acq_task')[0].data
+    #led405 = data.group_channels('acq_task')[2].data
+    #led465 = data.group_channels('acq_task')[1].data
+    #clock = data.group_channels('acq_task')[3].data
+    #stim_trigger = data.group_channels('acq_task')[4].data
     stim_trigger_gaps = np.diff(stim_trigger)
     trial_start_ttls_daq_samples = np.where(stim_trigger_gaps > 2.595)
     trial_start_ttls_daq = trial_start_ttls_daq_samples[0] / daq_sample_rate
@@ -164,8 +177,8 @@ def pre_process_experiments(experiments, method='pyphotometry', protocol='Two_Al
 
 
 if __name__ == "__main__":
-    mouse_ids = ['SNL_photo70']
-    date = '20220407'
+    mouse_ids = ['SNL_photo18']
+    date = '20200311'
     for mouse_id in mouse_ids:
         all_experiments = get_all_experimental_records()
         if (mouse_id =='all') & (date == 'all'):

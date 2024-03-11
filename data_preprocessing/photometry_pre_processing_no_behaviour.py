@@ -9,11 +9,20 @@ from set_global_params import daq_sample_rate, photometry_data_path, out_of_task
 
 def pre_process_experiment_pyphotometry_only_photometry(file, mouse, date, sampling_rate=daq_sample_rate):
     data = nptdms.TdmsFile(file)
-    chan_0 = data.group_channels('acq_task')[3].data
-    led405 = data.group_channels('acq_task')[5].data
-    led465 = data.group_channels('acq_task')[4].data
-    clock = data.group_channels('acq_task')[1].data
-    stim_trigger = data.group_channels('acq_task')[0].data
+    # for python 3.6 with tdms version 0.27.0
+    # chan_0 = data.group_channels('acq_task')[3].data
+    # led405 = data.group_channels('acq_task')[5].data
+    # led465 = data.group_channels('acq_task')[4].data
+    # clock = data.group_channels('acq_task')[1].data
+    # stim_trigger = data.group_channels('acq_task')[0].data
+
+    # this data was recorded on a different setup from main data
+    chan_0 = data['acq_task'].channels()[3]
+    led405 = data['acq_task'].channels()[5]
+    led465 = data['acq_task'].channels()[4]
+    clock = data['acq_task'].channels()[1]
+    stim_trigger = data['acq_task'].channels()[0]
+
     signal, back = demodulate(chan_0[sampling_rate * 6:], led465[sampling_rate * 6:], led405[sampling_rate * 6:], 10000)
 
     GCaMP_raw = signal

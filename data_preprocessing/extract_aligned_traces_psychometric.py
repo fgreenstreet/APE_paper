@@ -6,6 +6,7 @@ from utils.post_processing_utils import remove_exps_after_manipulations, get_all
 from set_global_params import experiment_record_path
 from set_global_params import processed_data_path
 
+
 def add_experiment_to_aligned_data(experiments_to_add):
     data_root = os.path.join(processed_data_path, 'for_psychometric')
     for index, experiment in experiments_to_add.iterrows():

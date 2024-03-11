@@ -6,7 +6,6 @@ from utils.post_processing_utils import open_experiment
 from utils.value_change_utils import CustomAlignedDataRewardBlocks, get_all_experimental_records
 
 
-# TODO: some of the files are pickle protocol 5
 site = 'tail' # or 'Nacc'
 exp_name = 'value_change'
 processed_data_dir = os.path.join(processed_data_path, 'value_change_data')
@@ -17,14 +16,8 @@ all_experiments = get_all_experimental_records()
 block_types = pd.DataFrame({'block type': [0, 1, 5], 'left reward': [2, 6, 2], 'right reward': [2, 2, 6]})
 
 mice = value_change_mice[site]
-if site == 'tail':
-    state_to_align_to = 5
-elif site == 'Nacc':
-    state_to_align_to = 3
-else:
-    print('recording site is not tail or Nacc')
 
-block_data_file = os.path.join(processed_data_dir, exp_name + '_' + site + '.csv')
+block_data_file = os.path.join(processed_data_dir, exp_name + '_' + site + '.p')
 
 if os.path.isfile(block_data_file):
     all_reward_block_data = pd.read_pickle(block_data_file)
@@ -38,7 +31,7 @@ else:
                 one_reward_block_data = {}
                 print(reward_block)
                 try:
-                    params = {'state_type_of_interest': state_to_align_to,
+                    params = {'state_type_of_interest': 3,
                         'outcome': 1,
                         'last_outcome': 0,  # NOT USED CURRENTLY
                         'no_repeats' : 1,

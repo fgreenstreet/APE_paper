@@ -27,8 +27,7 @@ def get_site_data_all_mice(site):
     """
     exp_name = 'value_change'
     processed_data_dir = os.path.join(processed_data_path, 'value_change_data')
-    block_data_file = os.path.join(processed_data_dir, exp_name + '_' + site + '.csv')
-
+    block_data_file = os.path.join(processed_data_dir, exp_name + '_' + site + '.p')
     all_reward_block_data = pd.read_pickle(block_data_file)
     all_time_points = all_reward_block_data['time points'].iloc[0]
     return all_reward_block_data, all_time_points
@@ -48,7 +47,7 @@ def make_example_plot(all_reward_block_data, all_time_points, site):
     mouse_name = value_change_example_mice[site]
     data = all_reward_block_data[all_reward_block_data.mouse == mouse_name]
     processed_data_dir = os.path.join(processed_data_path, 'value_change_data')
-    fig, ax = plt.subplots(1,1, figsize=(2.5, 2))
+    fig, ax = plt.subplots(1, 1, figsize=(2.5, 2))
     plot_mean_trace_for_condition(ax, data, all_time_points,
                                   'relative reward amount', error_bar_method='sem', save_location=processed_data_dir)
     ax.spines['right'].set_visible(False)

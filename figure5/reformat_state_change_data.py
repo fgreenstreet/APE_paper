@@ -2,11 +2,17 @@ from utils.post_processing_utils import *
 from set_global_params import processed_data_path, state_change_mice
 import os
 
-site = 'tail' # or 'Nacc'
+site = 'Nacc' # or 'Nacc'
 processed_data_dir = os.path.join(processed_data_path, 'state_change_data')
-state_change_data_file = os.path.join(processed_data_dir, 'state_change_data_{}_mice_only_correct.csv'.format(site))
+state_change_data_file = os.path.join(processed_data_dir, 'state_change_data_{}_mice_only_correct_py36.p'.format(site))
 trial_num_of_switch = 150
 mice = state_change_mice[site]
+if site == 'tail':
+    state_to_align_to = 5
+elif site == 'Nacc':
+    state_to_align_to = 3
+else:
+    print('recording site is not tail or Nacc')
 for mouse_num, mouse_id in enumerate(mice):
     state_change_data = {}
     exp_type = 'state change white noise'
@@ -15,7 +21,7 @@ for mouse_num, mouse_id in enumerate(mice):
     experiment_to_process = all_experiments[(all_experiments['experiment_notes'] == exp_type) & (all_experiments['mouse_id'] == mouse_id)]
     session_data = open_experiment(experiment_to_process)[0]
 
-    params = {'state_type_of_interest': 3, # 3 for nacc, 5 for tail
+    params = {'state_type_of_interest': state_to_align_to, # 3 for nacc, 5 for tail
         'outcome': 1,
         'last_outcome': 0,  # NOT USED CURRENTLY
         'no_repeats' : 0,

@@ -90,7 +90,7 @@ def get_group_data(site, save=False):
         df_for_plot (pd.dataframe): peak size per mouse pre and post state change
     """
     processed_data_dir = os.path.join(processed_data_path, 'state_change_data')
-    state_change_data_file = os.path.join(processed_data_dir, 'state_change_data_{}_mice_only_correct.csv'.format(site))
+    state_change_data_file = os.path.join(processed_data_dir, 'state_change_data_{}_mice_only_correct_py36.p'.format(site))
     all_session_change_data = pd.read_pickle(state_change_data_file)
 
     # find mean traces and downsample

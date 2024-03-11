@@ -22,11 +22,12 @@ def plot_reaction_times(mouse, dates):
         data = pickle.load( open(mean_and_sem_filename, "rb" ))
         reaction_times = data.contra_reaction_times
         bins = np.arange(start=min(reaction_times), stop=max(reaction_times)+0.1, step=0.1)
-        axs[date_num].hist(np.reshape(reaction_times, [len(reaction_times), 1]),bins=bins, density=True, color=colours[date_num])
+        axs[date_num].hist(np.reshape(reaction_times, [len(reaction_times), 1]), bins=bins, density=True, color=colours[date_num])
         axs[date_num].axvline(np.mean(reaction_times), color='k')
         axs[date_num].axvline(np.mean(reaction_times)+ np.std(reaction_times), color='grey')
     plt.xlim(0, 6)
     plt.show()
+
 
 def plot_reaction_times_overlayed(mouse, dates):
     saving_folder = processed_data_path + mouse + '\\'
@@ -48,7 +49,7 @@ def plot_reaction_times_overlayed(mouse, dates):
 def get_valid_trials(mouse, dates, window_around_mean=0.2, recording_site='tail', side='contra'):
     session_starts = get_bpod_trial_nums_per_session(mouse, dates)
     saving_folder = processed_data_path + mouse + '\\'
-    data_root = processed_data_path + 'peak_analysis' #r'W:\photometry_2AC\processed_data\peak_analysis'
+    data_root = processed_data_path + 'peak_analysis'
     all_peaks = []
     all_bins = []
     all_reaction_times =[]
