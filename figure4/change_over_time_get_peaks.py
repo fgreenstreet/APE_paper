@@ -8,7 +8,7 @@ from set_global_params import processed_data_path, change_over_time_mice
 
 # Saves out the files needed to plot change over time
 data_root = processed_data_path + 'peak_analysis'
-recording_site = 'Nacc'
+recording_site = 'tail'
 mice = change_over_time_mice[recording_site]
 side = 'contra'
 align_to = 'movement'  # movement for tail in fig3, cue for nacc in fig 3
