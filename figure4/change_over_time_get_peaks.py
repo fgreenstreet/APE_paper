@@ -1,5 +1,5 @@
 from utils.post_processing_utils import get_all_experimental_records
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings, remove_manipulation_days
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings, remove_manipulation_days
 from utils.change_over_time_utils import get_valid_traces
 import os
 import numpy as np
@@ -17,7 +17,7 @@ for mouse_num, mouse in enumerate(mice):
     all_experiments = get_all_experimental_records()
     all_experiments = remove_exps_after_manipulations(all_experiments, [mouse])
     all = remove_manipulation_days(all_experiments)
-    all_experiments = remove_bad_recordings(all_experiments)
+    all_experiments = remove_unsuitable_recordings(all_experiments)
     experiments_to_process = all_experiments[
         (all_experiments['mouse_id'] == mouse) & (all_experiments['recording_site'] == recording_site)]
     dates = experiments_to_process['date'].values

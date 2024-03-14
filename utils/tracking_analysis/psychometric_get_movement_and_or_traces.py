@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 import scipy as sp
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings
 from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
 from utils.tracking_analysis import dlc_processing_utils
 from set_global_params import experiment_record_path, post_processed_tracking_data_path, psychometric_data_path

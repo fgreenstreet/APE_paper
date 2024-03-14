@@ -4,7 +4,7 @@ import numpy as np
 import scipy as scipy
 from scipy import optimize
 from utils.reaction_time_utils import get_valid_trials
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings, get_all_experimental_records
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings, get_all_experimental_records
 import seaborn as sns
 
 
@@ -125,7 +125,7 @@ def multi_animal_scatter_and_fit(mice, recording_site='tail', window_size=30, fi
 def get_dates_for_mouse(mouse, recording_site='tail'):
     all_experiments = get_all_experimental_records()
     all_experiments = remove_exps_after_manipulations(all_experiments, [mouse])
-    all_experiments = remove_bad_recordings(all_experiments)
+    all_experiments = remove_unsuitable_recordings(all_experiments)
     experiments_to_process = all_experiments[
         (all_experiments['mouse_id'] == mouse) & (all_experiments['recording_site'] == recording_site)]
     dates = experiments_to_process['date'].values

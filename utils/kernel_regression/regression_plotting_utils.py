@@ -1,6 +1,6 @@
 from scipy import stats
 from scipy.stats import sem, shapiro
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings
 from utils.kernel_regression.linear_regression_utils import *
 import os
 import seaborn as sns
@@ -14,7 +14,7 @@ def get_regression_data_for_plot(recording_site='tail'):
 
     mouse_ids = mice_average_traces[recording_site]
     good_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
-    clean_experiments = remove_bad_recordings(good_experiments)
+    clean_experiments = remove_unsuitable_recordings(good_experiments)
     all_experiments_to_process = clean_experiments[
         (clean_experiments['mouse_id'].isin(mouse_ids)) & (clean_experiments['recording_site'] == recording_site)].reset_index(drop=True)
     experiments_to_process = get_first_x_sessions(all_experiments_to_process).reset_index(drop=True)

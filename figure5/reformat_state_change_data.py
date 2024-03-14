@@ -17,7 +17,7 @@ for mouse_num, mouse_id in enumerate(mice):
     state_change_data = {}
     exp_type = 'state change white noise'
     all_experiments = get_all_experimental_records()
-    all_experiments = remove_bad_recordings(all_experiments)
+    all_experiments = remove_unsuitable_recordings(all_experiments)
     experiment_to_process = all_experiments[(all_experiments['experiment_notes'] == exp_type) & (all_experiments['mouse_id'] == mouse_id)]
     session_data = open_experiment(experiment_to_process)[0]
 

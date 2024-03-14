@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from utils.reaction_time_utils import get_bpod_trial_nums_per_session
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings, get_first_x_sessions, get_all_experimental_records, add_experiment_to_aligned_data
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings, get_first_x_sessions, get_all_experimental_records, add_experiment_to_aligned_data
 from set_global_params import experiment_record_path, mice_average_traces, processed_data_path
 
 

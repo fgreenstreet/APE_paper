@@ -1,4 +1,4 @@
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings
 from utils.kernel_regression.linear_regression_utils import *
 from tqdm import tqdm
 from set_global_params import experiment_record_path, processed_data_path, mice_average_traces
@@ -23,7 +23,7 @@ def get_regression_data_for_plot(recording_site='tail', reg_type='_return_to_cen
     mouse_ids = mice_average_traces[recording_site]
     mouse_ids.remove('SNL_photo57') # we only have two sessions with tracking for this mouse so we have to process it after (see below)
     good_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
-    clean_experiments = remove_bad_recordings(good_experiments)
+    clean_experiments = remove_unsuitable_recordings(good_experiments)
     all_experiments_to_process = clean_experiments[
         (clean_experiments['mouse_id'].isin(mouse_ids)) & (
                     clean_experiments['recording_site'] == recording_site)].reset_index(drop=True)
@@ -36,7 +36,7 @@ def get_regression_data_for_plot(recording_site='tail', reg_type='_return_to_cen
 
     mouse_ids2 = ['SNL_photo57']
     good_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids2)
-    clean_experiments = remove_bad_recordings(good_experiments)
+    clean_experiments = remove_unsuitable_recordings(good_experiments)
     all_experiments_to_process = clean_experiments[
         (clean_experiments['mouse_id'].isin(mouse_ids2)) & (
                     clean_experiments['recording_site'] == recording_site)].reset_index(drop=True)

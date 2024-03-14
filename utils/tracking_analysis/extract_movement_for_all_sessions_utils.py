@@ -8,14 +8,14 @@ from utils.tracking_analysis.velocity_utils import format_tracking_data_and_phot
 
 from utils.reaction_time_utils import get_bpod_trial_nums_per_session
 from utils.post_processing_utils import get_all_experimental_records
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings, remove_manipulation_days
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings, remove_manipulation_days
 
 
 def get_actual_trial_numbers(per_session_trial_nums, date, mouse, recording_site='tail'):
     all_experiments = get_all_experimental_records()
     all_experiments = remove_exps_after_manipulations(all_experiments, [mouse])
     all_experiments = remove_manipulation_days(all_experiments)
-    all_experiments = remove_bad_recordings(all_experiments)
+    all_experiments = remove_unsuitable_recordings(all_experiments)
     experiments_to_process = all_experiments[
         (all_experiments['mouse_id'] == mouse) & (all_experiments['recording_site'] == recording_site)]
     dates = experiments_to_process['date'].values

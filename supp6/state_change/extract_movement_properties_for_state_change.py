@@ -1,7 +1,7 @@
 import os
 from utils.tracking_analysis.extract_movement_for_all_sessions_utils import *
 from utils.post_processing_utils import get_all_experimental_records
-from utils.post_processing_utils import remove_bad_recordings
+from utils.post_processing_utils import remove_unsuitable_recordings
 from set_global_params import state_change_mice, raw_tracking_path
 
 
@@ -16,7 +16,7 @@ exp_name = 'state change white noise'
 load_saved = False
 for mouse in mice:
     all_experiments = get_all_experimental_records()
-    all_experiments = remove_bad_recordings(all_experiments)
+    all_experiments = remove_unsuitable_recordings(all_experiments)
     experiments_to_process = all_experiments[
         (all_experiments['mouse_id'] == mouse) & (all_experiments['recording_site'] == recording_site) & (all_experiments['experiment_notes'] == exp_name)] 
     dates = experiments_to_process['date'].values[-4:]

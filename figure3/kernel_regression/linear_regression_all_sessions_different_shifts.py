@@ -1,6 +1,6 @@
 from utils.kernel_regression.linear_regression_utils import *
 import gc
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings
 from set_global_params import experiment_record_path, processed_data_path, mice_average_traces
 from scipy.signal import decimate
 
@@ -10,7 +10,7 @@ mouse_ids = mice_average_traces[site]
 experiment_record = pd.read_csv(experiment_record_path)
 experiment_record['date'] = experiment_record['date'].astype(str)
 good_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
-clean_experiments = remove_bad_recordings(good_experiments)
+clean_experiments = remove_unsuitable_recordings(good_experiments)
 all_experiments_to_process = clean_experiments[(clean_experiments['mouse_id'].isin(mouse_ids)) & (clean_experiments['recording_site'] == site)].reset_index(drop=True)
 experiments_to_process = get_first_x_sessions(all_experiments_to_process)
 for index, experiment in experiments_to_process.iterrows():

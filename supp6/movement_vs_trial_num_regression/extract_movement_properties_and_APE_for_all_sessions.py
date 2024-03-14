@@ -1,7 +1,7 @@
 import os
 from utils.tracking_analysis.extract_movement_for_all_sessions_utils import *
 from utils.post_processing_utils import get_all_experimental_records
-from utils.post_processing_utils import remove_bad_recordings
+from utils.post_processing_utils import remove_unsuitable_recordings
 from set_global_params import change_over_time_mice, raw_tracking_path
 
 
@@ -12,7 +12,7 @@ for mouse in mice:
     all_experiments = get_all_experimental_records()
     all_experiments = remove_exps_after_manipulations(all_experiments, [mouse])
     all_experiments = remove_manipulation_days(all_experiments)
-    all_experiments = remove_bad_recordings(all_experiments)
+    all_experiments = remove_unsuitable_recordings(all_experiments)
     experiments_to_process = all_experiments[
         (all_experiments['mouse_id'] == mouse) & (all_experiments['recording_site'] == recording_site)]
     dates = experiments_to_process['date'].values[-4:]

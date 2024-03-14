@@ -109,9 +109,13 @@ def remove_manipulation_days(experiments):
     return cleaned_experiments
 
 
-def remove_bad_recordings(experiments):
+def remove_unsuitable_recordings(experiments):
     """
-    Removes specific recordings (due to bad signal, poor numbers of trials etc...)
+    Removes specific recordings from certain analyses (due to bad signal, poor numbers of trials etc...)
+    Most commonly used when running regressions for sessions early in training.
+    The regression which need decent numbers of behavioural events for each regressor,
+    which is not always possible early in training.
+    The same sessions are still included for plotting average traces as this is less dependent on number of events.)
     Args:
         experiments (pd.dataframe): all experiment records
 

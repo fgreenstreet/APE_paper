@@ -4,7 +4,7 @@ from utils.reaction_time_utils import get_bpod_trial_nums_per_session
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats
-from utils.post_processing_utils import remove_bad_recordings, remove_exps_after_manipulations_not_including_psychometric, get_all_experimental_records
+from utils.post_processing_utils import remove_unsuitable_recordings, remove_exps_after_manipulations_not_including_psychometric, get_all_experimental_records
 from utils.plotting import multi_conditions_plot, output_significance_stars_from_pval
 from set_global_params import processed_data_path, beginning_and_end_comparison_mice
 
@@ -91,7 +91,7 @@ def make_beginning_and_end_comparison_plot(ax, site='tail', colour='grey'):
     last_peaks = []
     for mouse in mice:
         all_experiments = remove_exps_after_manipulations_not_including_psychometric(records, [mouse])
-        all_experiments = remove_bad_recordings(all_experiments)
+        all_experiments = remove_unsuitable_recordings(all_experiments)
         first, last = get_first_and_10000th_peaks(mouse, all_experiments, site=site)
         first_peaks.append(first)
         last_peaks.append(last)

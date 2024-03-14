@@ -1,5 +1,5 @@
 import pandas as pd
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings, get_first_x_sessions, get_all_experimental_records, add_experiment_to_aligned_data
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings, get_first_x_sessions, get_all_experimental_records, add_experiment_to_aligned_data
 from set_global_params import experiment_record_path, mice_average_traces
 
 

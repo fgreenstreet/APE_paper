@@ -2,7 +2,7 @@ import pandas as pd
 import os
 from get_regression_slopes_for_turn_angle_speed_trial_number_vs_APE import create_movement_param_and_APE_df_just_first_3_sessions, correlate_movement_with_APE
 from utils.kernel_regression.linear_regression_utils import get_first_x_sessions
-from utils.post_processing_utils import remove_exps_after_manipulations, remove_bad_recordings
+from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings
 from set_global_params import experiment_record_path, processed_data_path, change_over_time_mice
 
 
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     mice = change_over_time_mice[recording_site]
     experiment_record = pd.read_csv(experiment_record_path, dtype='str')
     good_experiments = remove_exps_after_manipulations(experiment_record, mice)
-    clean_experiments = remove_bad_recordings(good_experiments)
+    clean_experiments = remove_unsuitable_recordings(good_experiments)
 
     for i, mouse in enumerate(mice):
         df_save_dir = r'{}{}\turn_angle_over_time'.format(processed_data_path, mouse)

@@ -6,7 +6,7 @@ from utils.large_reward_omission_utils import get_traces_and_reward_types
 
 site = 'tail' # or 'Nacc'
 exp_name = 'large_rewards_omissions'
-mice = large_reward_omission_mice[site]
+mice = ['SNL_photo21']#large_reward_omission_mice[site]
 processed_data_dir = os.path.join(processed_data_path, 'large_rewards_omissions_data')
 if not os.path.exists(processed_data_dir):
     os.makedirs(processed_data_dir)
