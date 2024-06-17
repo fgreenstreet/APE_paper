@@ -8,7 +8,7 @@ import peakutils
 from scipy.signal import decimate
 from utils.plotting import calculate_error_bars, multi_conditions_plot, output_significance_stars_from_pval
 from utils.post_processing_utils import *
-from set_global_params import processed_data_path, state_change_example_mice, fig5_plotting_colours
+from set_global_params import processed_data_path, state_change_example_mice, fig4_plotting_colours
 
 
 def make_example_plot(site):
@@ -45,7 +45,7 @@ def make_example_plot(site):
     trials_post_state_change = np.where(aligned_data.contra_data.trial_nums > 149)[0]
 
     fig, axs1 = plt.subplots(1, 1, figsize=[2.5, 2])
-    colours =[fig5_plotting_colours[site][-1], fig5_plotting_colours[site][0]]
+    colours =[fig4_plotting_colours[site][-1], fig4_plotting_colours[site][0]]
     all_time_points = decimate(aligned_data.contra_data.time_points, 10)
     start_plot = int(all_time_points.shape[0] / 2 - 2 * 1000)
     end_plot = int(all_time_points.shape[0] / 2 + 2 * 1000)
