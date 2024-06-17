@@ -9,7 +9,7 @@ photometry_data_path = os.path.join(all_data_path, 'freely_moving_photometry_dat
 figure_directory = os.path.join(all_data_path, 'figures')
 running_in_box_dir = os.path.join(all_data_path, 'running_in_box_photometry')
 running_in_box_tracking_dir = os.path.join(all_data_path, 'running_in_box_tracking')
-psychometric_data_path = os.path.join(all_data_path, 'tracking_analysis_no_tracking_psychometric')
+psychometric_data_path = os.path.join(all_data_path, 'single_trial_analysis_psychometric')
 raw_tracking_path = os.path.join(all_data_path, 'APE_tracking')
 old_raw_tracking_path = os.path.join(all_data_path, 'old_APE_tracking')
 
