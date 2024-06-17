@@ -6,7 +6,7 @@ from set_global_params import silence_mice, raw_tracking_path
 
 # for silence
 recording_site = 'tail'
-mice = silence_mice[recording_site]
+mice = silence_mice
 old_mice = ['SNL_photo37', 'SNL_photo43']
 protocols = ['Two_Alternative_Choice_Inference', 'Two_Alternative_Choice']
 exp_name = 'silence'
