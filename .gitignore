@@ -1,6 +1,7 @@
 *.xml
 *.pyc
 *.iml
+.idea
 .idea/APE_paper.iml
 .idea/misc.xml
 .idea/vcs.xml
