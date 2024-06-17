@@ -1,15 +1,17 @@
+import os
 # PATHS
-experiment_record_path = 'T:\\photometry_2AC\\experimental_record.csv'
-processed_data_path = 'T:\\photometry_2AC\\processed_data\\'
-post_processed_tracking_data_path = 'T:\\photometry_2AC\\tracking_analysis\\'
-behavioural_data_path = 'T:\\photometry_2AC\\bpod_data\\'
-photometry_data_path = 'T:\\photometry_2AC\\freely_moving_photometry_data\\'
-figure_directory = 'T:\\paper\\'
-running_in_box_dir = 'T:\\photometry_2AC\\running_in_box_photometry\\'
-running_in_box_tracking_dir = 'T:\\deeplabcut_running_in_box\\running_in_box\\'
-psychometric_data_path = 'T:\\photometry_2AC\\tracking_analysis_no_tracking\\'
-raw_tracking_path = 'S:\\projects\\APE_tracking\\'
-old_raw_tracking_path = 'T:\\deeplabcut_tracking\\second_attempt_test_videos\\'
+all_data_path = 'S:\\projects\\APE_data_francesca_for_paper' # change this to where you save the data
+experiment_record_path = os.path.join(all_data_path, 'exp_records_APE_paper.csv')
+processed_data_path = os.path.join(all_data_path, 'processed_data')
+post_processed_tracking_data_path = os.path.join(all_data_path, 'tracking_analysis')
+behavioural_data_path = os.path.join(all_data_path, 'bpod_data')
+photometry_data_path = os.path.join(all_data_path, 'freely_moving_photometry_data')
+figure_directory = os.path.join(all_data_path, 'figures')
+running_in_box_dir = os.path.join(all_data_path, 'running_in_box_photometry')
+running_in_box_tracking_dir = os.path.join(all_data_path, 'running_in_box_tracking')
+psychometric_data_path = os.path.join(all_data_path, 'tracking_analysis_no_tracking_psychometric')
+raw_tracking_path = os.path.join(all_data_path, 'APE_tracking')
+old_raw_tracking_path = os.path.join(all_data_path, 'old_APE_tracking')
 
 # CONSTANTS
 daq_sample_rate = 10000  # Hz
