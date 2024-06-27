@@ -152,9 +152,9 @@ def get_bpod_trial_nums_per_session(mouse, dates):
     Returns:
         session_first_trials (list): trial number of start of sessions in context of all trials ever done
     """
-    BpodProtocol = '\\Two_Alternative_Choice\\'
+    BpodProtocol = 'Two_Alternative_Choice'
     GeneralDirectory = behavioural_data_path
-    DFfile = GeneralDirectory + mouse + BpodProtocol + 'Data_Analysis\\' + mouse + '_dataframe.pkl'
+    DFfile = os.path.join(GeneralDirectory, mouse, BpodProtocol, 'Data_Analysis', mouse + '_dataframe.pkl')
     behavioural_stats = pd.read_pickle(DFfile)
     sessions = MakeDatesPretty(dates)
     session_first_trials = []
