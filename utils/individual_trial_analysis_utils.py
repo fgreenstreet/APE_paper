@@ -1,4 +1,5 @@
 import numpy as np
+import os
 from scipy import stats
 import matplotlib.pyplot as plt
 import peakutils
@@ -561,11 +562,11 @@ class ChoiceAlignedData(object):
             session_data (SessionData): the session object with information about fiber side, dat, mouse ID etc...
             save_traces (bool): should photometry traces be aligned and saved or only behavioural data?
         """
-        saving_folder = processed_data_path + session_data.mouse + '\\'
+        saving_folder = os.path.join(processed_data_path, session_data.mouse)
         restructured_data_filename = session_data.mouse + '_' + session_data.date + '_' + 'restructured_data.pkl'
-        trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
+        trial_data = pd.read_pickle(os.path.join(saving_folder, restructured_data_filename))
         dff_trace_filename = session_data.mouse + '_' + session_data.date + '_' + 'smoothed_signal.npy'
-        dff = np.load(saving_folder + dff_trace_filename)
+        dff = np.load(os.path.join(saving_folder, dff_trace_filename))
 
         fiber_options = np.array(['left', 'right'])
         fiber_side_numeric = (np.where(fiber_options == session_data.fiber_side)[0] + 1)[0]

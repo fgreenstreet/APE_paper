@@ -27,7 +27,7 @@ def get_valid_traces(mouse, dates, window_around_mean=0.2, recording_site='tail'
         rolling_mean_trace (list): mean trace for each bin
     """
     session_starts = get_bpod_trial_nums_per_session(mouse, dates)
-    saving_folder = processed_data_path + mouse + '\\'
+    saving_folder = os.path.join(processed_data_path, mouse)
     all_bins = []
     all_reaction_times = []
     all_trial_numbers = []
@@ -35,7 +35,7 @@ def get_valid_traces(mouse, dates, window_around_mean=0.2, recording_site='tail'
     all_traces = []
 
     for date_num, date in enumerate(dates):
-        aligned_filename = saving_folder + mouse + '_' + date + '_' + 'aligned_traces.p'
+        aligned_filename = os.path.join(saving_folder, mouse + '_' + date + '_' + 'aligned_traces.p')
 
         with open(aligned_filename, 'rb') as f:
             data = pickle.load(f)
@@ -98,6 +98,7 @@ def get_valid_traces(mouse, dates, window_around_mean=0.2, recording_site='tail'
     rolling_mean_peak = []
     all_peak_trace_inds = []
     num_bins = int(np.shape(valid_flattened_traces)[0]/window_size)
+    print(valid_flattened_traces.shape)
     for window_num in range(num_bins):
         rolling_mean_trace.append(np.nanmean(valid_flattened_traces[window_num * window_size: (window_num + 1) * window_size, :], axis=0))
         rolling_mean_x.append(np.nanmean(valid_trial_nums[window_num * window_size: (window_num + 1) * window_size]))

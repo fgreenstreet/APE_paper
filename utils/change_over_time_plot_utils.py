@@ -116,7 +116,7 @@ def make_example_traces_plot(mouse, ax, window_for_binning=50, side='contra', le
     Returns:
 
     """
-    data_root = processed_data_path + 'peak_analysis'
+    data_root = os.path.join(processed_data_path, 'peak_analysis')
     saving_folder = os.path.join(data_root, mouse)
     filename = mouse + '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_{}_aligned_to_{}.npz'.format(side, align_to)
     save_filename = os.path.join(saving_folder, filename)
