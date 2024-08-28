@@ -23,3 +23,4 @@ figure5/which_sessions_psychometric.py
 make_exp_record_for_paper.py
 supp6/silence/which_sessions_silence.py
 /set_global_params_local_paths.py
+*.ipynb

@@ -126,8 +126,8 @@ def get_data_for_body_part(dlc_trajectories, start_frame, end_frame, body_part):
 
 
 def get_photometry_data(mouse, date):
-    saving_folder = processed_data_path + mouse + '\\'
-    aligned_filename = saving_folder + mouse + '_' + date + '_' + 'aligned_traces.p'
+    saving_folder = os.path.join(processed_data_path, mouse)
+    aligned_filename = os.path.join(saving_folder, mouse + '_' + date + '_' + 'aligned_traces.p')
     with open(aligned_filename, 'rb') as f:
         data = pickle.load(f)
     return data

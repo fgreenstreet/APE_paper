@@ -12,6 +12,7 @@ running_in_box_tracking_dir = os.path.join(all_data_path, 'running_in_box_tracki
 psychometric_data_path = os.path.join(all_data_path, 'single_trial_analysis_psychometric')
 raw_tracking_path = os.path.join(all_data_path, 'APE_tracking')
 old_raw_tracking_path = os.path.join(all_data_path, 'old_APE_tracking')
+bias_path = os.path.join(all_data_path, 'bias_analysis')
 
 # CONSTANTS
 daq_sample_rate = 10000  # Hz
