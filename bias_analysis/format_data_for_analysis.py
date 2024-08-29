@@ -24,7 +24,7 @@ def get_session_with_10000th_trial(mouse, experiments):
     return(last_session_date)
 
 
-recording_site = 'tail'
+recording_site = 'Nacc'
 for mouse in change_over_time_mice[recording_site]:
     all_experiments = get_all_experimental_records()
     all_experiments = remove_exps_after_manipulations(all_experiments, [mouse])
@@ -48,9 +48,13 @@ for mouse in change_over_time_mice[recording_site]:
             peaks = []
             trial_types = []
 
+            if recording_site == 'tail':
+                aligned_data = photometry_data.choice_data
+            else:
+                aligned_data = photometry_data.cue_data
             # Single loop to iterate over trial types and collect data
             for trial_type in ['contra_data', 'ipsi_data']:
-                trial_type_data = getattr(photometry_data.choice_data, trial_type)
+                trial_type_data = getattr(aligned_data, trial_type)
 
                 # Extend lists with data from the current trial type
                 trial_nums.extend(trial_type_data.trial_nums)
@@ -79,7 +83,7 @@ for mouse in change_over_time_mice[recording_site]:
 
             # Merge the two DataFrames on 'trial_nums', using a left join to keep all rows in trial_data
             merged_df = pd.merge(trial_data, df_sorted, on='trial_nums', how='left')
-            merged_df['actual trial nums'] = get_actual_trial_numbers(merged_df['trial_nums'], date, mouse)
+            merged_df['actual trial nums'] = get_actual_trial_numbers(merged_df['trial_nums'], date, mouse, recording_site=recording_site)
             if i == 0:
                 all_session_data = merged_df
             else:
