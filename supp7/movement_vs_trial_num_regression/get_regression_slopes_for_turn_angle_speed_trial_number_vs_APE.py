@@ -14,10 +14,8 @@ def get_session_with_10000th_trial(mouse, experiments):
     session_starts = get_bpod_trial_nums_per_session(mouse, dates)
     if session_starts[-1] >= 10000:
         last_session_idx = np.where(np.asarray(session_starts) >=10000)[0][0]
-        print(np.asarray(session_starts) >=10000)
     else:
         last_session_idx = -1
-        print(session_starts[-1])
     last_session_date = dates[last_session_idx]
     return(last_session_date)
 
