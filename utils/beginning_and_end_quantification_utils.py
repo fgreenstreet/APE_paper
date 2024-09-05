@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pickle
 from utils.reaction_time_utils import get_bpod_trial_nums_per_session
@@ -20,9 +21,9 @@ def get_mean_contra_peak(session_record):
     """
     mouse_id = session_record['mouse_id']
     date = session_record['date']
-    saving_folder = processed_data_path + mouse_id + '\\'
+    saving_folder = os.path.join(processed_data_path, mouse_id)
     aligned_filename = mouse_id + '_' + date + '_' + 'aligned_traces.p'
-    save_filename = saving_folder + aligned_filename
+    save_filename = os.path.join(saving_folder, aligned_filename)
     session_data = pickle.load(open(save_filename, "rb"))
     _trial_peaks = session_data.choice_data.contra_data.trial_peaks
     trial_peaks = [p if not isinstance(p, np.ndarray) else np.nan for p in _trial_peaks]
