@@ -1,3 +1,4 @@
+import os
 import pickle
 import numpy as np
 from utils.individual_trial_analysis_utils import SessionData, ZScoredTraces
@@ -9,6 +10,8 @@ from utils.plotting import calculate_error_bars
 from matplotlib import colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from set_global_params import processed_data_path
+from scipy import stats
+from scipy.stats import shapiro
 
 
 class ZScoredTracesCuePlotOnly(object):
@@ -35,9 +38,9 @@ def get_data_for_figure(recording_site):
         example_mouse = 'SNL_photo26'
         example_date = '20200812'
 
-    saving_folder = processed_data_path + 'for_figure\\' + example_mouse + '\\'
+    saving_folder = os.path.join(processed_data_path, 'for_figure', example_mouse)
     aligned_filename = example_mouse + '_' + example_date + '_' + 'aligned_traces_for_fig.p'
-    save_filename = saving_folder + aligned_filename
+    save_filename = os.path.join(saving_folder, aligned_filename)
     example_session_data = pickle.load(open(save_filename, "rb"))
     return example_session_data
 
@@ -209,6 +212,7 @@ def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem
     del data['time_stamps'], data['cue']
     axs = {'contra_choice': move_ax, 'ipsi_choice': move_ax, 'reward': outcome_ax, 'no_reward': outcome_ax}
     colours = {'contra_choice': cmap[0], 'ipsi_choice': cmap[1], 'reward': cmap[0], 'no_reward': cmap[1]}
+    sig_times = get_significance_between_traces(data['contra_choice'], data['ipsi_choice'], time_stamps)
     for trace_type, traces in data.items():
         mean_trace = decimate(np.mean(traces, axis=0), 10)
         time_points = decimate(time_stamps, 10)
@@ -389,3 +393,21 @@ def make_y_lims_same_heat_map(ymins, ymaxs):
     ylim_min = min(ymins)
     ylim_max = max(ymaxs)
     return ylim_min, ylim_max
+
+def get_significance_between_traces(kernel1, kernel2, time_stamps, bin_size=0.1, alpha=0.05):
+    bin_numbers = np.digitize(time_stamps,
+                              np.arange(time_stamps[0], time_stamps[-1], bin_size))
+    downsampled_kernel1 = np.array(
+        [kernel1[:, bin_numbers == i].mean(axis=1) for i in np.unique(bin_numbers)])
+    downsampled_kernel2 = np.array(
+        [kernel2[:, bin_numbers == i].mean(axis=1) for i in np.unique(bin_numbers)])
+    decimated_timestamps = np.array(
+        [time_stamps[bin_numbers == i].mean() for i in np.unique(bin_numbers)])
+    p_vals = []
+    for i in range(0, downsampled_kernel2.shape[0]):
+        differences = downsampled_kernel1[i, :] - downsampled_kernel2[i, :]
+        print(shapiro(differences))
+        _, p = stats.mannwhitneyu(downsampled_kernel1[i, :], downsampled_kernel2[i, :])
+        p_vals.append(p)
+    significant_time_stamps = decimated_timestamps[np.where(np.array(p_vals) < alpha)[0]]
+    return significant_time_stamps
