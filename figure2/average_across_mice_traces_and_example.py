@@ -1,4 +1,4 @@
-
+import os
 import matplotlib.pylab as plt
 from utils.zscored_plots_utils import get_data_for_recording_site, make_y_lims_same_heat_map, plot_all_heatmaps_same_scale, plot_average_trace_all_mice
 import seaborn as sns
@@ -66,9 +66,11 @@ heat_map_v = plot_all_heatmaps_same_scale(v_axs, v_data, v_wd, v_flip_sort_order
 plot_average_trace_all_mice(vs_average_move_ax,  vs_average_outcome_ax, 'Nacc', cmap=['#E95F32', '#F9C0AF'])
 plot_average_trace_all_mice(ts_average_move_ax,  ts_average_outcome_ax, 'tail', cmap=['#002F3A', '#76A8DA'])
 
+
 makes_plots_pretty([vs_average_move_ax, ts_average_move_ax, vs_average_outcome_ax, ts_average_outcome_ax])
 plt.tight_layout()
 
-#plt.savefig(figure_directory + 'Fig3_paper_final_version.pdf', transparent=True, bbox_inches='tight')
+#plt.savefig(os.path.join(figure_directory, 'Fig2_paper_final_version.pdf'), transparent=True, bbox_inches='tight')
 plt.show()
 
+#
