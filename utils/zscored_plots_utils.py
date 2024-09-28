@@ -12,6 +12,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from set_global_params import processed_data_path
 from scipy import stats
 from scipy.stats import shapiro
+import matplotlib.patches as mpatches
+import matplotlib
 
 
 class ZScoredTracesCuePlotOnly(object):
@@ -210,9 +212,10 @@ def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem
     time_stamps = all_data['time_stamps']
     data = dict(all_data)
     del data['time_stamps'], data['cue']
+    move_data = {'data': [data['contra_choice'], data['ipsi_choice']], 'axis': move_ax, 'time': time_stamps}
+    outcome_data = {'data': [data['reward'], data['no_reward']], 'axis': outcome_ax, 'time': time_stamps}
     axs = {'contra_choice': move_ax, 'ipsi_choice': move_ax, 'reward': outcome_ax, 'no_reward': outcome_ax}
     colours = {'contra_choice': cmap[0], 'ipsi_choice': cmap[1], 'reward': cmap[0], 'no_reward': cmap[1]}
-    sig_times = get_significance_between_traces(data['contra_choice'], data['ipsi_choice'], time_stamps)
     for trace_type, traces in data.items():
         mean_trace = decimate(np.mean(traces, axis=0), 10)
         time_points = decimate(time_stamps, 10)
@@ -237,6 +240,9 @@ def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem
         axs[trace_type].set_xlabel('Time (s)')
         axs[trace_type].set_ylabel('z-score')
         axs[trace_type].set_xlim([-1.5, 1.5])
+
+    plot_significance_patches(move_data)
+    plot_significance_patches(outcome_data)
 
 
 def plot_average_trace_all_mice_high_low_cues(ax, site, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5]):
@@ -339,6 +345,7 @@ def plot_average_trace_all_mice_cue_move_rew(cue_ax, move_ax, outcome_ax, error_
 
 
 
+
 def plot_heat_map(ax, data, white_dot_point, flip_sort_order, dff_range=None, x_range=[-1.5, 1.5], cmap='viridis'):
     """
     Plots a single heatmap on a single axis
@@ -394,7 +401,7 @@ def make_y_lims_same_heat_map(ymins, ymaxs):
     ylim_max = max(ymaxs)
     return ylim_min, ylim_max
 
-def get_significance_between_traces(kernel1, kernel2, time_stamps, bin_size=0.1, alpha=0.05):
+def get_significance_between_traces(kernel1, kernel2, time_stamps, bin_size=0.1, alpha=0.01):
     bin_numbers = np.digitize(time_stamps,
                               np.arange(time_stamps[0], time_stamps[-1], bin_size))
     downsampled_kernel1 = np.array(
@@ -411,3 +418,43 @@ def get_significance_between_traces(kernel1, kernel2, time_stamps, bin_size=0.1,
         p_vals.append(p)
     significant_time_stamps = decimated_timestamps[np.where(np.array(p_vals) < alpha)[0]]
     return significant_time_stamps
+
+
+def plot_significance_patches(data):
+    axs = data['axis']
+    traces = data['data']
+    timestamps = data['time']
+    sig_times = get_significance_between_traces(traces[0], traces[1], timestamps)
+
+    if len(sig_times) > 0:
+        min_y, max_y = axs.get_ylim()
+
+        # Find gaps between consecutive significant timestamps
+        gaps_between_significant_time_stamps = np.diff(sig_times)
+
+        # Initialize the start of the first window
+        window_starts = [sig_times[0] - 0.05]
+        window_ends = []
+
+        # Iterate through gaps to identify windows of significance
+        for i, gap in enumerate(gaps_between_significant_time_stamps):
+            if gap > 0.11:
+                # End the current window and start a new one
+                window_ends.append(sig_times[i] + 0.05)
+                window_starts.append(sig_times[i + 1] - 0.05)
+
+        # Add the end of the last window
+        window_ends.append(sig_times[-1] + 0.05)
+
+        # Create and add patches for each window
+        for start, end in zip(window_starts, window_ends):
+            rect = mpatches.Rectangle((start, min_y),
+                                      end - start,
+                                      max_y - min_y,
+                                      fill=True,
+                                      color="grey",
+                                      alpha=0.2,
+                                      linewidth=0)
+            axs.add_patch(rect)
+
+        axs.set_ylim(min_y, max_y)
