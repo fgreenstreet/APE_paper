@@ -17,7 +17,7 @@ def find_bpod_file(mouse, date, protocol_type):
     Returns:
         main_session_file (str): path to file
     """
-    Bpod_data_path = behavioural_data_path + mouse + '\\' + protocol_type + '\\Session Data\\'
+    Bpod_data_path = os.path.join(behavioural_data_path, mouse, protocol_type, 'Session Data')
     Bpod_file_search_tool = mouse + '_' + protocol_type + '_' + date
     files_in_bpod_path = os.listdir(Bpod_data_path)
     files_on_that_day = [s for s in files_in_bpod_path if Bpod_file_search_tool in s]
@@ -26,12 +26,12 @@ def find_bpod_file(mouse, date, protocol_type):
     if len(mat_files_on_that_day) == 2:
         no_extension_files = [os.path.splitext(filename)[0] for filename in mat_files_on_that_day]
         file_times = [filename.split('_')[-1] for filename in no_extension_files]
-        main_session_file = Bpod_data_path + mat_files_on_that_day[file_times.index(max(file_times))]
+        main_session_file = os.path.join(Bpod_data_path, mat_files_on_that_day[file_times.index(max(file_times))])
         return main_session_file
     elif len(mat_files_on_that_day) == 1:
         no_extension_files = [os.path.splitext(filename)[0] for filename in mat_files_on_that_day]
         file_times = [filename.split('_')[-1] for filename in no_extension_files]
-        main_session_file = Bpod_data_path +  mat_files_on_that_day[file_times.index(max(file_times))]
+        main_session_file = os.path.join(Bpod_data_path, mat_files_on_that_day[file_times.index(max(file_times))])
         return main_session_file
     else:
         print('0 or more than 2 sessions that day!')
@@ -47,16 +47,16 @@ def find_daq_file(mouse, date):
     Returns:
         main_session_file (str): path to daq file
     """
-    daq_data_path = photometry_data_path + mouse + '\\'
+    daq_data_path = os.path.join(photometry_data_path, mouse)
     folders_in_photo_path = os.listdir(daq_data_path)
     folders_on_that_day = [s for s in folders_in_photo_path if date in s]
 
     if len(folders_on_that_day) == 2:
-        main_session_file = daq_data_path + '\\' + folders_on_that_day[-1] + '\\' + 'AI.tdms'
+        main_session_file = os.path.join(daq_data_path, folders_on_that_day[-1], 'AI.tdms')
         return main_session_file
         print('2 sessions that day')
     elif len(folders_on_that_day) == 1:
-        main_session_file = daq_data_path + '\\' + folders_on_that_day[-1] + '\\' + 'AI.tdms'
+        main_session_file = os.path.join(daq_data_path, folders_on_that_day[-1], 'AI.tdms')
         return main_session_file
     else:
         print('0 or more than 2 sessions that day!')

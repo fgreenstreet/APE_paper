@@ -1,18 +1,18 @@
 import os
 # PATHS
-all_data_path = 'S:\\projects\\APE_data_francesca_for_paper' # change this to where you save the data
+all_data_path = 'S:\\projects\\APE_data_francesca_for_paper\\' # change this to where you save the data
 experiment_record_path = os.path.join(all_data_path, 'exp_records_APE_paper.csv')
-processed_data_path = os.path.join(all_data_path, 'processed_data')
-post_processed_tracking_data_path = os.path.join(all_data_path, 'tracking_analysis')
-behavioural_data_path = os.path.join(all_data_path, 'bpod_data')
-photometry_data_path = os.path.join(all_data_path, 'freely_moving_photometry_data')
-figure_directory = os.path.join(all_data_path, 'figures')
-running_in_box_dir = os.path.join(all_data_path, 'running_in_box_photometry')
-running_in_box_tracking_dir = os.path.join(all_data_path, 'running_in_box_tracking')
-psychometric_data_path = os.path.join(all_data_path, 'single_trial_analysis_psychometric')
-raw_tracking_path = os.path.join(all_data_path, 'APE_tracking')
-old_raw_tracking_path = os.path.join(all_data_path, 'old_APE_tracking')
-bias_path = os.path.join(all_data_path, 'bias_analysis')
+processed_data_path = os.path.join(all_data_path, 'processed_data\\')
+post_processed_tracking_data_path = os.path.join(all_data_path, 'tracking_analysis\\')
+behavioural_data_path = os.path.join(all_data_path, 'bpod_data\\')
+photometry_data_path = os.path.join(all_data_path, 'freely_moving_photometry_data\\')
+figure_directory = os.path.join(all_data_path, 'figures\\')
+running_in_box_dir = os.path.join(all_data_path, 'running_in_box_photometry\\')
+running_in_box_tracking_dir = os.path.join(all_data_path, 'running_in_box_tracking\\')
+psychometric_data_path = os.path.join(all_data_path, 'single_trial_analysis_psychometric\\')
+raw_tracking_path = os.path.join(all_data_path, 'APE_tracking\\')
+old_raw_tracking_path = os.path.join(all_data_path, 'old_APE_tracking\\')
+bias_path = os.path.join(all_data_path, 'bias_analysis\\')
 
 # CONSTANTS
 daq_sample_rate = 10000  # Hz

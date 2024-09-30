@@ -25,7 +25,7 @@ def get_return_to_centre_window(trials, all_trials, all_camera_triggers):
             next_trials['Instance in state'] == 1)]['Time end'].values * 10000)
     next_trial_starts = next_trial_starts.astype(int)
     next_trial_start_triggers = find_nearest_trials(next_trial_starts, all_camera_triggers)
-    return choice_triggers, next_trial_start_triggers, choice
+    return choice_triggers, next_trial_start_triggers, choice, next_trial_starts
 
 
 def get_initial_heading_vector(tracking_data, onset_times, offset_times, time_frame=15):
@@ -213,7 +213,7 @@ def get_photometry_for_one_side_returns(fiber_side_numeric, camera_triggers, tri
             trial_data['Instance in state'] == trial_data['Max times in state']) & (
                                          trial_data['Response'] == fiber_side_numeric)]
 
-    choice_triggers, next_trial_start_triggers, choice_times = get_return_to_centre_window(trials, trial_data, camera_triggers)
+    choice_triggers, next_trial_start_triggers, choice_times, next_trial_start_times = get_return_to_centre_window(trials, trial_data, camera_triggers)
 
     heading_vectors, axs = get_initial_heading_vector(tracking_data, choice_triggers,
                                                       next_trial_start_triggers, time_frame=time_frame)
@@ -230,6 +230,7 @@ def get_photometry_for_one_side_returns(fiber_side_numeric, camera_triggers, tri
                                                                  time_frame=time_frame, short_turns_only=short_turns_only)
     contra_movement_inds = [i for i, t in enumerate(turn_onsets) if t]
     valid_choices = choice_times[trial_indices]
+    return_durations = next_trial_start_times[trial_indices] - choice_times[trial_indices]
     contra_movement_onsets_time_stamps = np.array(valid_choices)[contra_movement_inds] / 10000 + \
                                          np.array(turn_onsets)[
                                              contra_movement_inds]  # these times are in seconds
@@ -238,4 +239,4 @@ def get_photometry_for_one_side_returns(fiber_side_numeric, camera_triggers, tri
                                                                                                  trials,
                                                                                                  turn_onsets,
                                                                                                  photometry_data)
-    return contra_movement_traces, contra_movement_onsets_time_stamps
+    return contra_movement_traces, contra_movement_onsets_time_stamps, return_durations

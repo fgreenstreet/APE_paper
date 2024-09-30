@@ -28,11 +28,11 @@ def pre_process_experiment_lerner_deissroth(mouse, date, protocol):
     main_session_file = bpod.find_bpod_file(mouse, date, protocol)
     loaded_bpod_file, trial_raw_events = bpod.load_bpod_file(main_session_file)
 
-    chan_0 = data['acq_task'].channels()[0]
-    led405 = data['acq_task'].channels()[2]
-    led465 = data['acq_task'].channels()[1]
-    clock = data['acq_task'].channels()[3]
-    stim_trigger = data['acq_task'].channels()[4]
+    chan_0 = data['acq_task'].channels()[0].data
+    led405 = data['acq_task'].channels()[2].data
+    led465 = data['acq_task'].channels()[1].data
+    clock = data['acq_task'].channels()[3].data
+    stim_trigger = data['acq_task'].channels()[4].data
     #for python 3.6 with tdms version 0.27.0
     #chan_0 = data.group_channels('acq_task')[0].data
     #led405 = data.group_channels('acq_task')[2].data
@@ -87,11 +87,11 @@ def pre_process_experiment_pyphotometry(mouse, date, protocol, daq_sample_rate=d
     main_session_file = bpod.find_bpod_file(mouse, date, protocol)
     loaded_bpod_file, trial_raw_events = bpod.load_bpod_file(main_session_file)
 
-    chan_0 = data['acq_task'].channels()[0]
-    led405 = data['acq_task'].channels()[2]
-    led465 = data['acq_task'].channels()[1]
-    clock = data['acq_task'].channels()[3]
-    stim_trigger = data['acq_task'].channels()[4]
+    chan_0 = data['acq_task'].channels()[0].data
+    led405 = data['acq_task'].channels()[2].data
+    led465 = data['acq_task'].channels()[1].data
+    clock = data['acq_task'].channels()[3].data
+    stim_trigger = data['acq_task'].channels()[4].data
     #for python 3.6 with tdms version 0.27.0
     #chan_0 = data.group_channels('acq_task')[0].data
     #led405 = data.group_channels('acq_task')[2].data

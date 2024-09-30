@@ -216,7 +216,9 @@ def make_shifts_for_params(param_names):
               'ipsi choices': np.arange(-0.5*daq_sample_rate/100, 1.5*daq_sample_rate/100 + 1),
               'contra choices': np.arange(-0.5*daq_sample_rate/100, 1.5*daq_sample_rate/100 + 1),
               'rewards': np.arange(0, 1*daq_sample_rate/100 + 1),
-              'no rewards': np.arange(0, 1*daq_sample_rate/100 + 1)
+              'no rewards': np.arange(0, 1*daq_sample_rate/100 + 1),
+              'contra returns': np.arange(-0.2*daq_sample_rate/100, 1.5*daq_sample_rate/100 + 1),
+              'ipsi returns': np.arange(-0.2 * daq_sample_rate / 100, 1.5 * daq_sample_rate / 100 + 1)
              }
     for param in param_names:
         shifts_for_params.append(shifts[param])

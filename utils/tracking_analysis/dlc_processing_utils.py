@@ -160,13 +160,13 @@ def fit_sigmoid(x_data, y_data):
 
 
 def get_raw_photometry_data(mouse, date):
-    saving_folder = processed_data_path + mouse + '\\'
+    saving_folder = os.path.join(processed_data_path, mouse)
     restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
-    trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
-    with open(saving_folder + restructured_data_filename, "rb") as fh:
+    trial_data = pd.read_pickle(os.path.join(saving_folder, restructured_data_filename))
+    with open(os.path.join(saving_folder, restructured_data_filename), "rb") as fh:
         trial_data = pickle.load(fh)
     dff_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
-    dff = np.load(saving_folder + dff_trace_filename)
+    dff = np.load(os.path.join(saving_folder, dff_trace_filename))
     return dff, trial_data
 
 

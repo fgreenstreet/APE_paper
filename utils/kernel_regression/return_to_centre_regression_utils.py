@@ -21,7 +21,7 @@ def get_first_x_sessions_reg_rtc(sorted_experiment_record, x=3):
     return exps
 
 
-def run_regression_return_to_centre_one_mouse_one_session(mouse, date, sample_rate=10000, decimate_factor=100, window_size_seconds = 10, reg_type='_return_to_centre'):
+def run_regression_return_to_centre_one_mouse_one_session(mouse, date, duration_list, sample_rate=10000, decimate_factor=100, window_size_seconds = 10, reg_type='_return_to_centre'):
     print('proccessing' + mouse + date)
     dlc_save_dir = processed_data_path + '\\return_to_centre\\{}'.format(mouse)
     if reg_type == '_return_to_centre' or reg_type == '_return_to_centre_trimmed_traces':
@@ -57,6 +57,13 @@ def run_regression_return_to_centre_one_mouse_one_session(mouse, date, sample_ra
                                                           window_size_seconds)
     no_rewards = convert_behavioural_timestamps_into_samples(
         example_session_data.reward_data.no_reward_data.event_times, window_size_seconds)
+    contra_reaction_times = example_session_data.choice_data.contra_data.reaction_times
+    ipsi_reaction_times = example_session_data.choice_data.ipsi_data.reaction_times
+    # Store data in the list
+    for duration in ipsi_reaction_times:
+        duration_list.append({'mouse': mouse, 'date': date, 'type': 'ipsi', 'duration': duration})
+    for duration in contra_reaction_times:
+        duration_list.append({'mouse': mouse, 'date': date, 'type': 'contra', 'duration': duration})
 
     if reg_type == '_return_to_centre' or reg_type == 'return_to_centre_trimmed_traces' or reg_type == '_return_to_centre_300frames' or reg_type == '_return_to_centre_300frames_long_turns':
         contra_returns = convert_behavioural_timestamps_into_samples(
@@ -111,14 +118,14 @@ def run_regression_return_to_centre_one_mouse_one_session(mouse, date, sample_ra
     print(var_exp)
 
     save_filename = mouse + '_' + date + '_'
-    save_kernels_different_shifts(saving_folder + save_filename, param_names, params_for_reg, results, trace_for_reg,
-                                  X.astype(int), shifts, windows, reg_type=reg_type)
+    #save_kernels_different_shifts(saving_folder + save_filename, param_names, params_for_reg, results, trace_for_reg,
+    #                              X.astype(int), shifts, windows, reg_type=reg_type)
 
     #per_trial_exp_vars = get_exp_var_only_trials(trials_to_include, parameters, shifts, windows, param_names,
     #                                             model, downsampled_zscored_dff, high_cues, low_cues, ipsi_choices, contra_choices, rewards, no_rewards, contra_returns, ipsi_returns)
     #mean_per_trial_exp_var = np.mean(per_trial_exp_vars)
     #print(mean_per_trial_exp_var)
-    return var_exp
+    return var_exp, duration_list
 
 
 def get_exp_var_only_trials(trials_to_include, parameters, shifts, windows, param_names, model, downsampled_zscored_dff, *args):
