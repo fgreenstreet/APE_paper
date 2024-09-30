@@ -23,3 +23,6 @@ figure5/which_sessions_psychometric.py
 make_exp_record_for_paper.py
 supp6/silence/which_sessions_silence.py
 /set_global_params_local_paths.py
+bias_analysis/.ipynb_checkpoints/bias_analysis_all_trials_APE_size_from_raw_across_mice-checkpoint.ipynb
+figure5/PsychometricAnalysis/.ipynb_checkpoints/logistic_reggression_first_pass-checkpoint.ipynb
+figure5/PsychometricAnalysis/.ipynb_checkpoints/logistic_regression_over_learning-checkpoint.ipynb

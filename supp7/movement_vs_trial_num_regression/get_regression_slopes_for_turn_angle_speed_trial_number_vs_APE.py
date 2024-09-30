@@ -170,8 +170,8 @@ def regression_with_and_without_trial_num(valid_contra_data):
     X = sm.add_constant(X).reset_index(drop=True)
     model = sm.OLS(Y, X)
     result = model.fit()
-    movement_model_prediction = model.predict(result.params)
-    movement_model_diff_data = Y - movement_model_prediction
+    trial_num_model_prediction = model.predict(result.params)
+    trial_num_model_diff_data = Y - trial_num_model_prediction
 
     key = 'average speed'
     key1 = 'abs fitted max cumsum ang vel'
@@ -179,12 +179,11 @@ def regression_with_and_without_trial_num(valid_contra_data):
 
     residuals_X = mouse_data[[key, key1]].reset_index(drop=True)
     residuals_X = sm.add_constant(residuals_X).reset_index(drop=True)
-    residuals_model = sm.OLS(movement_model_diff_data, residuals_X)
+    residuals_model = sm.OLS(trial_num_model_diff_data, residuals_X)
     residuals_result = residuals_model.fit()
     speed_coef = residuals_result.params[key]
     turn_coef = residuals_result.params[key1]
     return speed_coef, turn_coef
-
 
 def full_model_regression(valid_contra_data):
     df = valid_contra_data.sort_values(by='actual trial numbers')
