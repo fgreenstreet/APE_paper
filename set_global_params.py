@@ -20,7 +20,7 @@ camera_sample_rate = 30  # Hz
 
 # MICE TO INCLUDE FOR FIGURES
 # Figure 2
-mice_average_traces = {'tail': ['SNL_photo17', 'SNL_photo16', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72'],
+mice_average_traces = {'tail': ['SNL_photo16', 'SNL_photo17', 'SNL_photo18', 'SNL_photo21', 'SNL_photo22', 'SNL_photo26', 'SNL_photo57', 'SNL_photo58', 'SNL_photo70', 'SNL_photo72'],
                        'Nacc': ['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33', 'SNL_photo34', 'SNL_photo35'],
                        'tail_ant': ['SNL_photo14', 'SNL_photo31', 'SNL_photo32']}
 

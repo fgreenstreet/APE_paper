@@ -18,7 +18,7 @@ all_experiments_to_process = clean_experiments[
     drop=True)
 all_experiments_to_process = all_experiments_to_process[(all_experiments_to_process['include return to centre'] != 'no')].reset_index(
     drop=True)
-experiments_to_process = get_first_x_sessions_reg_rtc(all_experiments_to_process, x=num_sessions).reset_index(
+experiments_to_process = get_first_x_sessions_reg_rtc(all_experiments_to_process, xs=num_sessions).reset_index(
     drop=True)
 var_exps = []
 # Initialize a list to store duration data
@@ -33,8 +33,8 @@ for index, experiment in experiments_to_process.iterrows():
 experiments_to_process['var exp'] = var_exps
 
 var_exp_filename = os.path.join(processed_data_path,'_'.join(mouse_ids) + '_var_exp_with_return_to_centre_300frames_long_turns.p') # '_var_exp_with_return_to_centre.p'
-#with open(var_exp_filename, "wb") as f:
-#    pickle.dump(experiments_to_process, f)
+with open(var_exp_filename, "wb") as f:
+    pickle.dump(experiments_to_process, f)
 
 # Create a DataFrame from the collected data
 duration_df = pd.DataFrame(duration_list)

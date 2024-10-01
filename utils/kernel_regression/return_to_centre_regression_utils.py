@@ -118,13 +118,13 @@ def run_regression_return_to_centre_one_mouse_one_session(mouse, date, duration_
     print(var_exp)
 
     save_filename = mouse + '_' + date + '_'
-    #save_kernels_different_shifts(saving_folder + save_filename, param_names, params_for_reg, results, trace_for_reg,
-    #                              X.astype(int), shifts, windows, reg_type=reg_type)
+    save_kernels_different_shifts(saving_folder + save_filename, param_names, params_for_reg, results, trace_for_reg,
+                                  X.astype(int), shifts, windows, reg_type=reg_type)
 
-    #per_trial_exp_vars = get_exp_var_only_trials(trials_to_include, parameters, shifts, windows, param_names,
-    #                                             model, downsampled_zscored_dff, high_cues, low_cues, ipsi_choices, contra_choices, rewards, no_rewards, contra_returns, ipsi_returns)
-    #mean_per_trial_exp_var = np.mean(per_trial_exp_vars)
-    #print(mean_per_trial_exp_var)
+    per_trial_exp_vars = get_exp_var_only_trials(trials_to_include, parameters, shifts, windows, param_names,
+                                                 model, downsampled_zscored_dff, high_cues, low_cues, ipsi_choices, contra_choices, rewards, no_rewards, contra_returns, ipsi_returns)
+    mean_per_trial_exp_var = np.mean(per_trial_exp_vars)
+    print(mean_per_trial_exp_var)
     return var_exp, duration_list
 
 

@@ -1,6 +1,6 @@
 import os
 import matplotlib.pyplot as plt
-from set_global_params import figure_directory, experiment_record_path, post_processed_tracking_data_path, mice_average_traces, old_raw_tracking_path, raw_tracking_path
+from set_global_params import processed_data_path, figure_directory, experiment_record_path, post_processed_tracking_data_path, mice_average_traces, old_raw_tracking_path, raw_tracking_path
 from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
 from utils.tracking_analysis.dlc_processing_utils import get_raw_photometry_data
 from utils.post_processing_utils import remove_exps_after_manipulations
@@ -121,20 +121,20 @@ for index, experiment in experiments_to_process.iterrows():
     for duration in contra_return_durations:
         data_list.append({'mouse': mouse, 'date': date, 'type': 'contra', 'duration': duration / 10000})
 
-#    save_dir = os.path.join(processed_data_path, '\\return_to_centre\\{}'.format(mouse))
-#    if not os.path.exists(save_dir):
-#        os.makedirs(save_dir)
+    save_dir = os.path.join(processed_data_path, '\\return_to_centre\\{}'.format(mouse))
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
 
-#    if short_turns:
-#        save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_300frame_window.npz'.format(mouse, date)
-#        time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times_300frame_window.npz'.format(mouse, date)
-#    else:
-#        save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_300frame_window_long_turns.npz'.format(
-#            mouse, date)
-#        time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times_300frame_window_long_turns.npz'.format(mouse, date)
-#    np.savez(os.path.join(save_dir, save_file), contra_movement=contra_movement_traces, ipsi_movement=ipsi_movement_traces)
-#    np.savez(os.path.join(save_dir, time_stamp_save_file), contra_movement_return=contra_movement_onsets_time_stamps,
-#             ipsi_movement_return=ipsi_movement_onsets_time_stamps)
+    if short_turns:
+        save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_300frame_window.npz'.format(mouse, date)
+        time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times_300frame_window.npz'.format(mouse, date)
+    else:
+        save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_300frame_window_long_turns.npz'.format(
+            mouse, date)
+        time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times_300frame_window_long_turns.npz'.format(mouse, date)
+    np.savez(os.path.join(save_dir, save_file), contra_movement=contra_movement_traces, ipsi_movement=ipsi_movement_traces)
+    np.savez(os.path.join(save_dir, time_stamp_save_file), contra_movement_return=contra_movement_onsets_time_stamps,
+             ipsi_movement_return=ipsi_movement_onsets_time_stamps)
 
 # Create a DataFrame from the collected data
 duration_df = pd.DataFrame(data_list)
