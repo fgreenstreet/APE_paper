@@ -13,7 +13,7 @@ from utils.post_processing_utils import open_one_experiment
 from set_global_params import processed_data_path, value_change_example_mice
 from utils.value_change_utils import CustomAlignedDataRewardBlocks, get_all_experimental_records, plot_mean_trace_for_condition, get_block_change_info, add_traces_and_peaks, one_session_get_block_changes
 from utils.plotting import output_significance_stars_from_pval
-
+from utils.stats import cohen_d_paired
 
 def get_site_data_all_mice(site):
     """
@@ -170,6 +170,7 @@ def plot_group_data(df_for_plot, colour):
     small_data = df_for_plot[(df_for_plot['reward size change'] == -4)]['cue size change'].values
     big_data = df_for_plot[(df_for_plot['reward size change'] == 4)]['cue size change'].values
     stat, pval = stats.ttest_rel(small_data, big_data)
+    cohensd = cohen_d_paired(big_data, small_data)
     print(pval)
 
     df1 = df_for_plot.pivot(index='reward size change', columns='mouse', values='cue size change').sort_values('reward size change', ascending=False)

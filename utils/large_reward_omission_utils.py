@@ -11,6 +11,7 @@ from utils.plotting import calculate_error_bars
 from set_global_params import processed_data_path, fig4_plotting_colours, large_reward_omission_example_mice, daq_sample_rate
 from utils.plotting_visuals import makes_plots_pretty
 from utils.plotting import multi_conditions_plot, output_significance_stars_from_pval
+from utils.stats import cohen_d_paired
 
 
 def get_traces_and_reward_types(photometry_data, trial_data):
@@ -234,6 +235,8 @@ def compare_peaks_across_trial_types(site_data, colour='gray'):
     omission_peak = avg_traces[avg_traces['reward'] =='omission']['peak']
     stat1, pval1 = stats.ttest_rel(normal_peak, large_reward_peak)
     stat2, pval2 = stats.ttest_rel(normal_peak, omission_peak)
+    cohend1 = cohen_d_paired(large_reward_peak, normal_peak)
+    cohend2 = cohen_d_paired(normal_peak, omission_peak)
 
     # Repeated measures anova to check for a main effect of reward.
     # Subsequently, we want to do pairwise testing between the three reward conditions. Need to correct for multiple comparisons

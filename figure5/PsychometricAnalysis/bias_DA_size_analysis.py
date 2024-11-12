@@ -65,7 +65,7 @@ for i, site in enumerate(sites):
     g = sns.FacetGrid(grouped_by_mouse, col="mouse", col_wrap=4, height=4, aspect=1.2)
     g.map(sns.lineplot, 'contraSensoryEvidence', 'outcome')
     g.add_legend()
-    plt.savefig(os.path.join(results_dir, 'outcome_vs_contraSensoryEvidence.png'))
+    #plt.savefig(os.path.join(results_dir, 'outcome_vs_contraSensoryEvidence.png'))
 
     
 
@@ -101,7 +101,7 @@ for i, site in enumerate(sites):
     g.map_dataframe(plot_with_fitted_psychometric_curve, 'contraSensoryEvidence', 'numericSide')
 
     g.add_legend()
-    plt.savefig(os.path.join(results_dir, 'choice_vs_contraSensoryEvidence_with_curve.png'))
+    #plt.savefig(os.path.join(results_dir, 'choice_vs_contraSensoryEvidence_with_curve.png'))
     
 
 
@@ -139,7 +139,7 @@ for i, site in enumerate(sites):
     plt.ylabel('Next Numeric Side')
     plt.title('Next Numeric Side vs Next Contra Sensory Evidence')
     plt.legend(title='Dopamine Level / Current Trial Side')
-    plt.savefig(os.path.join(results_dir, 'nextNumericSide_vs_nextContraSensoryEvidence.png'))
+    #plt.savefig(os.path.join(results_dir, 'nextNumericSide_vs_nextContraSensoryEvidence.png'))
     
 
     # ---------------------------------------------------------------
@@ -160,7 +160,7 @@ for i, site in enumerate(sites):
     sns.lineplot(data=agg_diff, x='nextContraSensoryEvidence', y='diffNextNumericSide', hue='DAresponseSize', ci=68)
     plt.ylabel("Difference in nextNumericSide (Ipsi - Contra)")
     plt.title("Bias dependent on previous trial DA response")
-    plt.savefig(os.path.join(results_dir,'diffNextNumericSide.png'))
+    #plt.savefig(os.path.join(results_dir,'diffNextNumericSide.png'))
     
 
 
@@ -188,7 +188,7 @@ for i, site in enumerate(sites):
         sns.lineplot(data=mouse_data, x='nextContraSensoryEvidence', y='diffNextNumericSide', hue='DAresponseSize')
         plt.title(f"Mouse: {mouse}")
         plt.ylabel("Difference in nextNumericSide (Ipsi - Contra)")
-        plt.savefig(os.path.join(results_dir, f'diffNextNumericSide_mouse_{mouse}.png'))
+        #plt.savefig(os.path.join(results_dir, f'diffNextNumericSide_mouse_{mouse}.png'))
         
 
     # ---------------------------------------------------------------
@@ -225,7 +225,7 @@ for i, site in enumerate(sites):
     makes_plots_pretty(ax)
     plt.tight_layout()
     ax.legend(frameon=False)
-    plt.savefig(os.path.join(results_dir, 'uncertainty_plot_{}.pdf'.format(site)))
+    #plt.savefig(os.path.join(results_dir, 'uncertainty_plot_{}.pdf'.format(site)))
 
     # Apply logarithm transformation to 'uncertainty'
     agg_diff_grouped['log_uncertainty'] = np.log(agg_diff_grouped['uncertainty'])
@@ -239,7 +239,7 @@ for i, site in enumerate(sites):
     makes_plots_pretty(ax)
     plt.tight_layout()
     ax.legend(frameon=False)
-    plt.savefig(os.path.join(results_dir, 'log_uncertainty_plot_{}.pdf'.format(site)))
+    #plt.savefig(os.path.join(results_dir, 'log_uncertainty_plot_{}.pdf'.format(site)))
 
     model = smf.ols(formula='diffNextNumericSide ~ log_uncertainty * C(DAresponseSize)', data=agg_diff_grouped)
     results = model.fit()
@@ -293,5 +293,5 @@ plt.legend(by_label.values(), by_label.keys(), frameon=False,loc='center left', 
 plt.tight_layout()
 makes_plots_pretty(ax)
 plt.tight_layout()
-plt.savefig(os.path.join(results_dir, 'reg_coef_bar_plot.pdf'))
+#plt.savefig(os.path.join(results_dir, 'reg_coef_bar_plot.pdf'))
 plt.show()

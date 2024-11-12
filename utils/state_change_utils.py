@@ -9,7 +9,7 @@ from scipy.signal import decimate
 from utils.plotting import calculate_error_bars, multi_conditions_plot, output_significance_stars_from_pval
 from utils.post_processing_utils import *
 from set_global_params import processed_data_path, state_change_example_mice, fig4_plotting_colours
-
+from utils.stats import cohen_d_paired
 
 def make_example_plot(site):
     """
@@ -136,6 +136,7 @@ def pre_post_state_change_plot(df_for_plot, colour='gray'):
     pre_peaks = df_for_plot.T['pre'].values
     post_peaks = df_for_plot.T['post'].values
     stat, pval = stats.ttest_rel(pre_peaks, post_peaks)
+    cohensd = cohen_d_paired(pre_peaks, post_peaks)
 
     fig, ax = plt.subplots(figsize=[1.5, 2])
     multi_conditions_plot(ax, df_for_plot, mean_linewidth=0, show_err_bar=False, colour=colour)
