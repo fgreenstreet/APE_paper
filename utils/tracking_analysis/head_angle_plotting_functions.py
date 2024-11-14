@@ -14,7 +14,7 @@ from utils.tracking_analysis.first_three_session_cumsum_ang_vel import get_first
 import scipy.stats as stats
 from utils.kernel_regression.regression_plotting_utils import make_box_plot_with_shuffles
 from utils.tracking_analysis.dlc_processing_utils import get_camera_trigger_times, find_nearest_trials
-
+from utils.stats import cohen_d_one_sample
 from utils.tracking_analysis.head_angle_plotting_functions import *
 from set_global_params import post_processed_tracking_data_path, processed_data_path
 
@@ -60,6 +60,8 @@ def coefficient_ttest_barplot(tail_mouse_data, nacc_mouse_data, ax):
     nacc_mouse_means = nacc_mouse_data.groupby(['mouse'])['fit slope'].apply(np.mean)
 
     tail_pval, nacc_pval = ttest_1samp_regression_coefs(tail_mouse_means, nacc_mouse_means)
+    tail_cohend = cohen_d_one_sample(tail_mouse_means)
+    nacc_cohend = cohen_d_one_sample(nacc_mouse_means)
     tail_stars = output_significance_stars_from_pval(tail_pval)
     nacc_stars = output_significance_stars_from_pval(nacc_pval)
 

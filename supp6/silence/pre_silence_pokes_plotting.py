@@ -4,6 +4,7 @@ from set_global_params import processed_data_path
 from utils.box_plot_utils import *
 from utils.plotting import multi_conditions_plot
 from scipy.stats import ttest_rel
+from utils.stats import cohen_d_paired
 filename = os.path.join(processed_data_path, 'num_pokes_in_punishment.pkl')
 
 pre_silence_poke_count = pd.read_pickle(filename)
@@ -19,6 +20,7 @@ multi_conditions_plot(ax, df_for_plot, mean_linewidth=0)
 ax.set_ylabel('number of pokes', fontsize=7)
 # show significance stars
 pval = ttest_rel(df_for_plot.T['tones'], df_for_plot.T['silence']).pvalue
+_ = cohen_d_paired(df_for_plot.T['tones'], df_for_plot.T['silence'])
 y = df_for_plot.to_numpy().max() + .01 * df_for_plot.to_numpy().max()
 
 significance_stars1 = output_significance_stars_from_pval(pval)

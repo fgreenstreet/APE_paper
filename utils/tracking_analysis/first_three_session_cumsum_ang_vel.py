@@ -99,7 +99,7 @@ def get_first_three_sessions_dlc(mouse_ids, site, num_sessions=3, save=False, lo
     save_out_file_shuffles = os.path.join(save_out_folder, 'contra_APE_tracking_first_{}_sessions_{}_with_shuffles.pkl'.format(num_sessions, mouse_names))
     save_out_file = os.path.join(save_out_folder, 'contra_APE_tracking_first_{}_sessions_{}.pkl'.format(num_sessions, mouse_names))
     if os.path.isfile(save_out_file_shuffles) and os.path.isfile(save_out_file) and load_saved:
-        data_to_save = pd.read_pickle(save_out_file)
+        data_to_save = pd.read_pickle(save_out_file) # this pickle requires python 3.6 currently as it isn't pickle5
         all_data = pd.read_pickle(save_out_file_shuffles)
     else:
         experiment_record = pd.read_csv(experiment_record_path)
