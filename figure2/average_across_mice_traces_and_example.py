@@ -70,7 +70,6 @@ plot_average_trace_all_mice(ts_average_move_ax,  ts_average_outcome_ax, 'tail', 
 makes_plots_pretty([vs_average_move_ax, ts_average_move_ax, vs_average_outcome_ax, ts_average_outcome_ax])
 plt.tight_layout()
 
-#plt.savefig(os.path.join(figure_directory, 'Fig2_paper_final_version.pdf'), transparent=True, bbox_inches='tight')
+plt.savefig(os.path.join(figure_directory, 'average_traces_figure_with_ttests.pdf'), transparent=True, bbox_inches='tight')
 plt.show()
 
-#
