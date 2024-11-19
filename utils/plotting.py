@@ -336,7 +336,7 @@ def multi_conditions_plot(ax, data, show_err_bar=False, mean_linewidth=4, mean_l
 
 def output_significance_stars_from_pval(pval):
     if pval >= 0.05:
-        return 'n.s.'
+        return ' '
     elif (pval < 0.05) & (pval >= 0.01):
         return '*'
     elif (pval < 0.01) & (pval >= 0.001):
