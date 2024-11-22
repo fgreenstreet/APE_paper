@@ -8,12 +8,20 @@ import pandas as pd
 from utils.tracking_analysis.camera_trigger_preprocessing_utils import *
 from scipy.signal import decimate
 from set_global_params import processed_data_path, experiment_record_path, mice_average_traces
-
+from set_global_params import figure_directory
 
 num_sessions = 3
 site = 'tail'
 mouse_ids = mice_average_traces[site]
-
+timeframe = 300 # this is the window in which cosine similarity is calculated and the movement onset is detected
+long_turns = True
+if long_turns:
+    file_extend = '_long_turns'
+    cutoff = 'no'
+else:
+    file_extend = ''
+    cutoff = '1s'
+# long turns is not for paper but for revisions
 experiment_record = pd.read_csv(experiment_record_path)
 experiment_record['date'] = experiment_record['date'].astype(str)
 clean_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)
@@ -36,8 +44,8 @@ for mouse_num, mouse in enumerate(mouse_ids):
     for index, experiment in experiments.iterrows():
         mouse = experiment['mouse_id']
         date = experiment['date']
-        save_dir = processed_data_path + '\\return_to_centre\\{}'.format(mouse)
-        save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_300frame_window.npz'.format(mouse, date)
+        save_dir = os.path.join(processed_data_path, 'return_to_centre', mouse)
+        save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_{}frame_window{}.npz'.format(mouse, date, timeframe, file_extend)
         traces = np.load(os.path.join(save_dir, save_file))
         print(traces['ipsi_movement'].shape, traces['contra_movement'].shape)
         if traces['ipsi_movement'].shape[1] >= 20 or traces['contra_movement'].shape[1] >= 20:
@@ -59,7 +67,7 @@ contra_mean_trace = np.nanmean(all_mice_contra_traces, axis=0)[inds_to_plot]
 ipsi_mean_trace = np.nanmean(all_mice_ipsi_traces, axis=0)[inds_to_plot]
 
 
-set_plotting_defaults()
+set_plotting_defaults(font_size=8)
 
 contra_mean_trace = decimate(np.nanmean(all_mice_contra_traces, axis=0)[inds_to_plot], 10)
 ipsi_mean_trace = decimate(np.nanmean(all_mice_ipsi_traces, axis=0)[inds_to_plot], 10)
@@ -69,7 +77,7 @@ axs.plot(time_points_for_plot, contra_mean_trace, color='#002F3A')
 axs.plot(time_points_for_plot, ipsi_mean_trace, color='#76A8DA')
 
 contra_error_bar_lower, contra_error_bar_upper = calculate_error_bars(contra_mean_trace,
-                                                                decimate(all_mice_contra_traces[:, inds_to_plot[0]],10) ,
+                                                                decimate(all_mice_contra_traces[:, inds_to_plot[0]],10),
                                                                 error_bar_method='sem')
 axs.fill_between(time_points_for_plot, contra_error_bar_lower, contra_error_bar_upper, alpha=0.5,
                             facecolor='#002F3A', linewidth=0)
@@ -90,7 +98,9 @@ axs.set_ylabel('z-scored fluorescence')
 axs.set_xlabel('time from movement start (s)')
 plt.tight_layout()
 axs.set_xlim(window_to_plot)
+axs.set_ylim([-0.75, 0.6])
 plt.tight_layout()
+plt.savefig(os.path.join(figure_directory, 'return_movements_{}_cutoff_average{}s.pdf'.format(cutoff, timeframe/30)))
 
 # Example mouse
 
@@ -106,8 +116,8 @@ ipsi_movement_traces = np.zeros([num_sessions, 100000])
 for index, experiment in experiments.iterrows():
     mouse = experiment['mouse_id']
     date = experiment['date']
-    save_dir = os.path.join(processed_data_path, 'return_to_centre\\{}'.format(mouse))
-    save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_300frame_window.npz'.format(mouse, date)
+    save_dir = os.path.join(processed_data_path, 'return_to_centre', mouse)
+    save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_{}frame_window{}.npz'.format(mouse, date, timeframe, file_extend)
     traces = np.load(os.path.join(save_dir, save_file))
     print(traces['ipsi_movement'].shape, traces['contra_movement'].shape)
     if traces['ipsi_movement'].shape[1] >= 20 or traces['contra_movement'].shape[1] >= 20:
@@ -149,9 +159,8 @@ axs.set_xlim(window_to_plot)
 
 plt.tight_layout()
 
+plt.savefig(os.path.join(figure_directory, 'return_movements_{}_cutoff_example{}s.pdf'.format(cutoff, timeframe/30)))
+
 plt.show()
-
-
-
 
 

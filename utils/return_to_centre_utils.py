@@ -208,7 +208,7 @@ def plot_direct_trials(similarities, heading_vectors, goal_vector, threshold=0.6
     axs[1].plot([0, goal_vector[0]], [0, goal_vector[1]], color='k', lw=4)
 
 
-def get_photometry_for_one_side_returns(fiber_side_numeric, camera_triggers, trial_data, tracking_data, turn_ang_thresh, port_coords, photometry_data, side='side1', side_port='left', time_frame=300, short_turns_only=True):
+def get_photometry_for_one_side_returns(fiber_side_numeric, camera_triggers, trial_data, tracking_data, turn_ang_thresh, port_coords, photometry_data, side='side1', side_port='left', time_frame=300,  short_turns_only=True):
     trials = trial_data[(trial_data['State name'] == 'WaitForResponse') & (
             trial_data['Instance in state'] == trial_data['Max times in state']) & (
                                          trial_data['Response'] == fiber_side_numeric)]
