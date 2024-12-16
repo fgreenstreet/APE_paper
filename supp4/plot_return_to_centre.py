@@ -14,7 +14,7 @@ num_sessions = 3
 site = 'tail'
 mouse_ids = mice_average_traces[site]
 timeframe = 300 # this is the window in which cosine similarity is calculated and the movement onset is detected
-long_turns = False #False for papers
+long_turns = False #False for paper
 if long_turns:
     file_extend = '_long_turns'
     cutoff = 'no'
