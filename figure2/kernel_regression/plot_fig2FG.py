@@ -4,6 +4,10 @@ import matplotlib
 from utils.kernel_regression.regression_plotting_utils import *
 from utils.plotting_visuals import makes_plots_pretty
 import matplotlib.patches as mpatches
+from set_global_params import spreadsheet_path
+import os
+
+sh_path = os.path.join(spreadsheet_path, 'fig2')
 
 font = {'size': 9}
 matplotlib.rc('font', **font)
@@ -33,14 +37,6 @@ perc_exp_rew_ax = fig.add_subplot(gs[2, 3], sharey=perc_exp_cue_ax)
 
 
 labelled_axes = [model_description_ax1, ts_cue_ax, model_description_ax2, vs_cue_ax, total_perc_exp, perc_exp_cue_ax]
-for n, ax in enumerate(labelled_axes):
-    if n % 2:
-        x = -.6
-    else:
-        x = -.3
-    y = 1.2
-    ax.text(x, y, string.ascii_uppercase[n], transform=ax.transAxes, size=15, weight='bold')
-
 
 tail_time_stamps, tail_reg_means, tail_reg_sems, tail_reg_sig_times = get_regression_data_for_plot(
     recording_site='tail')
@@ -100,6 +96,9 @@ print(full_df.groupby('site')['explained variance'].apply(np.median))
 print(cue_df.groupby('site')['explained variance'].apply(np.median))
 print(choice_df.groupby('site')['explained variance'].apply(np.median))
 print(outcome_df.groupby('site')['explained variance'].apply(np.median))
+
+for nm, df in zip(['full', 'cue', 'choice', 'outcome'], [full_df, cue_df, choice_df, outcome_df]):
+    df.to_csv(os.path.join(sh_path, f'fig2G_explained_var_{nm}.csv'))
 
 makes_plots_pretty(np.array(
     [ts_move_ax, ts_cue_ax, ts_rew_ax, vs_move_ax, vs_cue_ax, vs_rew_ax, total_perc_exp, perc_exp_cue_ax,
