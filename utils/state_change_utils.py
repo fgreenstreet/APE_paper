@@ -3,13 +3,19 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 import os
+
+import pandas as pd
 from scipy import stats
 import peakutils
 from scipy.signal import decimate
 from utils.plotting import calculate_error_bars, multi_conditions_plot, output_significance_stars_from_pval
 from utils.post_processing_utils import *
-from set_global_params import processed_data_path, state_change_example_mice, fig4_plotting_colours
+from set_global_params import processed_data_path, state_change_example_mice, fig4_plotting_colours, spreadsheet_path
 from utils.stats import cohen_d_paired
+import os
+
+sh_path = os.path.join(spreadsheet_path, 'fig3')
+
 
 def make_example_plot(site):
     """
@@ -20,53 +26,67 @@ def make_example_plot(site):
     Returns:
 
     """
+    subfigno = 'P' if site == 'tail' else 'R'
+    traces_pre_fn = os.path.join(sh_path, f'fig3{subfigno}_tone_traces.csv')
+    traces_post_fn = os.path.join(sh_path, f'fig3{subfigno}_WN_traces.csv')
     mouse_id = state_change_example_mice[site]
-    all_experiments = get_all_experimental_records()
-    experiment_to_process = all_experiments[
-        (all_experiments['experiment_notes'] == 'state change white noise') & (all_experiments['mouse_id'] == mouse_id)]
-    session_data, trial_data = open_experiment(experiment_to_process)
-    if site == 'tail':
-        state_num = 5
-    elif site == 'Nacc':
-        state_num = 3
-    params = {'state_type_of_interest': state_num,
-              'outcome': 1,
-              'last_outcome': 0,  # NOT USED CURRENTLY
-              'no_repeats': 1,
-              'last_response': 0,
-              'align_to': 'Time start',
-              'instance': -1,
-              'plot_range': [-6, 6],
-              'first_choice_correct': 1,
-              'cue': 'None'}
-    aligned_data = CustomAlignedData(session_data, params)
 
-    trials_pre_state_change = np.where(aligned_data.contra_data.trial_nums <= 149)[0]
-    trials_post_state_change = np.where(aligned_data.contra_data.trial_nums > 149)[0]
+    if not os.path.exists(traces_pre_fn):
+        all_experiments = get_all_experimental_records()
+        experiment_to_process = all_experiments[
+            (all_experiments['experiment_notes'] == 'state change white noise') & (all_experiments['mouse_id'] == mouse_id)]
+        session_data, trial_data = open_experiment(experiment_to_process)
+        if site == 'tail':
+            state_num = 5
+        elif site == 'Nacc':
+            state_num = 3
+        params = {'state_type_of_interest': state_num,
+                  'outcome': 1,
+                  'last_outcome': 0,  # NOT USED CURRENTLY
+                  'no_repeats': 1,
+                  'last_response': 0,
+                  'align_to': 'Time start',
+                  'instance': -1,
+                  'plot_range': [-6, 6],
+                  'first_choice_correct': 1,
+                  'cue': 'None'}
+        aligned_data = CustomAlignedData(session_data, params)
+
+        trials_pre_state_change = np.where(aligned_data.contra_data.trial_nums <= 149)[0]
+        trials_post_state_change = np.where(aligned_data.contra_data.trial_nums > 149)[0]
+
+        all_time_points = decimate(aligned_data.contra_data.time_points, 10)
+        start_plot = int(all_time_points.shape[0] / 2 - 2 * 1000)
+        end_plot = int(all_time_points.shape[0] / 2 + 2 * 1000)
+        time_points = all_time_points[start_plot: end_plot]
+        traces = decimate(aligned_data.contra_data.sorted_traces, 10)[:, start_plot: end_plot]
+
+        traces_pre_df = pd.DataFrame(index=time_points, data=traces[trials_pre_state_change, :].T)
+        traces_post_df = pd.DataFrame(index=time_points, data=traces[trials_post_state_change, :].T)
+
+        traces_pre_df.to_csv(traces_pre_fn)
+        traces_post_df.to_csv(traces_post_fn)
+    else:
+        traces_pre_df = pd.read_csv(traces_pre_fn, index_col=0)
+        traces_post_df = pd.read_csv(traces_post_fn, index_col=0)
+
+    pre_mean_trace = np.mean(traces_pre_df, axis=1)
+    post_mean_trace = np.mean(traces_post_df, axis=1)
 
     fig, axs1 = plt.subplots(1, 1, figsize=[2.5, 2])
     colours =[fig4_plotting_colours[site][-1], fig4_plotting_colours[site][0]]
-    all_time_points = decimate(aligned_data.contra_data.time_points, 10)
-    start_plot = int(all_time_points.shape[0] / 2 - 2 * 1000)
-    end_plot = int(all_time_points.shape[0] / 2 + 2 * 1000)
-    time_points = all_time_points[start_plot: end_plot]
-    traces = decimate(aligned_data.contra_data.sorted_traces, 10)[:, start_plot: end_plot]
-    pre_mean_trace = decimate(np.mean(aligned_data.contra_data.sorted_traces[trials_pre_state_change, :], axis=0), 10)[
-                     start_plot: end_plot]
-    post_mean_trace = decimate(np.mean(aligned_data.contra_data.sorted_traces[trials_post_state_change, :], axis=0), 10)[
-                      start_plot: end_plot]
 
-    axs1.plot(time_points, pre_mean_trace, label='normal cue', color=colours[0])
+    axs1.plot(traces_pre_df.index, pre_mean_trace, label='normal cue', color=colours[0])
     pre_error_bar_lower, pre_error_bar_upper = calculate_error_bars(pre_mean_trace,
-                                                                    traces[trials_pre_state_change, :],
+                                                                    traces_pre_df.to_numpy().T,
                                                                     error_bar_method='sem')
 
-    axs1.fill_between(time_points, pre_error_bar_lower, pre_error_bar_upper, alpha=0.4, linewidth=0, color=colours[0])
-    axs1.plot(time_points, post_mean_trace, label='white noise', color=colours[1])
+    axs1.fill_between(traces_pre_df.index, pre_error_bar_lower, pre_error_bar_upper, alpha=0.4, linewidth=0, color=colours[0])
+    axs1.plot(traces_post_df.index, post_mean_trace, label='white noise', color=colours[1])
     post_error_bar_lower, post_error_bar_upper = calculate_error_bars(post_mean_trace,
-                                                                      traces[trials_post_state_change, :],
+                                                                      traces_post_df.to_numpy().T,
                                                                       error_bar_method='sem')
-    axs1.fill_between(time_points, post_error_bar_lower, post_error_bar_upper, alpha=0.4, linewidth=0, color=colours[1])
+    axs1.fill_between(traces_post_df.index, post_error_bar_lower, post_error_bar_upper, alpha=0.4, linewidth=0, color=colours[1])
     axs1.set_xlim([-2, 2])
     axs1.axvline([0], color='k')
     axs1.set_ylabel('z-scored fluorescence', fontsize=8)
@@ -152,4 +172,5 @@ def pre_post_state_change_plot(df_for_plot, colour='gray'):
     ax.text(.5, y + h, significance_stars, ha='center', fontsize=10)
 
     plt.tight_layout()
+    return df_for_plot
 

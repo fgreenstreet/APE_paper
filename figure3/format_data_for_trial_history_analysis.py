@@ -1,7 +1,7 @@
 from scipy import stats
 import os
 import sys
-sys.path.append('..\..')
+sys.path.append('../..')
 from scipy.signal import decimate
 from utils.tracking_analysis.tracking_plotting import *
 from set_global_params import processed_data_path, bias_path, change_over_time_mice

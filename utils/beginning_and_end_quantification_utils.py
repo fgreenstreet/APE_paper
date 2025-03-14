@@ -7,7 +7,7 @@ import pandas as pd
 from scipy import stats
 from utils.post_processing_utils import remove_unsuitable_recordings, remove_exps_after_manipulations_not_including_psychometric, get_all_experimental_records
 from utils.plotting import multi_conditions_plot, output_significance_stars_from_pval
-from set_global_params import processed_data_path, beginning_and_end_comparison_mice
+from set_global_params import processed_data_path, beginning_and_end_comparison_mice, reproduce_figures_path
 from utils.stats import cohen_d_paired
 
 def get_mean_contra_peak(session_record):
@@ -86,18 +86,27 @@ def make_beginning_and_end_comparison_plot(ax, site='tail', colour='grey'):
     Returns:
 
     """
+    fn = f'start_and_end_{site}.csv'
+    df_path = os.path.join(reproduce_figures_path, 'fig3', fn)
     mice = beginning_and_end_comparison_mice[site]
-    records = get_all_experimental_records()
-    first_peaks = []
-    last_peaks = []
-    for mouse in mice:
-        all_experiments = remove_exps_after_manipulations_not_including_psychometric(records, [mouse])
-        all_experiments = remove_unsuitable_recordings(all_experiments)
-        first, last = get_first_and_10000th_peaks(mouse, all_experiments, site=site)
-        first_peaks.append(first)
-        last_peaks.append(last)
 
-    data = pd.DataFrame({'mouse': mice, 'first session peak mean': first_peaks, 'last session peak mean': last_peaks})
+    if not os.path.exists(df_path):
+        print('start and end file does not exist yet. creating dataframe...')
+        records = get_all_experimental_records()
+        first_peaks = []
+        last_peaks = []
+        for mouse in mice:
+            all_experiments = remove_exps_after_manipulations_not_including_psychometric(records, [mouse])
+            all_experiments = remove_unsuitable_recordings(all_experiments)
+            first, last = get_first_and_10000th_peaks(mouse, all_experiments, site=site)
+            first_peaks.append(first)
+            last_peaks.append(last)
+
+        data = pd.DataFrame({'mouse': mice, 'first session peak mean': first_peaks, 'last session peak mean': last_peaks})
+        data.to_csv(df_path)
+    else:
+        print(f'Loading dataframe from {df_path}')
+        data = pd.read_csv(df_path)
 
     first_data = data['first session peak mean']
     last_data = data['last session peak mean']
@@ -117,4 +126,5 @@ def make_beginning_and_end_comparison_plot(ax, site='tail', colour='grey'):
     ax.set_ylim([0.3, 2.6])
     plt.tight_layout()
     print(pval)
+    return data
 
