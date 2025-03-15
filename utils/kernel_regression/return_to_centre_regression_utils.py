@@ -21,7 +21,7 @@ def get_first_x_sessions_reg_rtc(sorted_experiment_record, x=3):
     return exps
 
 
-def run_regression_return_to_centre_one_mouse_one_session(mouse, date, duration_list, sample_rate=10000, decimate_factor=100, window_size_seconds = 10, reg_type='_return_to_centre'):
+def run_regression_return_to_centre_one_mouse_one_session(mouse, date, duration_list, within_2sd_durations, all_trial_durations, sample_rate=10000, decimate_factor=100, window_size_seconds = 10, reg_type='_return_to_centre'):
     print('proccessing' + mouse + date)
     dlc_save_dir = processed_data_path + '\\return_to_centre\\{}'.format(mouse)
     if reg_type == '_return_to_centre' or reg_type == '_return_to_centre_trimmed_traces':
@@ -95,6 +95,9 @@ def run_regression_return_to_centre_one_mouse_one_session(mouse, date, duration_
         {'trial starts': trial_starts_samps, 'trial ends': trial_ends_samps, 'durations': trial_durations})
     trials_to_remove = trials_to_include[
         trials_to_include['durations'] > np.mean(trial_durations) + 2 * np.std(trial_durations)].reset_index(drop=True)
+    updated_durations = trials_to_include[
+        trials_to_include['durations'] <= np.mean(trial_durations) + 2 * np.std(trial_durations)].reset_index(drop=True)['durations'].values
+    all_trial_durations.append(trials_to_include['durations'].values.tolist())
     inds_to_go = []
     for ind, trial in trials_to_remove.iterrows():
         inds_to_go.append(slice(int(trial['trial starts']), int(trial['trial ends'])))
@@ -118,14 +121,15 @@ def run_regression_return_to_centre_one_mouse_one_session(mouse, date, duration_
     print(var_exp)
 
     save_filename = mouse + '_' + date + '_'
-    save_kernels_different_shifts(saving_folder + save_filename, param_names, params_for_reg, results, trace_for_reg,
+    save_kernels_different_shifts_diff_reg_types(saving_folder + save_filename, param_names, params_for_reg, results, trace_for_reg,
                                   X.astype(int), shifts, windows, reg_type=reg_type)
 
     per_trial_exp_vars = get_exp_var_only_trials(trials_to_include, parameters, shifts, windows, param_names,
                                                  model, downsampled_zscored_dff, high_cues, low_cues, ipsi_choices, contra_choices, rewards, no_rewards, contra_returns, ipsi_returns)
     mean_per_trial_exp_var = np.mean(per_trial_exp_vars)
     print(mean_per_trial_exp_var)
-    return var_exp, duration_list
+    within_2sd_durations.append(updated_durations.tolist())
+    return var_exp, duration_list, within_2sd_durations, all_trial_durations
 
 
 def get_exp_var_only_trials(trials_to_include, parameters, shifts, windows, param_names, model, downsampled_zscored_dff, *args):
@@ -258,7 +262,7 @@ def run_regression_return_to_centre_one_mouse_one_session_trimmed_traces(mouse, 
     print(var_exp)
 
     save_filename = mouse + '_' + date + '_'
-    save_kernels_different_shifts(saving_folder + save_filename, param_names, params_for_reg, results, trimmed_trace,
+    save_kernels_different_shifts_diff_reg_types(saving_folder + save_filename, param_names, params_for_reg, results, trimmed_trace,
                                   trimmed_X.astype(int), shifts, windows, reg_type=reg_type)
 
     return var_exp
@@ -349,7 +353,7 @@ def run_regression_one_mouse_one_session_no_return_no_trim(experiment):
     var_exp = results.score(trimmed_X, trimmed_trace)
     print('with trimming ', var_exp)
     save_filename = mouse + '_' + date + '_only_trials_'
-    save_kernels_different_shifts(saving_folder + save_filename, param_names, parameters, results, trimmed_trace,
+    save_kernels_different_shifts_diff_reg_types(saving_folder + save_filename, param_names, parameters, results, trimmed_trace,
                                   trimmed_X.astype(int), shifts, windows, reg_type='_trimmed_no_return_to_centre')
     return score, var_exp
 

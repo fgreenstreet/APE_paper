@@ -3,12 +3,13 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from set_global_params import processed_data_path
+from set_global_params import processed_data_path, spreadsheet_path, reproduce_figures_path
 from bias_correlation_utils import categorise_da_responses, get_diff_in_proportion_correct, calculate_statistics, \
     calculate_psychometric, logistic
 from utils.plotting_visuals import makes_plots_pretty, set_plotting_defaults
 from utils.plotting import output_significance_stars_from_pval
 import statsmodels.formula.api as smf
+import shutil
 
 # set some analysis parameters
 quantile_cutoff = .65
@@ -32,11 +33,17 @@ for i, site in enumerate(sites):
     print('Analyzing site: {}'.format(site))
     print('-' * 50)
 
-    # Set up data directory
-    data_dir = os.path.join(processed_data_path, 'psychometric_data')
+    # Set up data directory and copy data is it isn't in the right place
+    original_dir = os.path.join(processed_data_path, 'psychometric_data')
+    data_dir = os.path.join(reproduce_figures_path, 'fig4')
+    if not os.path.exists(os.path.join(data_dir, 'all_tail_data_for_paper.csv')):
+        shutil.copy(os.path.join(original_dir, 'all_tail_data_for_paper.csv'), os.path.join(data_dir, 'all_tail_data_for_paper.csv'))
+    if not os.path.exists(os.path.join(data_dir, 'nacc_data_for_paper.csv')):
+        shutil.copy(os.path.join(original_dir, 'nacc_data_for_paper.csv'), os.path.join(data_dir, 'nacc_data_for_paper.csv'))
 
-    file_paths = {'tail': os.path.join(data_dir, 'all_tail_data.csv'),
-                  'nacc': os.path.join(data_dir, 'nacc_data.csv')}
+
+    file_paths = {'tail': os.path.join(data_dir, 'all_tail_data_for_paper.csv'),
+                  'nacc': os.path.join(data_dir, 'nacc_data_for_paper.csv')}
     file_path = file_paths[site]
 
     # set up results directory
@@ -180,16 +187,16 @@ for i, site in enumerate(sites):
     # Drop the original ipsi and contra columns and "flatten" the dataframe
     agg_diff = pivot_table.drop(columns=[0, 1])
 
-    # Create separate plots for each mouse
-    for mouse in agg_diff['mouse'].unique():
-        plt.figure()
-        mouse_data = agg_diff[agg_diff['mouse'] == mouse]
-
-        sns.lineplot(data=mouse_data, x='nextContraSensoryEvidence', y='diffNextNumericSide', hue='DAresponseSize')
-        plt.title(f"Mouse: {mouse}")
-        plt.ylabel("Difference in nextNumericSide (Ipsi - Contra)")
+    # Create separate plots for each mouse (uncomment if you want this)
+    # for mouse in agg_diff['mouse'].unique():
+    #     plt.figure()
+    #     mouse_data = agg_diff[agg_diff['mouse'] == mouse]
+    #
+    #     sns.lineplot(data=mouse_data, x='nextContraSensoryEvidence', y='diffNextNumericSide', hue='DAresponseSize')
+    #     plt.title(f"Mouse: {mouse}")
+    #     plt.ylabel("Difference in nextNumericSide (Ipsi - Contra)")
         #plt.savefig(os.path.join(results_dir, f'diffNextNumericSide_mouse_{mouse}.png'))
-        
+
 
     # ---------------------------------------------------------------
     # now the uncertainty plot (same as above but folded over the middle)
@@ -240,6 +247,12 @@ for i, site in enumerate(sites):
     plt.tight_layout()
     ax.legend(frameon=False)
     #plt.savefig(os.path.join(results_dir, 'log_uncertainty_plot_{}.pdf'.format(site)))
+    subfig = 'H' if site == 'tail' else 'J'
+    line_plot_csv_file = os.path.join(spreadsheet_path, 'fig4', f'fig4{subfig}_uncertainty_df.csv')
+    if not os.path.exists(line_plot_csv_file):
+        df_to_save = agg_diff_grouped[[ 'mouse', 'uncertainty', 'diffNextNumericSide', 'DAresponseSize']]
+        df_to_save.to_csv(line_plot_csv_file)
+
 
     model = smf.ols(formula='diffNextNumericSide ~ log_uncertainty * C(DAresponseSize)', data=agg_diff_grouped)
     results = model.fit()

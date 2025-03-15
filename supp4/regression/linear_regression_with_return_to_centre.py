@@ -18,23 +18,25 @@ all_experiments_to_process = clean_experiments[
     drop=True)
 all_experiments_to_process = all_experiments_to_process[(all_experiments_to_process['include return to centre'] != 'no')].reset_index(
     drop=True)
-experiments_to_process = get_first_x_sessions_reg_rtc(all_experiments_to_process, xs=num_sessions).reset_index(
+experiments_to_process = get_first_x_sessions_reg_rtc(all_experiments_to_process, x=num_sessions).reset_index(
     drop=True)
 var_exps = []
 # Initialize a list to store duration data
 duration_list = []
+within_2sd_duration_list = []
+all_trial_durations = []
 all_per_trial_exp_vars = []
 for index, experiment in experiments_to_process.iterrows():
     mouse = experiment['mouse_id']
     date = experiment['date']
-    var_exp, duration_list = run_regression_return_to_centre_one_mouse_one_session(mouse, date, duration_list, reg_type='_return_to_centre_300frames_long_turns')
+    var_exp, duration_list, within_2sd_duration_list = run_regression_return_to_centre_one_mouse_one_session(mouse, date, duration_list, within_2sd_duration_list, all_trial_durations, reg_type='_return_to_centre_300frames_long_turns')
     var_exps.append(var_exp)
     gc.collect()
 experiments_to_process['var exp'] = var_exps
 
 var_exp_filename = os.path.join(processed_data_path,'_'.join(mouse_ids) + '_var_exp_with_return_to_centre_300frames_long_turns.p') # '_var_exp_with_return_to_centre.p'
-with open(var_exp_filename, "wb") as f:
-    pickle.dump(experiments_to_process, f)
+#with open(var_exp_filename, "wb") as f:
+#    pickle.dump(experiments_to_process, f)
 
 # Create a DataFrame from the collected data
 duration_df = pd.DataFrame(duration_list)
@@ -56,7 +58,7 @@ plt.figure(figsize=(4, 4))
 plt.hist(duration_df[duration_df['type'] == 'ipsi']['duration'], bins=bins, alpha=0.5, label='Ipsi')
 plt.hist(duration_df[duration_df['type'] == 'contra']['duration'], bins=bins, alpha=0.5, label='Contra')
 plt.axvline(x=1.5, color='k', linestyle='--', linewidth=2)
-plt.xlabel('Return Duration (s)')
+plt.xlabel('Movement Duration (s)')
 plt.ylabel('Frequency')
 plt.title('Histogram of Ipsi and Contra Choice Movement Durations')
 # Add text for mean and std

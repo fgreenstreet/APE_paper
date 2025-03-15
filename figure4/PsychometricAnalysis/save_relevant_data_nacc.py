@@ -16,5 +16,4 @@ print('Loading data for nacc...')
 nacc_data = pd.read_pickle(nacc_file)[['mouse', 'session', 'fiber side', 'trial numbers', 'trial type', 'side', 'outcome', 'last trial type', 'last choice', 'last outcome', 'next trial type', 'next choice', 'next outcome', 'norm APE', 'stay or switch']].dropna().reset_index(drop=True)
 
 print('Saving only necessary data to new pickle...')
-# nacc_data.to_pickle(data_dir + '/' + 'nacc_data.pkl')
-nacc_data.to_csv(save_path + '/' + 'nacc_data.csv')
+nacc_data.to_csv(save_path + '/' + 'nacc_data_for_paper.csv')

@@ -1,3 +1,4 @@
+import pandas as pd
 from scipy import stats
 from scipy.stats import sem, shapiro
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings
@@ -5,7 +6,8 @@ from utils.kernel_regression.linear_regression_utils import *
 import os
 import seaborn as sns
 from tqdm import tqdm
-from set_global_params import experiment_record_path, processed_data_path, mice_average_traces
+from set_global_params import experiment_record_path, processed_data_path, mice_average_traces, reproduce_figures_path, spreadsheet_path
+import shutil
 
 
 def get_regression_data_for_plot(recording_site='tail'):
@@ -28,6 +30,9 @@ def get_regression_data_for_plot(recording_site='tail'):
 
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
         data_dir = processed_data_path + mouse + '\\'
+        repro_data_dir = os.path.join(reproduce_figures_path, 'fig2', mouse)
+        if not os.path.exists(repro_data_dir):
+            os.makedirs(repro_data_dir)
         df = experiments_to_process[experiments_to_process.mouse_id == mouse]
         mouse_ipsi_choice_kernel = []
         mouse_contra_choice_kernel = []
@@ -38,6 +43,8 @@ def get_regression_data_for_plot(recording_site='tail'):
 
         for date in df['date']:
             filename = mouse + '_' + date + '_' + 'linear_regression_kernels_different_shifts_all_cues_matched_trials.p'
+            if not os.path.exists(os.path.join(repro_data_dir, filename)):
+                shutil.copy(os.path.join(data_dir, filename), os.path.join(repro_data_dir, filename))
 
             fiber_side = df[df.date == date]['fiber_side'].iloc[0]
             if fiber_side == 'left':
@@ -47,7 +54,7 @@ def get_regression_data_for_plot(recording_site='tail'):
                 ipsi_cue = 'low cues'
                 contra_cue = 'high cues'
 
-            with open(data_dir + filename, 'rb') as f:
+            with open(os.path.join(repro_data_dir, filename), 'rb') as f:
                 session_kernels = pickle.load(f)
                 mouse_ipsi_choice_kernel.append(session_kernels['kernels']['ipsi choices'])
                 mouse_contra_choice_kernel.append(session_kernels['kernels']['contra choices'])
@@ -79,6 +86,20 @@ def get_regression_data_for_plot(recording_site='tail'):
     time_stamps['rewards'] = session_kernels['shifts']['rewards']  / 10000 * 100
     time_stamps['no rewards'] = session_kernels['shifts']['no rewards']  / 10000 * 100
     means, sems = organise_data_means(ipsi_choice_kernels, contra_choice_kernels, ipsi_cue_kernels, contra_cue_kernels, reward_kernels, no_reward_kernels)
+
+    sh_path = os.path.join(spreadsheet_path, 'fig2')
+    all_kernels = [ipsi_choice_kernels, contra_choice_kernels, ipsi_cue_kernels, contra_cue_kernels, reward_kernels, no_reward_kernels]
+    for kernels, ts in zip(all_kernels, time_stamps.items()):
+        n_mice, samples = kernels.shape
+        nm = ts[0]
+        df = pd.DataFrame()
+        df['time'] = ts[1]
+        for m in range(n_mice):
+            df[f'm{m}'] = kernels[m]
+        kernel_fn = f'fig2f_kernels_{recording_site}_{nm}.csv'
+        if not os.path.exists(os.path.join(sh_path, kernel_fn)):
+            df.to_csv(os.path.join(sh_path, kernel_fn))
+
 
     # new part where I calculate significance windows for 0.1s bins
     significant_time_bins = {}
@@ -215,8 +236,15 @@ def load_exp_var_data_for_site(site):
     mice = mice_average_traces[site]
     file_name = site + '_explained_variances_all_cues.p'
     saving_filename = os.path.join(processed_data_path, 'linear_regression_data', file_name)
+    fn_at_reproc = os.path.join(reproduce_figures_path, 'fig2', 'linear_regression_data', file_name)
 
-    reg_stats = pd.read_pickle(saving_filename)
+    if not os.path.exists(fn_at_reproc):
+        dirname, _ = os.path.split(fn_at_reproc)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        shutil.copy(saving_filename, fn_at_reproc)
+
+    reg_stats = pd.read_pickle(fn_at_reproc)
     reg_stats = reg_stats[reg_stats['mouse_id'].isin(mice)]
     mean_stats = reg_stats.groupby(['mouse_id'])[['cue explained variance', 'choice explained variance', 'outcome explained variance', 'full model explained variance']].apply(np.mean)
     types = []

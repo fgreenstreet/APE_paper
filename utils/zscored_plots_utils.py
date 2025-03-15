@@ -24,9 +24,12 @@ class ZScoredTracesCuePlotOnly(object):
         self.sorted_next_poke = sorted_next_poke
 
 
-def get_data_for_figure(recording_site):
+def get_example_data_for_figure(recording_site):
     """
-    Loads in data for an example mouse for the heatmaps for the heatmaps
+    Loads in data for an example mouse for the heatmaps for the heatmaps.
+
+    For VS we choose SNL_photo35 and for TS we choose SNL_photo26 as representative examples.
+
     Args:
         recording_site (str): 'VS' or 'TS'
 
@@ -87,12 +90,12 @@ def get_correct_data_for_plot(session_data, plot_type):
     return output_data
 
 
-def get_data_for_recording_site(recording_site, ax):
+def get_example_data_for_recording_site(recording_site, keys):
     """
     Gets example mouse data for heatmaps for a given recording site (TS or VS)
     Args:
         recording_site (str): 'VS' or 'TS'
-        ax (dict): dict in format {'type of plot': matplotlib.axes._subplots.AxesSubplot}
+        keys (list): list of keys, e.g. ['ipsi', 'contra']
 
     Returns:
         axes (list): all plot types for a recording site
@@ -102,15 +105,14 @@ def get_data_for_recording_site(recording_site, ax):
         ymins (list): min heatmap value per plot
         ymaxs (list): max heatmap value per plot
     """
-    aligned_session_data = get_data_for_figure(recording_site)
+    aligned_session_data = get_example_data_for_figure(recording_site)
     all_data = []
     all_white_dot_points = []
     all_flip_sort_order = []
     ymins = []
     ymaxs = []
-    axes = []
-    for ax_type, ax in ax.items():
-        data, sort_by = get_correct_data_for_plot(aligned_session_data, ax_type)
+    for key in keys:
+        data, sort_by = get_correct_data_for_plot(aligned_session_data, key)
         if sort_by == 'event end':
             white_dot_point = data.reaction_times
             flip_sort_order = True
@@ -126,8 +128,7 @@ def get_data_for_recording_site(recording_site, ax):
         ymin, ymax = get_min_and_max(data)
         ymins.append(ymin)
         ymaxs.append(ymax)
-        axes.append(ax[0])
-    return axes, all_data, all_white_dot_points, all_flip_sort_order, ymins, ymaxs
+    return all_data, all_white_dot_points, all_flip_sort_order, ymins, ymaxs
 
 
 def plot_all_heatmaps_same_scale(axes, all_data, all_white_dot_points, all_flip_sort_order, cb_range, cmap='viridis'):
@@ -144,6 +145,7 @@ def plot_all_heatmaps_same_scale(axes, all_data, all_white_dot_points, all_flip_
     Returns:
         heat_map (AxesImage):
     """
+    heat_maps = []
     for ax_num, ax_id in enumerate(axes):
         heat_map = plot_heat_map(ax_id, all_data[ax_num], all_white_dot_points[ax_num], all_flip_sort_order[ax_num], dff_range=cb_range, cmap=cmap)
         ax_id.set_xlim([-1.5, 1.5])
@@ -151,7 +153,8 @@ def plot_all_heatmaps_same_scale(axes, all_data, all_white_dot_points, all_flip_
         cax = divider.append_axes("right", size="5%", pad=0.02)
         cb = plt.colorbar(heat_map, cax=cax)
         cb.ax.set_title('z-score', fontsize=8, pad=0.02)
-    return heat_map
+        heat_maps.append(heat_map)
+    return heat_maps
 
 
 def get_min_and_max(data):
@@ -189,7 +192,7 @@ def plot_average_trace(ax, data, error_bar_method='sem', colour='navy'):
 
 def get_all_mouse_data_for_site(site, file_ext='_new_mice_added_with_cues.npz'):
     dir = processed_data_path + '\\for_figure\\'
-    file_name = 'group_data_avg_across_sessions_' + site + file_ext  #'group_data_avg_across_sessions_' + site + '.npz'
+    file_name = 'group_data_avg_across_sessions_' + site + file_ext
     data = np.load(dir + file_name)
     return data
 
@@ -243,6 +246,7 @@ def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem
 
     plot_significance_patches(move_data)
     plot_significance_patches(outcome_data)
+    return outcome_data, move_data
 
 
 def plot_average_trace_all_mice_high_low_cues(ax, site, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5]):

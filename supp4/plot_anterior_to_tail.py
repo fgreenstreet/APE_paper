@@ -1,5 +1,5 @@
 import matplotlib.pylab as plt
-from utils.zscored_plots_utils import get_data_for_recording_site, make_y_lims_same_heat_map, plot_all_heatmaps_same_scale, plot_average_trace_all_mice
+from utils.zscored_plots_utils import get_example_data_for_recording_site, make_y_lims_same_heat_map, plot_all_heatmaps_same_scale, plot_average_trace_all_mice
 import matplotlib
 
 

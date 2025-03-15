@@ -304,8 +304,8 @@ def plot_mean_trace_for_condition(ax, block_change_info, time_points, key, error
     ax.set_xlim([-2, 2])
     ax.set_xlabel('time (s)')
     ax.set_ylabel('z-scored fluorescence')
-    #ax.set_title(key)
-    #lg = ax.legend(title=leg_title, bbox_to_anchor=(1., 1.), fontsize=14)
+    #keys.set_title(key)
+    #lg = keys.legend(title=leg_title, bbox_to_anchor=(1., 1.), fontsize=14)
     #lg.get_title().set_fontsize(14)
 
 
@@ -357,8 +357,8 @@ def plot_mean_trace_for_condition_value_switch(ax, block_change_info, time_point
     ax.set_xlim([-2, 2])
     ax.set_xlabel('time (s)')
     ax.set_ylabel('z-scored fluorescence')
-    # ax.set_title(key)
-    # lg = ax.legend(title=leg_title, bbox_to_anchor=(1., 1.), fontsize=14)
+    # keys.set_title(key)
+    # lg = keys.legend(title=leg_title, bbox_to_anchor=(1., 1.), fontsize=14)
     # lg.get_title().set_fontsize(14)
 
 

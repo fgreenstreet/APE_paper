@@ -2,7 +2,10 @@ import os
 from set_global_params import bias_analysis_mice, processed_data_path
 from utils.psychometric_post_processing_utils import get_all_psychometric_session_dlc
 
-""" This analysis was originally written to look at movement parameters, so we call them here with get_movement=False"""
+""" This analysis was originally written to look at movement parameters, so we call them here with get_movement=False
+The resulting df has a column named 'APE peaks' this is just the dopamine response aligned to whichever behavioural event 
+you have chosen. It is not exclusively APE, it depends on the brain region of course.
+"""
 site = 'Nacc'
 mouse_ids = bias_analysis_mice[site]
 save = False

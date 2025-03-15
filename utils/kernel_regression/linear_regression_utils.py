@@ -99,10 +99,41 @@ def save_kernels_different_shifts(save_filename, parameter_names,params, regress
     session_kernels['shifts'] = shifts_for_saving
     session_kernels['shift_window_lengths'] = shift_window_lengths
     session_kernels['intercept'] = regression_results.intercept_
-    kernel_filename = save_filename + 'linear_regression_kernels_different_shifts_all_cues_matched_trials.p'#'linear_regression_kernels_different_shifts_reproduction.p' # 'linear_regression_kernels_different_shifts_not_cleaned.p' #'linear_regression_kernels_different_shifts.p'
+    kernel_filename = save_filename + 'linear_regression_kernels_different_shifts_all_cues_matched_trials.p'
     params_filename = save_filename + 'linear_regression_parameters_all_cues_matched_trials.p'
     inputs_X_filename = save_filename + 'linear_regression_different_shifts_X_all_cues_matched_trials.p'
     inputs_y_filename = save_filename + 'linear_regression_different_shifts_y_all_cues_matched_trials.p'
+    with open(kernel_filename, "wb") as f:
+        pickle.dump(session_kernels, f)
+    with open(params_filename, "wb") as f:
+        pickle.dump(params, f)
+    with open(inputs_X_filename, "wb") as f:
+        pickle.dump(X, f)
+    with open(inputs_y_filename, "wb") as f:
+        pickle.dump(downsampled_dff, f)
+
+
+def save_kernels_different_shifts_diff_reg_types(save_filename, parameter_names,params, regression_results, downsampled_dff, X, all_shifts, shift_window_sizes, reg_type=''):
+    param_kernels = {}
+    shifts_for_saving = {}
+    shift_window_lengths = {}
+    for param_num, param_name in enumerate(parameter_names):
+        kernel_name = parameter_names[param_num]
+        shifts = all_shifts[param_num]
+        shift_window_size = shift_window_sizes[param_num]
+        starting_ind = int(np.sum(shift_window_sizes[:param_num]))
+        param_kernels[kernel_name] = regression_results.coef_[starting_ind: starting_ind + shift_window_size]
+        shifts_for_saving[kernel_name] = shifts
+        shift_window_lengths[kernel_name] = shift_window_size
+    session_kernels = {}
+    session_kernels['kernels'] = param_kernels
+    session_kernels['shifts'] = shifts_for_saving
+    session_kernels['shift_window_lengths'] = shift_window_lengths
+    session_kernels['intercept'] = regression_results.intercept_
+    kernel_filename = save_filename + 'linear_regression_kernels{}.p'.format(reg_type)
+    params_filename = save_filename + 'linear_regression_parameters{}.p'.format(reg_type)
+    inputs_X_filename = save_filename + 'linear_regression_different_shifts{}.p'.format(reg_type)
+    inputs_y_filename = save_filename + 'linear_regression_different_shifts_y{}.p'.format(reg_type)
     with open(kernel_filename, "wb") as f:
         pickle.dump(session_kernels, f)
     with open(params_filename, "wb") as f:

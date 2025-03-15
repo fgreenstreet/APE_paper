@@ -319,7 +319,7 @@ def plot_psycho_types_formatted_data(formatted_data, key, sort_by='trial type', 
     colours = colourmap(np.linspace(0, 1, num_divisions))
     if ax is None:
         fig, ax = plt.subplots()
-    #fig, ax = plt.subplots(1, num_divisions + 1, sharex=True, sharey=True, figsize=(7, 2))
+    #fig, keys = plt.subplots(1, num_divisions + 1, sharex=True, sharey=True, figsize=(7, 2))
     all_xs = []
     all_ys = []
     for q in range(0, num_divisions):

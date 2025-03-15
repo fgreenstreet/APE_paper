@@ -2,6 +2,8 @@ import os
 # PATHS
 all_data_path = 'S:\\projects\\APE_data_francesca_for_paper\\' # change this to where you save the data
 experiment_record_path = os.path.join(all_data_path, 'exp_records_APE_paper.csv')
+reproduce_figures_path = os.path.join(all_data_path, 'reproducing_figures')  # folder that only contains data necessary to reproduce the paper's figures
+spreadsheet_path = os.path.join(all_data_path, 'spreadsheets_for_nature')
 processed_data_path = os.path.join(all_data_path, 'processed_data\\')
 post_processed_tracking_data_path = os.path.join(all_data_path, 'tracking_analysis\\')
 behavioural_data_path = os.path.join(all_data_path, 'bpod_data\\')
@@ -51,8 +53,8 @@ state_change_mice = {'tail': ['SNL_photo70', 'SNL_photo21', 'SNL_photo22', 'SNL_
 state_change_example_mice = {'tail': 'SNL_photo37', 'Nacc': 'SNL_photo31'}
 
 # Figure 5
-bias_analysis_mice = {'tail': [['SNL_photo37', 'SNL_photo22', 'SNL_photo26', 'SNL_photo21'], ['SNL_photo70', 'SNL_photo72', 'SNL_photo57']],
-                      'Nacc': ['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo32', 'SNL_photo33', 'SNL_photo34', 'SNL_photo35']}
+bias_analysis_mice = {'tail': [['SNL_photo22', 'SNL_photo26', 'SNL_photo21'], ['SNL_photo57']],
+                      'Nacc': ['SNL_photo28', 'SNL_photo30', 'SNL_photo31', 'SNL_photo34', 'SNL_photo35']}
 # supp 6 silence
 silence_mice = ['SNL_photo37', 'SNL_photo43', 'SNL_photo70']
 

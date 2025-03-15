@@ -7,8 +7,9 @@ from matplotlib import cm
 import os
 from matplotlib.lines import Line2D
 import matplotlib
-from set_global_params import processed_data_path
+from set_global_params import processed_data_path, reproduce_figures_path
 from utils.plotting_visuals import makes_plots_pretty
+import shutil
 
 
 def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583', line='k', align_to=None, **file_name_extras):
@@ -43,6 +44,12 @@ def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583
         saving_folder = os.path.join(data_root, mouse)
         filename = mouse + file_name_suffix
         save_filename = os.path.join(saving_folder, filename)
+        fig_path_for_reproducing = os.path.join(reproduce_figures_path, 'fig3', 'peak_analysis')
+        if not os.path.exists(fig_path_for_reproducing):
+            os.makedirs(fig_path_for_reproducing)
+        repro_filename = os.path.join(fig_path_for_reproducing, filename)
+        if not os.path.exists(os.path.join(fig_path_for_reproducing, filename)):
+            shutil.copy(save_filename, repro_filename)
         rolling_mean_data = np.load(save_filename)
         rolling_mean_x = rolling_mean_data['rolling_mean_x']
         rolling_mean_peaks = rolling_mean_data['rolling_mean_peaks']
@@ -74,6 +81,7 @@ def make_change_over_time_plot(mice, ax, window_for_binning=40, colour ='#1b5583
     axs.set_xlabel('Trial number')
     axs.sharex(ax)
     makes_plots_pretty([axs])
+    return all_ys
 
 
 def example_scatter_change_over_time(mouse, ax, window_for_binning=40, colour='#7FB5B5'):
@@ -86,13 +94,20 @@ def example_scatter_change_over_time(mouse, ax, window_for_binning=40, colour='#
         colour (str): scatter colour
 
     Returns:
-        ax (matplotlib.axes._subplots.AxesSubplot): axes
+        keys (matplotlib.axes._subplots.AxesSubplot): axes
     """
-    data_root = processed_data_path + 'peak_analysis'
+    data_root = os.path.join(processed_data_path, 'peak_analysis')
     saving_folder = os.path.join(data_root, mouse)
     filename = mouse + '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks.npz'
     save_filename = os.path.join(saving_folder, filename)
-    rolling_mean_data = np.load(save_filename)
+    fig_path_for_reproducing = os.path.join(reproduce_figures_path, 'fig3', 'peak_analysis')
+    if not os.path.exists(fig_path_for_reproducing):
+        os.makedirs(fig_path_for_reproducing)
+    repro_filename = os.path.join(fig_path_for_reproducing, filename)
+    if not os.path.exists(os.path.join(fig_path_for_reproducing, filename)):
+        shutil.copy(save_filename, repro_filename)
+
+    rolling_mean_data = np.load(repro_filename)
     rolling_mean_x = rolling_mean_data['rolling_mean_x']
     rolling_mean_peaks = rolling_mean_data['rolling_mean_peaks']
     sns.scatterplot(x=rolling_mean_x, y=rolling_mean_peaks, color=colour, ax=ax, s=7)
@@ -136,7 +151,6 @@ def make_example_traces_plot(mouse, ax, window_for_binning=50, side='contra', le
         ax.legend(custom_lines, ['Early', 'Middle', 'Late'], frameon=False, prop={'size': 6}, loc='upper left', bbox_to_anchor=(0.8, 0.9))
     ax.set_ylabel('Peak size (z-score)')
     ax.set_xlabel('Time (s)')
-
 
 
 

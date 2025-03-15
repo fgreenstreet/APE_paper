@@ -153,7 +153,7 @@ def plot_one_trial(x, y, ax=False, cmap='winter', alpha=0.5):
         alpha (float): alpha for plot
 
     Returns:
-        ax (matplotlib.axes._subplots.AxesSubplot): axes
+        keys (matplotlib.axes._subplots.AxesSubplot): axes
     """
     if not ax:
         fig, ax = plt.subplots(1, 1, figsize=(8, 7))
@@ -180,7 +180,7 @@ def plot_one_trial_head_angle(angles, x, y, ax=False, cmap=matplotlib.cm.winter,
         head_size (int): size fore head triangle
 
     Returns:
-        ax (matplotlib.axes._subplots.AxesSubplot): axes
+        keys (matplotlib.axes._subplots.AxesSubplot): axes
     """
     if not ax:
         fig, ax = plt.subplots(1, 1, figsize=(8, 7))

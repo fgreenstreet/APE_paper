@@ -17,6 +17,5 @@ print('Loading data for new mice...')
 tail_new_mouse_data = pd.read_pickle(tail_file_new_mice)[['mouse', 'session', 'fiber side', 'trial numbers', 'trial type', 'side', 'outcome', 'last trial type', 'last choice', 'last outcome', 'next trial type', 'next choice', 'next outcome', 'norm APE', 'stay or switch']].dropna().reset_index(drop=True)
 all_tail_data = pd.concat([tail_old_mouse_data, tail_new_mouse_data]).reset_index(drop=True)
 
-print('Saving only necessary data to new pickle...')
-# all_tail_data.to_pickle(data_dir + '/' + 'all_tail_data.pkl')
-all_tail_data.to_csv(save_path + '/' + 'all_tail_data.csv')
+print('Saving data to new csv...')
+all_tail_data.to_csv(save_path + '/' + 'all_tail_data_for_paper.csv')

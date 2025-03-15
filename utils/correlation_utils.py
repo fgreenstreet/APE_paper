@@ -94,7 +94,7 @@ def plot_binned_valid_trials(valid_peaks, valid_trial_nums, window_size=50, fit_
         if fit_line:
             ax.plot(x_vals_fit, y_vals_fit, color='grey')
         ax.set_xlabel('trial number(binned in groups of ' + str(window_size)+')', size=13)
-        #ax.set_xlim([0,17000])
+        #keys.set_xlim([0,17000])
         ax.set_ylabel('z-scored peak', size=13)
         plt.tight_layout()
         plt.show()
@@ -116,7 +116,7 @@ def multi_animal_scatter_and_fit(mice, recording_site='tail', window_size=30, fi
         if fit_type:
             ax.plot(x_vals_fit, y_vals_fit, color=colours[mouse_num])
     ax.set_xlabel('trial number (trials binned in groups of ' + str(window_size)+')')
-    #ax.set_xlim([0,15000])
+    #keys.set_xlim([0,15000])
     ax.set_ylabel('z-scored peak')
     ax.legend(loc='best')
     plt.show()

@@ -1,5 +1,7 @@
 import os
 import matplotlib.pyplot as plt
+import pandas as pd
+
 from set_global_params import processed_data_path, figure_directory, experiment_record_path, post_processed_tracking_data_path, mice_average_traces, old_raw_tracking_path, raw_tracking_path
 from utils.tracking_analysis.fede_load_tracking import prepare_tracking_data
 from utils.tracking_analysis.dlc_processing_utils import get_raw_photometry_data
@@ -31,7 +33,7 @@ experiments_to_process = get_first_x_sessions_reg_rtc(all_experiments_to_process
 
 # Initialize a list to store return duration data
 data_list = []
-
+not_included_data = []
 for index, experiment in experiments_to_process.iterrows():
     plt.close('all')
     mouse = experiment['mouse_id']
@@ -93,7 +95,7 @@ for index, experiment in experiments_to_process.iterrows():
     fiber_side_numeric = (np.where(fiber_options == fiber_side)[0] + 1)[0]
     contra_fiber_side_numeric = (np.where(fiber_options != fiber_side)[0] + 1)[0]
 
-    contra_movement_traces, contra_movement_onsets_time_stamps, contra_return_durations = get_photometry_for_one_side_returns(fiber_side_numeric,
+    contra_movement_traces, contra_movement_onsets_time_stamps, contra_return_durations, contra_bad_durations = get_photometry_for_one_side_returns(fiber_side_numeric,
                                                                                                      camera_triggers,
                                                                                                      trial_data,
                                                                                                      tracking_data,
@@ -105,7 +107,7 @@ for index, experiment in experiments_to_process.iterrows():
                                                                                                      time_frame=timeframe,
                                                                                                      short_turns_only=short_turns)
 
-    ipsi_movement_traces, ipsi_movement_onsets_time_stamps, ipsi_return_durations = get_photometry_for_one_side_returns(contra_fiber_side_numeric,
+    ipsi_movement_traces, ipsi_movement_onsets_time_stamps, ipsi_return_durations, ipsi_bad_durations = get_photometry_for_one_side_returns(contra_fiber_side_numeric,
                                                                                                      camera_triggers,
                                                                                                      trial_data,
                                                                                                      tracking_data,
@@ -122,6 +124,11 @@ for index, experiment in experiments_to_process.iterrows():
     for duration in contra_return_durations:
         data_list.append({'mouse': mouse, 'date': date, 'type': 'contra', 'duration': duration / 10000})
 
+    for duration in ipsi_bad_durations:
+        not_included_data.append({'mouse': mouse, 'date': date, 'type': 'ipsi', 'duration': duration / 10000})
+    for duration in contra_bad_durations:
+        not_included_data.append({'mouse': mouse, 'date': date, 'type': 'contra', 'duration': duration / 10000})
+
     save_dir = os.path.join(processed_data_path, 'return_to_centre', mouse)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -133,9 +140,9 @@ for index, experiment in experiments_to_process.iterrows():
         save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_{}frame_window_long_turns.npz'.format(
             mouse, date, timeframe)
         time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times_{}frame_window_long_turns.npz'.format(mouse, date, timeframe)
-    np.savez(os.path.join(save_dir, save_file), contra_movement=contra_movement_traces, ipsi_movement=ipsi_movement_traces)
-    np.savez(os.path.join(save_dir, time_stamp_save_file), contra_movement_return=contra_movement_onsets_time_stamps,
-             ipsi_movement_return=ipsi_movement_onsets_time_stamps)
+    #np.savez(os.path.join(save_dir, save_file), contra_movement=contra_movement_traces, ipsi_movement=ipsi_movement_traces)
+    #np.savez(os.path.join(save_dir, time_stamp_save_file), contra_movement_return=contra_movement_onsets_time_stamps,
+    #         ipsi_movement_return=ipsi_movement_onsets_time_stamps)
 
 # Create a DataFrame from the collected data
 duration_df = pd.DataFrame(data_list)
@@ -165,3 +172,22 @@ plt.text(0.05, plt.ylim()[1] * 0.6, f'Contra Mean: {contra_mean:.2f}\nContra Std
 
 plt.legend()
 plt.savefig(os.path.join(figure_directory, 'return_movement_durations_timeframe_{}.pdf'.format(timeframe/30)))
+
+not_included_df = pd.DataFrame(not_included_data)
+num_included_trials = duration_df.shape[0]
+inc_and_not_df = pd.concat([duration_df, not_included_df])
+num_excluded_trials = not_included_df.shape[0]
+print('proportion_data_included = {}'.format(num_included_trials/(num_excluded_trials + num_included_trials)))
+plt.figure(figsize=(6, 6))
+plt.hist(inc_and_not_df[inc_and_not_df['type'] == 'ipsi']['duration'], bins=bins, alpha=0.5, label='Ipsi')
+plt.hist(inc_and_not_df[inc_and_not_df['type'] == 'contra']['duration'], bins=bins, alpha=0.5, label='Contra')
+plt.axvline(x=10, color='k', linestyle='--', linewidth=0.5)
+plt.xlabel('Return Duration (s)')
+plt.ylabel('Frequency')
+plt.title('Histogram of Ipsi and Contra Return Durations')
+# Add text for mean and std
+plt.text(0.05, plt.ylim()[1] * 0.8, f'Ipsi Mean: {ipsi_mean:.2f}\nIpsi Std: {ipsi_std:.2f}', color='blue')
+plt.text(0.05, plt.ylim()[1] * 0.6, f'Contra Mean: {contra_mean:.2f}\nContra Std: {contra_std:.2f}', color='orange')
+
+plt.legend()
+plt.savefig(os.path.join(figure_directory, 'return_movement_durations_timeframe_{}_also_bad_cos_similarity.pdf'.format(timeframe/30)))

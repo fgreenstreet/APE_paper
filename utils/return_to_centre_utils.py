@@ -222,6 +222,7 @@ def get_photometry_for_one_side_returns(fiber_side_numeric, camera_triggers, tri
                                                                                   side=side)
     plot_direct_trials(cosine_similarities, heading_vectors, goal_vector)
     trial_indices = np.where(np.array(cosine_similarities) >= 0.9)[0]
+    other_trial_inds = np.where(np.array(cosine_similarities) < 0.9)[0]
 
     # find movement onsets for direct trials
     cum_sum_ang_vs, turn_onsets = get_turn_start_times(tracking_data, choice_triggers[trial_indices],
@@ -230,7 +231,8 @@ def get_photometry_for_one_side_returns(fiber_side_numeric, camera_triggers, tri
                                                                  time_frame=time_frame, short_turns_only=short_turns_only)
     contra_movement_inds = [i for i, t in enumerate(turn_onsets) if t]
     valid_choices = choice_times[trial_indices]
-    return_durations = next_trial_start_times[trial_indices] - choice_times[trial_indices]
+    return_durations_good_cos_similarity = next_trial_start_times[trial_indices] - choice_times[trial_indices]
+    return_durations_bad_cos_similarity = next_trial_start_times[other_trial_inds] - choice_times[other_trial_inds]
     contra_movement_onsets_time_stamps = np.array(valid_choices)[contra_movement_inds] / 10000 + \
                                          np.array(turn_onsets)[
                                              contra_movement_inds]  # these times are in seconds
@@ -239,4 +241,4 @@ def get_photometry_for_one_side_returns(fiber_side_numeric, camera_triggers, tri
                                                                                                  trials,
                                                                                                  turn_onsets,
                                                                                                  photometry_data)
-    return contra_movement_traces, contra_movement_onsets_time_stamps, return_durations
+    return contra_movement_traces, contra_movement_onsets_time_stamps, return_durations_good_cos_similarity, return_durations_bad_cos_similarity

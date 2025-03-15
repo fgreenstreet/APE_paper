@@ -1,5 +1,5 @@
 import matplotlib.pylab as plt
-from utils.zscored_plots_utils import get_data_for_recording_site, make_y_lims_same_heat_map, plot_all_heatmaps_same_scale, plot_average_trace_all_mice_cue_move_rew
+from utils.zscored_plots_utils import get_example_data_for_recording_site, make_y_lims_same_heat_map, plot_all_heatmaps_same_scale, plot_average_trace_all_mice_cue_move_rew
 import seaborn as sns
 from matplotlib.colors import ListedColormap
 import matplotlib.colors
@@ -38,8 +38,8 @@ ts_heat_map_axs = {'cue': [ts_ax]}
 vs_heat_map_axs = {'cue': [vs_ax]}
 
 colours = sns.color_palette("Set2")[:2]
-t_axs, t_data, t_wd, t_flip_sort_order, t_y_mins, t_y_maxs = get_data_for_recording_site('TS', ts_heat_map_axs)
-v_axs, v_data, v_wd, v_flip_sort_order, v_y_mins, v_y_maxs = get_data_for_recording_site('VS', vs_heat_map_axs)
+t_axs, t_data, t_wd, t_flip_sort_order, t_y_mins, t_y_maxs = get_example_data_for_recording_site('TS', ts_heat_map_axs)
+v_axs, v_data, v_wd, v_flip_sort_order, v_y_mins, v_y_maxs = get_example_data_for_recording_site('VS', vs_heat_map_axs)
 
 heat_map_t = plot_all_heatmaps_same_scale(t_axs, t_data, t_wd, t_flip_sort_order, (np.min(t_y_mins), np.max(t_y_maxs)), cmap=blue_cmap)
 heat_map_v = plot_all_heatmaps_same_scale(v_axs, v_data, v_wd, v_flip_sort_order, (np.min(v_y_mins), np.max(v_y_maxs)), cmap=red_cmap)
