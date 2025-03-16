@@ -1,6 +1,8 @@
 import os
 import pickle
 import numpy as np
+import pandas as pd
+
 from utils.individual_trial_analysis_utils import SessionData, ZScoredTraces
 import matplotlib.pyplot as plt
 from scipy.signal import decimate
@@ -9,7 +11,7 @@ from matplotlib.colors import ListedColormap
 from utils.plotting import calculate_error_bars
 from matplotlib import colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from set_global_params import processed_data_path
+from set_global_params import processed_data_path, reproduce_figures_path, spreadsheet_path
 from scipy import stats
 from scipy.stats import shapiro
 import matplotlib.patches as mpatches
@@ -17,11 +19,12 @@ import matplotlib
 
 
 class ZScoredTracesCuePlotOnly(object):
-    def __init__(self, sorted_traces, outcome_times, reaction_times, sorted_next_poke):
+    def __init__(self, sorted_traces, outcome_times, reaction_times, sorted_next_poke, time_points):
         self.sorted_traces = sorted_traces
         self.outcome_times = outcome_times
         self.reaction_times = reaction_times
         self.sorted_next_poke = sorted_next_poke
+        self.time_points = time_points
 
 
 def get_example_data_for_figure(recording_site):
@@ -56,9 +59,10 @@ def combine_ipsi_and_contra_cues(contra_data, ipsi_data):
     unsorted_traces = np.concatenate([contra_data.sorted_traces, ipsi_data.sorted_traces])[indices, :]
 
     unsorted_reaction_times = np.concatenate([contra_data.reaction_times, ipsi_data.reaction_times])[indices]
+    unsorted_time_points = contra_data.time_points
     unsorted_outcome_times = np.concatenate([contra_data.outcome_times, ipsi_data.outcome_times])[indices]
     unsorted_next_poke = np.concatenate([contra_data.sorted_next_poke, ipsi_data.sorted_next_poke])[indices]
-    return ZScoredTracesCuePlotOnly(unsorted_traces, unsorted_outcome_times, unsorted_reaction_times, unsorted_next_poke)
+    return ZScoredTracesCuePlotOnly(unsorted_traces, unsorted_outcome_times, unsorted_reaction_times, unsorted_next_poke, unsorted_time_points)
 
 
 def get_correct_data_for_plot(session_data, plot_type):
@@ -190,10 +194,9 @@ def plot_average_trace(ax, data, error_bar_method='sem', colour='navy'):
     ax.set_ylabel('z-score')
 
 
-def get_all_mouse_data_for_site(site, file_ext='_new_mice_added_with_cues.npz'):
-    dir = processed_data_path + '\\for_figure\\'
+def get_all_mouse_data_for_site(site, dir=os.path.join(processed_data_path, 'for_figure') , file_ext='_new_mice_added_with_cues.npz'):
     file_name = 'group_data_avg_across_sessions_' + site + file_ext
-    data = np.load(dir + file_name)
+    data = np.load(os.path.join(dir, file_name))
     return data
 
 
@@ -262,8 +265,11 @@ def plot_average_trace_all_mice_high_low_cues(ax, site, error_bar_method='sem', 
     Returns:
 
     """
-
-    all_data = get_all_mouse_data_for_site(site, file_ext='_new_mice_added_high_low_cues_ipsi_contra.npz')
+    if os.path.exists(os.path.join(reproduce_figures_path, 'ED_fig4')):
+        dir = os.path.join(reproduce_figures_path, 'ED_fig4')
+    else:
+        dir = os.path.join(processed_data_path, 'for_figure')
+    all_data = get_all_mouse_data_for_site(site, dir=dir, file_ext='_new_mice_added_high_low_cues_ipsi_contra.npz')
     time_stamps = all_data['time_stamps']
     data = dict(all_data)
     del data['time_stamps']
@@ -289,6 +295,11 @@ def plot_average_trace_all_mice_high_low_cues(ax, site, error_bar_method='sem', 
             axs[trace_type].fill_between(time_points, error_bar_lower, error_bar_upper, alpha=0.5,
                                  facecolor=colours[trace_type], linewidth=0)
 
+        spreadsheet_file = os.path.join(spreadsheet_path, 'ED_fig4', f'ED_fig4_{site}_{trace_type}_traces_CDE.csv')
+        if not os.path.exists(spreadsheet_file):
+            df_for_spreadsheet = pd.DataFrame(traces.T)
+            df_for_spreadsheet.insert(0, "Timepoints", time_points)
+            df_for_spreadsheet.to_csv(spreadsheet_file)
 
         axs[trace_type].axvline(0, color='k', linewidth=0.8)
         axs[trace_type].set_xlabel('Time (s)')
@@ -313,7 +324,11 @@ def plot_average_trace_all_mice_cue_move_rew(cue_ax, move_ax, outcome_ax, error_
     """
     sites = ['tail', 'Nacc']
     for i, site in enumerate(sites):
-        all_data = get_all_mouse_data_for_site(site, file_ext='_new_mice_added_with_cues.npz')
+        if os.path.exists(os.path.join(reproduce_figures_path, 'ED_fig4')):
+            dir = os.path.join(reproduce_figures_path, 'ED_fig4')
+        else:
+            dir = os.path.join(processed_data_path, 'for_figure')
+        all_data = get_all_mouse_data_for_site(site, dir=dir, file_ext='_new_mice_added_with_cues.npz')
         time_stamps = all_data['time_stamps']
         data = dict(all_data)
         del data['time_stamps'], data['ipsi_choice'], data['no_reward']
@@ -337,7 +352,11 @@ def plot_average_trace_all_mice_cue_move_rew(cue_ax, move_ax, outcome_ax, error_
                                                                         error_bar_method=error_bar_method)
                 axs[trace_type].fill_between(time_points, error_bar_lower, error_bar_upper, alpha=0.5,
                                      facecolor=colours[trace_type], linewidth=0)
-
+            spreadsheet_file = os.path.join(spreadsheet_path, 'ED_fig4', f'ED_fig4_{site}_{trace_type}_traces_CDE.csv')
+            if not os.path.exists(spreadsheet_file):
+                df_for_spreadsheet = pd.DataFrame(traces.T)
+                df_for_spreadsheet.insert(0, "Timepoints", time_points)
+                df_for_spreadsheet.to_csv(spreadsheet_file)
 
             axs[trace_type].axvline(0, color='k', linewidth=0.8)
             axs[trace_type].set_xlabel('Time (s)')

@@ -22,18 +22,3 @@ makes_plots_pretty(np.ravel(axs))
 plt.tight_layout()
 
 plt.show()
-
-font = {'size': 8}
-matplotlib.rc('font', **font)
-matplotlib.rcParams['pdf.fonttype'] = 42
-matplotlib.rcParams['font.sans-serif'] = 'Arial'
-matplotlib.rcParams['font.family']
-
-fig, axs = plt.subplots(1, 2, figsize=[4, 2])
-
-#axs.set_title('anterior to tail')
-plot_average_trace_all_mice_high_low_cues(axs, 'tail_ant', cmap=['#E95F32', '#F9C0AF'])
-makes_plots_pretty(axs)
-plt.tight_layout()
-
-plt.show()

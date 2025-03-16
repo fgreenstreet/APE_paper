@@ -38,7 +38,4 @@ colours = sns.color_palette("Set2")[:2]
 plot_average_trace_all_mice_cue_move_rew(cue_ax, move_ax, reward_ax, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5])
 makes_plots_pretty([cue_ax, move_ax, reward_ax])
 plt.tight_layout()
-data_directory = 'T:\\paper\\revisions\\cue movement reward comparisons VS TS\\'
-#plt.savefig(data_directory + 'cue_movement_reward_aligned_traces_VS_TS.pdf', transparent=True, bbox_inches='tight')
-
 plt.show()

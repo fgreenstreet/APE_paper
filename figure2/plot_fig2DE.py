@@ -1,15 +1,15 @@
 import os
 from set_global_params import all_data_path
 import matplotlib.pylab as plt
-from utils.zscored_plots_utils import get_example_data_for_recording_site, make_y_lims_same_heat_map, plot_all_heatmaps_same_scale, plot_average_trace_all_mice
+
+from utils.data_loading_utils import load_or_get_and_save_example_heatmap_aligned_to_keys
+from utils.zscored_plots_utils import plot_all_heatmaps_same_scale, plot_average_trace_all_mice
 import seaborn as sns
 from matplotlib.colors import ListedColormap
 import numpy as np
 import matplotlib
 import cmocean
-import pickle
 from utils.plotting_visuals import makes_plots_pretty
-from set_global_params import figure_directory
 from scipy.signal import decimate
 import pandas as pd
 from functools import partial
@@ -18,7 +18,7 @@ font = {'size': 8}
 matplotlib.rc('font', **font)
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['font.sans-serif'] = 'Arial'
-matplotlib.rcParams['font.family']
+
 
 pickle_folder = os.path.join(all_data_path, 'reproducing_figures', 'fig2')
 spreadsheet_folder = os.path.join(all_data_path, 'spreadsheets_for_nature', 'fig2')
@@ -72,74 +72,22 @@ colours = sns.color_palette("Set2")[:2]
 
 ts_pickle_path = os.path.join(pickle_folder, 'ts_example_heatmap_data.pkl')
 vs_pickle_path = os.path.join(pickle_folder, 'vs_example_heatmap_data.pkl')
-time_window_size = 2
+time_window_size = 2  # only save [-2:+2] seconds of data around each cue / movement onset
 
-# Try to load TS data from pickle
-if os.path.exists(ts_pickle_path):
-    print(f"Loading cached TS data from {ts_pickle_path}")
-    with open(ts_pickle_path, 'rb') as f:
-        ts_cache = pickle.load(f)
-        t_data = ts_cache['data']
-        t_wd = ts_cache['wd']
-        t_flip_sort_order = ts_cache['flip_sort_order']
-        t_y_mins = ts_cache['y_mins']
-        t_y_maxs = ts_cache['y_maxs']
-else:
-    # Get data and save to pickle
-    print("Loading TS data from raw and saving to cache...")
-    t_data, t_wd, t_flip_sort_order, t_y_mins, t_y_maxs = get_example_data_for_recording_site('TS', list(ts_heat_map_axs.keys()))
+tail_hm_data = load_or_get_and_save_example_heatmap_aligned_to_keys(ts_pickle_path, 'TS', list(ts_heat_map_axs.keys()),
+                                                                    time_window_size=time_window_size)
+vs_hm_data = load_or_get_and_save_example_heatmap_aligned_to_keys(vs_pickle_path, 'VS', list(vs_heat_map_axs.keys()),
+                                                                  time_window_size=time_window_size)
 
-    for obj in t_data:
-        bool_idx = (obj.time_points < time_window_size) & (obj.time_points >= -time_window_size)
-        obj.sorted_traces = obj.sorted_traces[:, bool_idx]
-        obj.time_points = obj.time_points[bool_idx]
-
-    # Save to pickle
-    ts_cache = {
-        'data': t_data,
-        'wd': t_wd,
-        'flip_sort_order': t_flip_sort_order,
-        'y_mins': t_y_mins,
-        'y_maxs': t_y_maxs
-    }
-    with open(ts_pickle_path, 'wb') as f:
-        pickle.dump(ts_cache, f)
-
-# Try to load VS data from pickle
-if os.path.exists(vs_pickle_path):
-    print(f"Loading cached VS data from {vs_pickle_path}")
-    with open(vs_pickle_path, 'rb') as f:
-        vs_cache = pickle.load(f)
-        v_data = vs_cache['data']
-        v_wd = vs_cache['wd']
-        v_flip_sort_order = vs_cache['flip_sort_order']
-        v_y_mins = vs_cache['y_mins']
-        v_y_maxs = vs_cache['y_maxs']
-else:
-    # Get data and save to pickle
-    print("Loading VS data from raw and saving to cache...")
-    v_data, v_wd, v_flip_sort_order, v_y_mins, v_y_maxs = get_example_data_for_recording_site('VS', list(vs_heat_map_axs.keys()))
-
-    for obj in v_data:
-        bool_idx = (obj.time_points < time_window_size) & (obj.time_points >= -time_window_size)
-        obj.sorted_traces = obj.sorted_traces[:, bool_idx]
-        obj.time_points = obj.time_points[bool_idx]
-
-    # Save to pickle
-    vs_cache = {
-        'data': v_data,
-        'wd': v_wd,
-        'flip_sort_order': v_flip_sort_order,
-        'y_mins': v_y_mins,
-        'y_maxs': v_y_maxs
-    }
-    with open(vs_pickle_path, 'wb') as f:
-        pickle.dump(vs_cache, f)
+t_data, t_wd, t_flip_sort_order, t_y_mins, t_y_maxs = tail_hm_data
+v_data, v_wd, v_flip_sort_order, v_y_mins, v_y_maxs = vs_hm_data
 
 t_axs = [a[0] for a in ts_heat_map_axs.values()]
 v_axs = [a[0] for a in vs_heat_map_axs.values()]
-heat_map_t = plot_all_heatmaps_same_scale(t_axs, t_data, t_wd, t_flip_sort_order, (np.min(t_y_mins), np.max(t_y_maxs)), cmap=blue_cmap)
-heat_map_v = plot_all_heatmaps_same_scale(v_axs, v_data, v_wd, v_flip_sort_order, (np.min(v_y_mins), np.max(v_y_maxs)), cmap=red_cmap)
+heat_map_t = plot_all_heatmaps_same_scale(t_axs, t_data, t_wd, t_flip_sort_order, [np.min(t_y_mins), np.max(t_y_maxs)],
+                                          cmap=blue_cmap)
+heat_map_v = plot_all_heatmaps_same_scale(v_axs, v_data, v_wd, v_flip_sort_order, [np.min(v_y_mins), np.max(v_y_maxs)],
+                                          cmap=red_cmap)
 
 heatmap_data = [hm.get_array() for hm in heat_map_t + heat_map_v]
 # downsample because of nature's storage limit
@@ -188,8 +136,6 @@ for m in range(ts_move_data['data'][0].shape[0]):
     ts_move_df[f'contra_m{m}'] = ds(ts_move_data['data'][0][m])
     ts_move_df[f'ipsi_m{m}'] = ds(ts_move_data['data'][1][m])
 ts_move_df.to_csv(os.path.join(spreadsheet_folder, 'ts_move_avg_traces.csv'))
-
-
 
 
 #plt.savefig(os.path.join(figure_directory, 'average_traces_figure_with_ttests.pdf'), transparent=True, bbox_inches='tight')

@@ -49,7 +49,7 @@ def make_box_plot(df, fig_ax, dx='model', dy='explained variance', ort="v",
         fig_ax.text(0.5, 1, label, transform=fig_ax.get_xaxis_transform(), size=8, ha='center')
 
 
-def plot_and_save_comparison(data_df, ylabel, fig_directory, filename, dx='site', pal = ['#E95F32', '#002F3A'], sig_test=True):
+def plot_and_save_comparison(data_df, ylabel, fig_directory, filename, dx='site', pal = ['#E95F32', '#002F3A'], sig_test=True, save=True):
     """
     Plots a comparison box plot and saves it as a PDF file.
 
@@ -79,4 +79,5 @@ def plot_and_save_comparison(data_df, ylabel, fig_directory, filename, dx='site'
 
     makes_plots_pretty(ax)
     plt.tight_layout()
-    plt.savefig(fig_directory + filename, transparent=True, bbox_inches='tight')
+    if save:
+        plt.savefig(fig_directory + filename, transparent=True, bbox_inches='tight')
