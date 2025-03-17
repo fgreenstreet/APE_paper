@@ -1,9 +1,10 @@
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings
 from utils.kernel_regression.linear_regression_utils import *
 from tqdm import tqdm
-from set_global_params import experiment_record_path, processed_data_path, mice_average_traces
+from set_global_params import experiment_record_path, processed_data_path, mice_average_traces, reproduce_figures_path, spreadsheet_path
 from utils.kernel_regression.regression_plotting_utils import calculate_significance_windows, organise_data_means_with_rtc, plot_kernels, organise_data_means
-
+import os
+import shutil
 
 def plot_kernels_for_site(move_axs, cue_axs, reward_axs, return_axs, means, sems, time_stamps, palette=['#E95F32', '#F9C0AF'], legend=False):
     plot_kernels(move_axs, 'ipsi choices', means, sems, time_stamps, colour=palette[1], legend=legend)
@@ -59,6 +60,9 @@ def get_regression_data_for_plot(recording_site='tail', reg_type='_return_to_cen
 
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
         data_dir = processed_data_path + mouse + '\\'
+        repro_data_dir = os.path.join(reproduce_figures_path, 'ED_fig4', mouse)
+        if not os.path.exists(repro_data_dir):
+            os.makedirs(repro_data_dir)
         df = experiments_to_process[experiments_to_process.mouse_id == mouse]
         mouse_ipsi_choice_kernel = []
         mouse_contra_choice_kernel = []
@@ -71,8 +75,10 @@ def get_regression_data_for_plot(recording_site='tail', reg_type='_return_to_cen
             mouse_ipsi_return_kernel = []
 
         for date in df['date']:
-
             filename = mouse + '_' + date + '_' + 'linear_regression_kernels{}.p'.format(reg_type)
+            if not os.path.exists(os.path.join(repro_data_dir, filename)):
+                shutil.copy(os.path.join(data_dir, filename), os.path.join(repro_data_dir, filename))
+
             fiber_side = df[df.date == date]['fiber_side'].iloc[0]
             if fiber_side == 'left':
                 ipsi_cue = 'high cues'
@@ -81,7 +87,7 @@ def get_regression_data_for_plot(recording_site='tail', reg_type='_return_to_cen
                 ipsi_cue = 'low cues'
                 contra_cue = 'high cues'
 
-            with open(data_dir + filename, 'rb') as f:
+            with open(os.path.join(repro_data_dir, filename), 'rb') as f:
                 session_kernels = pickle.load(f)
                 mouse_ipsi_choice_kernel.append(session_kernels['kernels']['ipsi choices'])
                 mouse_contra_choice_kernel.append(session_kernels['kernels']['contra choices'])
@@ -126,6 +132,20 @@ def get_regression_data_for_plot(recording_site='tail', reg_type='_return_to_cen
         time_stamps['ipsi returns'] = session_kernels['shifts']['ipsi returns'] / 10000 * 100
         means, sems = organise_data_means_with_rtc(ipsi_choice_kernels, contra_choice_kernels, ipsi_cue_kernels, contra_cue_kernels,
                                         reward_kernels, no_reward_kernels, contra_return_kernels, ipsi_return_kernels)
+        sh_path = os.path.join(spreadsheet_path, 'ED_fig4')
+        only_plotted_kernels = [contra_return_kernels, ipsi_return_kernels]
+        plotted_keys = ['contra returns', 'ipsi returns']
+        only_plotted_time_stamps = {key: time_stamps[key] for key in plotted_keys if key in time_stamps}
+        for kernels, ts in zip(only_plotted_kernels, only_plotted_time_stamps.items()):
+            n_mice, samples = kernels.shape
+            nm = ts[0]
+            df = pd.DataFrame()
+            df['time'] = ts[1]
+            for m in range(n_mice):
+                df[f'm{m}'] = kernels[m]
+            kernel_fn = f'fig4L_kernels_{recording_site}_{nm}.csv'
+            if not os.path.exists(os.path.join(sh_path, kernel_fn)):
+                df.to_csv(os.path.join(sh_path, kernel_fn))
     else:
         organise_data_means(ipsi_choice_kernels, contra_choice_kernels, ipsi_cue_kernels, contra_cue_kernels,
                                      reward_kernels, no_reward_kernels)

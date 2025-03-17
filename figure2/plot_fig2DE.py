@@ -1,7 +1,6 @@
 import os
-from set_global_params import all_data_path
+from set_global_params import all_data_path, reproduce_figures_path, processed_data_path
 import matplotlib.pylab as plt
-
 from utils.data_loading_utils import load_or_get_and_save_example_heatmap_aligned_to_keys
 from utils.zscored_plots_utils import plot_all_heatmaps_same_scale, plot_average_trace_all_mice
 import seaborn as sns
@@ -100,8 +99,15 @@ for i, hm in enumerate(heatmap_data):
     fp = os.path.join(spreadsheet_folder, fn)
     np.savetxt(fp, hm)
 
-vs_outcome_data, vs_move_data = plot_average_trace_all_mice(vs_average_move_ax,  vs_average_outcome_ax, 'Nacc', cmap=['#E95F32', '#F9C0AF'])
-ts_outcome_data, ts_move_data = plot_average_trace_all_mice(ts_average_move_ax,  ts_average_outcome_ax, 'tail', cmap=['#002F3A', '#76A8DA'])
+# get average traces across mice
+if os.path.exists(os.path.join(reproduce_figures_path, 'fig2')):
+    print('loading cached group data')
+    dir = os.path.join(reproduce_figures_path, 'fig2')
+else:
+    dir = os.path.join(processed_data_path, 'for_figure')
+
+vs_outcome_data, vs_move_data = plot_average_trace_all_mice(vs_average_move_ax,  vs_average_outcome_ax, dir, 'Nacc', cmap=['#E95F32', '#F9C0AF'])
+ts_outcome_data, ts_move_data = plot_average_trace_all_mice(ts_average_move_ax,  ts_average_outcome_ax, dir, 'tail', cmap=['#002F3A', '#76A8DA'])
 
 makes_plots_pretty([vs_average_move_ax, ts_average_move_ax, vs_average_outcome_ax, ts_average_outcome_ax])
 plt.tight_layout()

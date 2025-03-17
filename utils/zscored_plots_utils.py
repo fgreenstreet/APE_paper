@@ -200,7 +200,7 @@ def get_all_mouse_data_for_site(site, dir=os.path.join(processed_data_path, 'for
     return data
 
 
-def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5]):
+def plot_average_trace_all_mice(move_ax, outcome_ax, dir, site, error_bar_method='sem', cmap=sns.color_palette("Set2"), x_range=[-1.5, 1.5]):
     """
     Plots the average trace across mice for movement (contra, ipsi) and outcome (reward, no reward) aligned data
     Args:
@@ -214,7 +214,7 @@ def plot_average_trace_all_mice(move_ax, outcome_ax, site, error_bar_method='sem
     Returns:
 
     """
-    all_data = get_all_mouse_data_for_site(site, file_ext='_new_mice_added_with_cues.npz')
+    all_data = get_all_mouse_data_for_site(site, dir=dir, file_ext='_new_mice_added_with_cues.npz')
     time_stamps = all_data['time_stamps']
     data = dict(all_data)
     del data['time_stamps'], data['cue']
