@@ -2,6 +2,7 @@ from utils.plotting_visuals import makes_plots_pretty, set_plotting_defaults
 from utils.tracking_analysis.head_angle_plotting_functions import *
 from set_global_params import camera_sample_rate
 from scipy.stats import ttest_1samp, shapiro
+from save_to_excel import save_ax_data_to_excel
 
 
 set_plotting_defaults(font_size=8)
@@ -15,7 +16,7 @@ all_tail_data, tail_quantile_data, shuffled_tail_quantile_data = load_tracking_d
 fig, axs = plt.subplots(2, 3, figsize=(8, 5))
 
 # Example mouse
-im, x, y, angles, cumsum_ang_vel, sigmoid_fit, example_quantile_data = load_example_mouse_movement_data()
+im, x, y, angles, cumsum_ang_vel, sigmoid_fit, example_quantile_data = load_example_mouse_movement_data(example_mouse='SNL_photo26', example_date='20200810')
 ax = axs[0, 0]
 ax.pcolor(im.mean(axis=2), cmap='Greys_r', rasterized=True)
 plot_one_trial_head_angle(angles, x[::2],y[::2], ax=ax)
@@ -40,6 +41,11 @@ plot_quantiles_formatted_data(example_quantile_data, "traces", ax=axs[0, 2])
 axs[0, 2].set_xlabel('time from leaving centre port (s)')
 axs[0, 2].set_ylabel('z-scored fluorescence')
 axs[0, 2].axvline(x=0, color='k')
+sh_path = os.path.join(spreadsheet_path, 'ED_fig5')
+traces_sh_fn = 'ED_fig5K_traces_example_mouse_quartiles.xlsx'
+if not os.path.exists(os.path.join(sh_path, traces_sh_fn)):
+    save_ax_data_to_excel(axs[0, 2], os.path.join(sh_path, traces_sh_fn))
+
 
 
 # CUMSUM ANG VEL BY QUANTILE
@@ -48,9 +54,17 @@ axs[1, 0].set_xlabel('time from entering choice port (s)')
 axs[1, 0].set_ylabel('head angle (degrees)')
 axs[1, 0].set_ylim(55, 115)
 axs[1, 0].set_xlim(-0.3, 0)
+turn_angle_sh_fn = 'ED_fig5L_turn_angle_example_mouse_quartiles.xlsx'
+if not os.path.exists(os.path.join(sh_path, turn_angle_sh_fn)):
+    save_ax_data_to_excel(axs[1, 0], os.path.join(sh_path, turn_angle_sh_fn))
+
 
 # APE size against max cumsum angular velocity per quantile
 make_quantile_scatter_plot(example_quantile_data, axs[1, 1])
+scatter_sh_fn = 'ED_fig5M_scatter_example_mouse_quartiles.xlsx'
+if not os.path.exists(os.path.join(sh_path, scatter_sh_fn)):
+    save_ax_data_to_excel(axs[1, 1], os.path.join(sh_path, scatter_sh_fn))
+
 
 # Summary plot and stats
 # Data for 'tail' site

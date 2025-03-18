@@ -16,7 +16,7 @@ from utils.kernel_regression.regression_plotting_utils import make_box_plot_with
 from utils.tracking_analysis.dlc_processing_utils import get_camera_trigger_times, find_nearest_trials
 from utils.stats import cohen_d_one_sample
 from utils.tracking_analysis.head_angle_plotting_functions import *
-from set_global_params import post_processed_tracking_data_path, processed_data_path
+from set_global_params import post_processed_tracking_data_path, processed_data_path, reproduce_figures_path, spreadsheet_path
 
 
 def create_box_plot_with_shuffles(all_sites_data, shuffle_compare_boxplot_ax, palette=['#FDC5AF', '#fc8d62', '#B6E2D4', '#66c2a5']):
@@ -68,6 +68,9 @@ def coefficient_ttest_barplot(tail_mouse_data, nacc_mouse_data, ax):
     tail_mouse_df = pd.DataFrame({'coefficient': tail_mouse_means, 'recording site': 'TS'})
     nacc_mouse_df = pd.DataFrame({'coefficient': nacc_mouse_means, 'recording site': 'VS'})
     all_df = pd.concat([nacc_mouse_df, tail_mouse_df])
+    spread_sheet_file = os.path.join(spreadsheet_path, 'ED_fig5', 'ED_fig5N_regression_coefs.csv')
+    if not os.path.exists(spread_sheet_file):
+        all_df.to_csv(spread_sheet_file)
     sns.barplot(data=all_df, x='recording site', y='coefficient', ax=ax, palette='Set2', errwidth=1, alpha=0.4)
     sns.swarmplot(data=all_df, x='recording site', y='coefficient', ax=ax, palette='Set2', size=5)
     ax.axhline(0, color='gray')
@@ -268,7 +271,7 @@ def plot_quantiles_formatted_data(formatted_data, key, sort_by='APE peaks', ax=N
                 mean_xs = mean_xs[np.logical_not(np.isnan(mean_xs))]
                 all_xs.append(mean_xs)
 
-            if plot_means:
+            if plot_means: # this is for stuff where the x axis is always time
                 if key == "traces":
                     time_points = (np.arange(len(mean_xs)) / 10000) - (len(mean_xs) / 10000 / 2)
                     ax.plot(time_points, mean_xs, color=colours[q], lw=1)
@@ -278,7 +281,7 @@ def plot_quantiles_formatted_data(formatted_data, key, sort_by='APE peaks', ax=N
                     else:
                         time_points = (np.arange(len(mean_xs)) / 30)
                     ax.plot(time_points, mean_xs, color=colours[q], lw=1)
-        else:
+        else: # here there is x and y data
             x_array = np.empty((num_trials, max(lengths)))
             x_array[:] = np.nan
             y_array = np.empty((num_trials, max(lengths)))
@@ -293,6 +296,7 @@ def plot_quantiles_formatted_data(formatted_data, key, sort_by='APE peaks', ax=N
             all_ys.append(mean_ys)
             if plot_means:
                 ax.plot(mean_xs, mean_ys, color=colours[q], lw=1)
+
 
 
 
@@ -314,7 +318,8 @@ def load_example_mouse_movement_data(example_mouse='SNL_photo26', example_date='
         quantile_data (pandas.core.frame.DataFrame): example mouse movement and dopamine data categorise into quartiles based on dopamine response size
     """
     # load example mouse data
-    save_out_folder = post_processed_tracking_data_path + example_mouse
+    repro_path = os.path.join(reproduce_figures_path, 'ED_fig5', 'movement_inside_task')
+    save_out_folder = os.path.join(repro_path, example_mouse)
     if not os.path.exists(save_out_folder):
         os.makedirs(save_out_folder)
     movement_param_file = os.path.join(save_out_folder,
@@ -327,9 +332,9 @@ def load_example_mouse_movement_data(example_mouse='SNL_photo26', example_date='
 
     # Load an image
     # first, extract a frame number corresponding to the start of the trajectory for the given trial
-    saving_folder = processed_data_path + example_mouse + '\\'
+    saving_folder = save_out_folder #processed_data_path + example_mouse + '\\'
     restructured_data_filename = example_mouse + '_' + example_date + '_' + 'restructured_data.pkl'
-    trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
+    trial_data = pd.read_pickle(os.path.join(saving_folder, restructured_data_filename))
     camera_triggers, trial_start_stamps = get_camera_trigger_times(example_mouse, example_date,
                                                                    'Two_Alternative_Choice')
 

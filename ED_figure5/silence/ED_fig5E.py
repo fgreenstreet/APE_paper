@@ -1,19 +1,27 @@
 import os
 import pandas as pd
-from set_global_params import processed_data_path
+from set_global_params import processed_data_path, reproduce_figures_path, spreadsheet_path
 from utils.box_plot_utils import *
 from utils.plotting import multi_conditions_plot
 from scipy.stats import ttest_rel
 from utils.stats import cohen_d_paired
-filename = os.path.join(processed_data_path, 'num_pokes_in_punishment.pkl')
+import shutil
 
-pre_silence_poke_count = pd.read_pickle(filename)
 
+repro_file = os.path.join(reproduce_figures_path, 'ED_fig5', 'ED_fig5E_pre_test_pairing_count.csv')
+if not os.path.exists(os.path.join(reproduce_figures_path, 'ED_fig5', 'ED_fig5E_pre_test_pairing_count.csv')):
+    old_filename = os.path.join(processed_data_path, 'num_pokes_in_punishment.pkl')
+    poke_count = pd.read_pickle(old_filename)
+    poke_count.to_csv(repro_file)
+spreadsheet_file = os.path.join(spreadsheet_path, 'ED_fig5', 'ED_fig5E_pre_test_pairing_count.csv')
+if not os.path.exists(spreadsheet_file):
+    shutil.copy(repro_file, spreadsheet_file)
+pre_silence_poke_count = pd.read_csv(repro_file)
 font = {'size': 8.5, 'family': 'sans-serif', 'sans-serif': ['Arial']}
 matplotlib.rc('font', **font)
 matplotlib.rcParams['pdf.fonttype'] = 42
 
-df_for_plot = pre_silence_poke_count.pivot(index='stimulus', columns='mouse', values='count')
+df_for_plot = pre_silence_poke_count.pivot(index='stimulus', columns='mouse', values='count').sort_index(ascending=False)
 
 fig, ax = plt.subplots(figsize=[1.5, 2])
 multi_conditions_plot(ax, df_for_plot, mean_linewidth=0)
