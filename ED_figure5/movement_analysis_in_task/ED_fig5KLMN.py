@@ -1,3 +1,5 @@
+import pandas as pd
+
 from utils.plotting_visuals import makes_plots_pretty, set_plotting_defaults
 from utils.tracking_analysis.head_angle_plotting_functions import *
 from set_global_params import camera_sample_rate
@@ -60,10 +62,11 @@ if not os.path.exists(os.path.join(sh_path, turn_angle_sh_fn)):
 
 
 # APE size against max cumsum angular velocity per quantile
-make_quantile_scatter_plot(example_quantile_data, axs[1, 1])
-scatter_sh_fn = 'ED_fig5M_scatter_example_mouse_quartiles.xlsx'
+x_data_scatter, y_data_scatter = make_quantile_scatter_plot(example_quantile_data, axs[1, 1])
+scatter_sh_fn = 'ED_fig5M_scatter_example_mouse_quartiles.csv'
 if not os.path.exists(os.path.join(sh_path, scatter_sh_fn)):
-    save_ax_data_to_excel(axs[1, 1], os.path.join(sh_path, scatter_sh_fn))
+    scatter_df = pd.DataFrame({'mean turns': x_data_scatter, 'fluorescence peak size': y_data_scatter})
+    scatter_df.to_csv(os.path.join(sh_path, scatter_sh_fn))
 
 
 # Summary plot and stats

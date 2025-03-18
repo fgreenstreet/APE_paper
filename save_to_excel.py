@@ -47,3 +47,33 @@ def save_ax_data_to_excel(ax, filename='figure_data.xlsx'):
     print(f"Data has been saved to {filename}")
 
     return
+
+
+def save_ax_scatter_data_to_excel(ax, filename='scatter_data.xlsx'):
+    """Extracts scatter plot data from a Matplotlib axis and saves it to an Excel file."""
+
+    # Create a new workbook and remove the default sheet
+    wb = Workbook()
+    wb.remove(wb.active)
+
+    # Create a sheet
+    sheet = wb.create_sheet(title='Scatter Data')
+    sheet.append(['Scatter Label', 'X Data', 'Y Data'])
+
+    # Iterate over all scatter plots in the axis
+    for i, collection in enumerate(ax.collections):  # Scatter plots are stored in ax.collections
+        try:
+            offsets = collection.get_offsets()  # Get scatter points
+            label = collection.get_label() if collection.get_label() != "_nolegend_" else f"Scatter {i + 1}"
+
+            for x, y in offsets:
+                sheet.append([label, x, y])
+
+        except Exception as e:
+            print(f"Skipping scatter {i} due to error: {e}")
+
+    # Save the workbook
+    wb.save(filename)
+    print(f"Scatter data has been saved to {filename}")
+
+    return

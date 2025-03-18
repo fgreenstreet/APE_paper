@@ -384,4 +384,5 @@ def make_quantile_scatter_plot(example_quantile_data, ax):
     ax.set_ylim([0, 4])
     ax.set_xlabel('max turn angle')
     ax.set_ylabel('fluorescence \n peak size')
+    return mean_turns, quantile_midpoints
 
