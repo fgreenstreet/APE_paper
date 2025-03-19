@@ -5,7 +5,8 @@ from utils.individual_trial_analysis_utils import ZScoredTraces, SessionData, He
 from set_global_params import experiment_record_path, processed_data_path
 import pickle
 import os
-from set_global_params import experiment_record_path, processed_data_path
+from set_global_params import experiment_record_path, processed_data_path, reproduce_figures_path
+import shutil
 
 
 def get_all_experimental_records():
@@ -111,10 +112,15 @@ def remove_manipulation_days(experiments):
 
 def remove_unsuitable_recordings(experiments):
     """
-    Removes specific recordings from certain analyses (due to bad signal, poor numbers of trials etc...)
+    Removes specific recordings from certain analyses
+    (due to mostly poor numbers of trials with clean beahviour
+     - clean behaviour means the mice did not go back and forth many times
+    between the ports as this becomes hard to align to)
     Most commonly used when running regressions for sessions early in training.
-    The regression which need decent numbers of behavioural events for each regressor,
-    which is not always possible early in training.
+    The regression needs decent numbers of behavioural events for each regressor,
+    otherwise there are no events to predict the signal from
+    This is not not always possible early in training as the mice have very unstereotyped behaviour,
+    so many trials have unclean behavioural events that do not follow the cue-> choice -> reward pattern.
     The same sessions are still included for plotting average traces as this is less dependent on number of events.)
     Args:
         experiments (pd.dataframe): all experiment records
@@ -129,7 +135,7 @@ def remove_unsuitable_recordings(experiments):
 
 def open_experiment(experiment_to_add):
     """
-    Opens an experiment (dataframe)
+    Opens an experiment (dataframe) This now does something very similar to open_one_experiment
     Args:
         experiment_to_add (pd.dataframe):
 
@@ -138,9 +144,9 @@ def open_experiment(experiment_to_add):
         trial_data (pd.dataframe): reformatted behavioural data
     """
     for index, experiment in experiment_to_add.iterrows():
-        saving_folder = processed_data_path + experiment['mouse_id'] + '\\'
+        saving_folder = os.path.join(processed_data_path, experiment['mouse_id'])
         restructured_data_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'restructured_data.pkl'
-        trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
+        trial_data = pd.read_pickle(os.path.join(saving_folder, restructured_data_filename))
         session_traces = SessionData(experiment['fiber_side'], experiment['recording_site'], experiment['mouse_id'], experiment['date'])
     return session_traces, trial_data
 
@@ -156,11 +162,44 @@ def open_one_experiment(experiment):
         session_traces (np.array): demodulated photometry signal
     """
     ## takes a row of a dataframe as input
-    saving_folder = processed_data_path + experiment['mouse_id'] + '\\'
+    saving_folder = os.path.join(processed_data_path, experiment['mouse_id'] )
     restructured_data_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'restructured_data.pkl'
-    trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
+    trial_data = pd.read_pickle(os.path.join(saving_folder, restructured_data_filename))
     session_traces = SessionData(experiment['fiber_side'], experiment['recording_site'], experiment['mouse_id'], experiment['date'])
     return trial_data, session_traces
+
+def open_experiment_just_behaviour(experiment_to_add, root_dir=processed_data_path):
+    """
+    Opens only the behaviour file for an experiment (dataframe)
+    Args:
+        experiment_to_add (pd.dataframe):
+
+    Returns:
+        trial_data (pd.dataframe): reformatted behavioural data
+    """
+    for index, experiment in experiment_to_add.iterrows():
+        saving_folder = os.path.join(root_dir, experiment['mouse_id'])
+        restructured_data_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'restructured_data.pkl'
+        trial_data = pd.read_pickle(os.path.join(saving_folder, restructured_data_filename))
+    return trial_data
+
+def copy_behaviour_to_folder_mouse_name(experiment_to_add, source_dir=processed_data_path, target_dir=reproduce_figures_path):
+    """
+    Copies the behavioural file over to a target directory (and makes a subfolder for the mouse there)
+    Args:
+        experiment_to_add (pd.dataframe):
+
+    Returns:
+    """
+    for index, experiment in experiment_to_add.iterrows():
+        origin_folder = os.path.join(source_dir, experiment['mouse_id'])
+        saving_folder = os.path.join(target_dir, experiment['mouse_id'])
+        if not os.path.exists(saving_folder):
+            os.makedirs(saving_folder)
+        restructured_data_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'restructured_data.pkl'
+        shutil.copy(os.path.join(origin_folder, restructured_data_filename),
+                    os.path.join(saving_folder, restructured_data_filename))
+    return
 
 
 def get_first_x_sessions(experiment_record, mouse_ids, site, x=3):
