@@ -105,5 +105,4 @@ makes_plots_pretty(np.array(
      perc_exp_move_ax, perc_exp_rew_ax]))
 make_example_figure(model_description_ax1, model_description_ax2)
 
-#plt.savefig('T:\\paper\\regression_model_reproduction.pdf', bbox_inches='tight')
 plt.show()

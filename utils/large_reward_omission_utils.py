@@ -8,7 +8,7 @@ import pandas as pd
 from scipy import stats
 from statsmodels.stats.multitest import multipletests
 from utils.plotting import calculate_error_bars
-from set_global_params import processed_data_path, fig4_plotting_colours, large_reward_omission_example_mice, daq_sample_rate
+from set_global_params import processed_data_path, fig4_plotting_colours, large_reward_omission_example_mice, daq_sample_rate, reproduce_figures_path, spreadsheet_path
 from utils.plotting_visuals import makes_plots_pretty
 from utils.plotting import multi_conditions_plot, output_significance_stars_from_pval
 from utils.stats import cohen_d_paired
@@ -84,7 +84,7 @@ def get_traces_and_reward_types(photometry_data, trial_data):
     return all_reward_type_data
 
 
-def plot_mean_trace_for_condition(ax, trial_type_info, time_points, key, error_bar_method=None, save_location=None, colourmap=None):
+def plot_mean_trace_for_condition(ax, site, trial_type_info, time_points, key, error_bar_method=None, save_location=None, colourmap=None):
     """
     Plots the average trace across trials for a single mouse for different values of a certain condition (e.g. reward amounts)
     Args:
@@ -116,25 +116,26 @@ def plot_mean_trace_for_condition(ax, trial_type_info, time_points, key, error_b
     else:
         colours = colourmap
 
-    all_time_points = decimate(time_points, 10)
-    start_plot = int(all_time_points.shape[0] / 2 - 2 * daq_sample_rate/10)
-    end_plot = int(all_time_points.shape[0] / 2 + 2 * daq_sample_rate/10)
-    time_points = all_time_points[start_plot: end_plot]
-
     for trial_type_indx, trial_type in enumerate(trial_types):
         rows = trial_type_info[(trial_type_info[condition] == trial_type)]
         traces = rows['traces'].values
         flat_traces = np.zeros([traces.shape[0], traces[0].shape[0]])
         for idx, trace in enumerate(traces):
             flat_traces[idx, :] = trace
-        mean_trace = decimate(np.mean(flat_traces, axis=0), 10)[start_plot:end_plot]
+        subfig = 'C' if site == 'tail' else 'E'
+        csv_file = os.path.join(spreadsheet_path, 'ED_fig7', f'EDfig7{subfig}_{trial_type}_traces_{site}.csv')
+        if not os.path.exists(csv_file):
+            df_for_spreadsheet = pd.DataFrame(flat_traces.T)
+            df_for_spreadsheet.insert(0, "Timepoints", time_points)
+            df_for_spreadsheet.to_csv(csv_file)
+        mean_trace = np.mean(flat_traces, axis=0)
         ax.plot(time_points, mean_trace, lw=1.5, color=colours[trial_type_indx], label=trial_type)
         if error_bar_method is not None:
             # bootstrapping takes a long time. calculate once and save:
             filename = 'errors_clipped_short_{}_{}_{}.npz'.format(mouse, key, trial_type)
             if not os.path.isfile(os.path.join(save_location, filename)):
                 error_bar_lower, error_bar_upper = calculate_error_bars(mean_trace,
-                                                                    decimate(flat_traces, 10)[:, start_plot:end_plot],
+                                                                    flat_traces,
                                                                     error_bar_method=error_bar_method)
                 np.savez(os.path.join(save_location, filename), error_bar_lower=error_bar_lower,
                          error_bar_upper=error_bar_upper)
@@ -150,6 +151,7 @@ def plot_mean_trace_for_condition(ax, trial_type_info, time_points, key, error_b
     ax.set_xlim([-2, 2])
     ax.set_xlabel('time (s)')
     ax.set_ylabel('z-scored fluorescence')
+
 
 
 def get_processed_data_for_example_mouse(mouse_name, site_data):
@@ -168,7 +170,7 @@ def get_processed_data_for_example_mouse(mouse_name, site_data):
     return all_trials, time_points
 
 
-def make_example_traces_plot(site, site_data):
+def make_example_traces_plot(site):
     """
     Maks plot with traces for different reward amounts aligned to outcome for a recording site
     Args:
@@ -179,11 +181,15 @@ def make_example_traces_plot(site, site_data):
 
     """
     mouse_name = large_reward_omission_example_mice[site]
-    all_trials, time_points = get_processed_data_for_example_mouse(mouse_name, site_data)
+    repro_path = os.path.join(reproduce_figures_path, 'ED_fig7', 'omissions_large_rewards')
+    repro_example_file = os.path.join(repro_path,
+                                      f'omissions_large_rewards_downsampled_traces_example_{site}_{mouse_name}.pkl')
+    data = pd.read_pickle(repro_example_file)
+    all_trials, time_points = get_processed_data_for_example_mouse(mouse_name, data)
     processed_data_dir = os.path.join(processed_data_path, 'large_rewards_omissions_data')
 
     fig, ax = plt.subplots(1, 1, figsize=[2.2, 2])
-    plot_mean_trace_for_condition(ax, all_trials, time_points,
+    plot_mean_trace_for_condition(ax, site, all_trials, time_points,
                                   'reward', error_bar_method='sem', save_location=processed_data_dir,
                                   colourmap=fig4_plotting_colours[site])
     lg1 = ax.legend(loc='lower left', bbox_to_anchor=(0.6, 0.8), borderaxespad=0, frameon=False, prop={'size': 6})
@@ -202,12 +208,28 @@ def get_unexpected_reward_change_data_for_site(site):
         all_reward_block_data (pd.dataframe): photometry and behavioural data
     """
     processed_data_dir = os.path.join(processed_data_path, 'large_rewards_omissions_data')
-    block_data_file = os.path.join(processed_data_dir, 'all_{}_reward_change_data.csv'.format(site))
+    block_data_file = os.path.join(processed_data_dir, 'all_{}_reward_change_data.pkl'.format(site))
     all_reward_block_data = pd.read_pickle(block_data_file)
     return all_reward_block_data
 
 
-def compare_peaks_across_trial_types(site_data, colour='gray'):
+def get_unexpected_reward_change_data_for_site_for_plotting(site):
+    """
+    Gets behavioural and photometry data for unexpected reward change experiment
+    Args:
+        site (str): recording site (Nacc or tail)
+
+    Returns:
+        all_reward_block_data (pd.dataframe): photometry and behavioural data
+        (much reduced in size due to downsampling traces)
+    """
+    repro_path = os.path.join(reproduce_figures_path, 'ED_fig7', 'omissions_large_rewards')
+    repro_file = os.path.join(repro_path, f'omissions_large_rewards_downsampled_traces_peaks_{site}.pkl')
+    all_reward_block_data = pd.read_pickle(repro_file)
+    return all_reward_block_data
+
+
+def compare_peaks_across_trial_types(avg_traces, colour='gray'):
     """
     Compares peak response size for different reward amounts
     Args:
@@ -218,18 +240,6 @@ def compare_peaks_across_trial_types(site_data, colour='gray'):
     Returns:
 
     """
-    # find mean traces and down sample
-    avg_traces = site_data.groupby(['mouse', 'reward'])['traces'].apply(np.mean)
-    decimated = [decimate(trace[int(len(trace)/2):], 10) for trace in avg_traces]
-    avg_traces = avg_traces.reset_index()
-    avg_traces['decimated'] = pd.Series([_ for _ in decimated])
-
-    first_peak_ids = [peakutils.indexes(i)[0] for i in avg_traces['decimated']]
-    avg_traces['peakidx'] = first_peak_ids
-    peaks = [np.mean(trace[:600]) for idx, trace in zip(first_peak_ids, avg_traces['decimated'])]
-    avg_traces['peak'] = peaks
-    avg_traces.set_index(['mouse', 'reward'])
-
     normal_peak = avg_traces[avg_traces['reward'] == 'normal']['peak']
     large_reward_peak = avg_traces[avg_traces['reward'] =='large reward']['peak']
     omission_peak = avg_traces[avg_traces['reward'] =='omission']['peak']
@@ -267,3 +277,4 @@ def compare_peaks_across_trial_types(site_data, colour='gray'):
     ax.text(1.5, y+h+l, significance_stars2, ha='center', fontsize=8)
     ax.set_ylim([-1, 3.4])
     plt.tight_layout()
+    return df1

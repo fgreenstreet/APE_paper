@@ -6,12 +6,12 @@ from utils.large_reward_omission_utils import get_traces_and_reward_types
 
 site = 'tail' # or 'Nacc'
 exp_name = 'large_rewards_omissions'
-mice = ['SNL_photo21']#large_reward_omission_mice[site]
+mice = large_reward_omission_mice[site]
 processed_data_dir = os.path.join(processed_data_path, 'large_rewards_omissions_data')
 if not os.path.exists(processed_data_dir):
     os.makedirs(processed_data_dir)
 all_experiments = get_all_experimental_records()
-processed_data_file = os.path.join(processed_data_dir, 'all_{}_reward_change_data.csv'.format(site))
+processed_data_file = os.path.join(processed_data_dir, 'all_{}_reward_change_data.pkl'.format(site))
 
 for mouse_num, mouse_id in enumerate(mice):
     sessions = all_experiments[
