@@ -62,8 +62,9 @@ def make_example_plot(site):
         traces = decimate(aligned_data.contra_data.sorted_traces, 10)[:, start_plot: end_plot]
 
         traces_pre_df = pd.DataFrame(index=time_points, data=traces[trials_pre_state_change, :].T)
+        traces_pre_df.index.name = 'Timepoints'
         traces_post_df = pd.DataFrame(index=time_points, data=traces[trials_post_state_change, :].T)
-
+        traces_post_df.index.name = 'Timepoints'
         traces_pre_df.to_csv(traces_pre_fn)
         traces_post_df.to_csv(traces_post_fn)
     else:

@@ -95,9 +95,11 @@ heatmap_data = [decimate(hm, 50, axis=-1) for hm in heatmap_data]
 areas = ['VS'] * 2 + ['TS'] * 2
 sides = ['ipsi', 'contra'] * 2
 for i, hm in enumerate(heatmap_data):
-    fn = f'heatmap_data_{areas[i]}_{sides[i]}.csv'
+    fn = f'fig2D_heatmap_data_{areas[i]}_{sides[i]}.csv'
     fp = os.path.join(spreadsheet_folder, fn)
-    np.savetxt(fp, hm)
+    hm_df = pd.DataFrame(hm.T)
+    hm_df.columns = [f'Trial_{i}' for i in range(hm_df.shape[1])]
+    hm_df.to_csv(fp)
 
 # get average traces across mice
 if os.path.exists(os.path.join(reproduce_figures_path, 'fig2')):
@@ -120,28 +122,28 @@ vs_outcome_df['time'] = ds(vs_outcome_data['time'])
 for m in range(vs_outcome_data['data'][0].shape[0]):
     vs_outcome_df[f'reward_m{m}'] = ds(vs_outcome_data['data'][0][m])
     vs_outcome_df[f'no_reward_m{m}'] = ds(vs_outcome_data['data'][1][m])
-vs_outcome_df.to_csv(os.path.join(spreadsheet_folder, 'vs_outcome_avg_traces.csv'))
+vs_outcome_df.to_csv(os.path.join(spreadsheet_folder, 'fig2E_vs_outcome_avg_traces.csv'))
 
 vs_move_df = pd.DataFrame()
 vs_move_df['time'] = ds(vs_move_data['time'])
 for m in range(vs_move_data['data'][0].shape[0]):
     vs_move_df[f'contra_m{m}'] = ds(vs_move_data['data'][0][m])
     vs_move_df[f'ipsi_m{m}'] = ds(vs_move_data['data'][1][m])
-vs_move_df.to_csv(os.path.join(spreadsheet_folder, 'vs_move_avg_traces.csv'))
+vs_move_df.to_csv(os.path.join(spreadsheet_folder, 'fig2E_vs_move_avg_traces.csv'))
 
 ts_outcome_df = pd.DataFrame()
 ts_outcome_df['time'] = ds(ts_outcome_data['time'])
 for m in range(vs_outcome_data['data'][0].shape[0]):
     ts_outcome_df[f'reward_m{m}'] = ds(ts_outcome_data['data'][0][m])
     ts_outcome_df[f'noreward_m{m}'] = ds(ts_outcome_data['data'][1][m])
-ts_outcome_df.to_csv(os.path.join(spreadsheet_folder, 'ts_outcome_avg_traces.csv'))
+ts_outcome_df.to_csv(os.path.join(spreadsheet_folder, 'fig2E_ts_outcome_avg_traces.csv'))
 
 ts_move_df = pd.DataFrame()
 ts_move_df['time'] = ds(ts_move_data['time'])
 for m in range(ts_move_data['data'][0].shape[0]):
     ts_move_df[f'contra_m{m}'] = ds(ts_move_data['data'][0][m])
     ts_move_df[f'ipsi_m{m}'] = ds(ts_move_data['data'][1][m])
-ts_move_df.to_csv(os.path.join(spreadsheet_folder, 'ts_move_avg_traces.csv'))
+ts_move_df.to_csv(os.path.join(spreadsheet_folder, 'fig2E_ts_move_avg_traces.csv'))
 
 
 #plt.savefig(os.path.join(figure_directory, 'average_traces_figure_with_ttests.pdf'), transparent=True, bbox_inches='tight')

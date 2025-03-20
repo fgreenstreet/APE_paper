@@ -5,6 +5,7 @@ from matplotlib.colors import ListedColormap
 import matplotlib.colors
 import numpy as np
 import matplotlib
+import pandas as pd
 import cmocean as cmo
 import os
 from scipy.signal import decimate
@@ -71,6 +72,9 @@ heatmap_data = [decimate(hm, 50, axis=-1) for hm in heatmap_data]
 for i, hm in enumerate(heatmap_data):
     fn = f'ED_fig4F_heatmap_data_{areas[i]}_cue_aligned.csv'
     fp = os.path.join(spreadsheet_folder, fn)
+    hm_df = pd.DataFrame(hm.T)
+    hm_df.columns = [f'Trial_{i}' for i in range(hm_df.shape[1])]
+    hm_df.to_csv(fp)
     np.savetxt(fp, hm)
 plt.tight_layout()
 plt.show()
