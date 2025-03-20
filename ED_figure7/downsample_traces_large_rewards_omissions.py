@@ -10,6 +10,7 @@ import os
 
 """
 reformat_unexpected_large_rewards_omissions.py saves much too big files for easy distribution
+- it's both too high res and more time points than we'll ever need
 so here we reduce to what is necessary for the figures
 """
 sites = ['Nacc', 'tail']
@@ -18,11 +19,17 @@ for site in sites:
     # downsample traces and save out downsampled traces from time of reward/ omission only (to make files smaller)
     site_data = get_unexpected_reward_change_data_for_site(site)
     avg_traces = site_data.groupby(['mouse', 'reward'])['traces'].apply(np.mean)
-    decimated = [decimate(trace[int(len(trace)/2):], 10) for trace in avg_traces] # takes from time of reward/ omisison only
+    # takes from time of reward/ omisison only
+    decimated = [decimate(trace[int(len(trace)/2):], 10) for trace in avg_traces]
     avg_traces = avg_traces.reset_index()
     avg_traces['decimated'] = pd.Series([_ for _ in decimated])
     first_peak_ids = [peakutils.indexes(i)[0] for i in avg_traces['decimated']]
     avg_traces['peakidx'] = first_peak_ids
+    # we get DA reponses slightly differently here than for cue/ movement
+    # cue/ movement responses are normally peaks (increases in signal from the previous timepoints)
+    # Because we have omissions here there are dips (you see it in the average traces)
+    # so it's not appropriate to use peakutils in the way we use it for cue/ movement responses
+    # We went for the easiest option of just finding the mean of the initial DA response
     peaks = [np.mean(trace[:600]) for idx, trace in zip(first_peak_ids, avg_traces['decimated'])]
     avg_traces['peak'] = peaks
     avg_traces.set_index(['mouse', 'reward'])

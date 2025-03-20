@@ -9,7 +9,7 @@ from scipy import stats
 from utils.individual_trial_analysis_utils import SessionData, get_photometry_around_event, get_next_centre_poke, get_peak_each_trial, get_peak_each_trial_with_nans, get_next_reward_time, HeatMapParams
 from utils.plotting import calculate_error_bars
 import os
-from set_global_params import experiment_record_path, processed_data_path
+from set_global_params import experiment_record_path, processed_data_path, spreadsheet_path
 from utils.post_processing_utils import open_experiment, open_one_experiment
 
 
@@ -256,7 +256,7 @@ def one_session_get_block_changes(mouse_id, date, block_types):
     return block_change_info, timepoints
 
 
-def plot_mean_trace_for_condition(ax, block_change_info, time_points, key, error_bar_method=None, save_location=None):
+def plot_mean_trace_for_condition(ax, site, block_change_info, time_points, key, error_bar_method=None, save_location=None):
     mouse = block_change_info['mouse'].iloc[0]
     if key == 'contra reward amount':
         condition = 'abs'
@@ -269,10 +269,6 @@ def plot_mean_trace_for_condition(ax, block_change_info, time_points, key, error
 
     reward_amounts = np.sort(block_change_info[key].unique())
     colours = cm.inferno(np.linspace(0, 0.8, reward_amounts.shape[0]))
-    all_time_points = decimate(time_points, 10)
-    start_plot = int(all_time_points.shape[0] / 2 - 2 * 1000)
-    end_plot = int(all_time_points.shape[0] / 2 + 2 * 1000)
-    time_points = all_time_points[start_plot: end_plot]
 
     for reward_indx, reward_amount in enumerate(reward_amounts):
         rows = block_change_info[(block_change_info[key] == reward_amount)]
@@ -280,23 +276,34 @@ def plot_mean_trace_for_condition(ax, block_change_info, time_points, key, error
         flat_traces = np.zeros([traces.shape[0], traces[0].shape[0]])
         for idx, trace in enumerate(traces):
             flat_traces[idx, :] = trace
-        mean_trace = decimate(np.mean(flat_traces, axis=0), 10)[start_plot:end_plot]
+        subfig = 'I' if site == 'tail' else 'K'
+        csv_file = os.path.join(spreadsheet_path, 'ED_fig7', f'EDfig7{subfig}_reward_amount_{reward_amount}_traces_{site}.csv')
+        if not os.path.exists(csv_file):
+            df_for_spreadsheet = pd.DataFrame(flat_traces.T)
+            df_for_spreadsheet.insert(0, "Timepoints", time_points)
+            df_for_spreadsheet.to_csv(csv_file)
+        mean_trace = np.mean(flat_traces, axis=0)
         ax.plot(time_points, mean_trace, lw=1.5, color=colours[reward_indx], label=reward_amount)
 
         if error_bar_method is not None:
             # bootstrapping takes a long time. calculate once and save:
             filename = 'errors_{}_{}_{}_clipped.npz'.format(mouse, condition, int(reward_amount))
-            if not os.path.isfile(os.path.join(save_location, filename)):
+            if save_location is None:
                 error_bar_lower, error_bar_upper = calculate_error_bars(mean_trace,
-                                                                    decimate(flat_traces, 10)[:, start_plot:end_plot],
-                                                                    error_bar_method=error_bar_method)
-                np.savez(os.path.join(save_location, filename), error_bar_lower=error_bar_lower,
-                         error_bar_upper=error_bar_upper)
+                                                                        flat_traces,
+                                                                        error_bar_method=error_bar_method)
             else:
-                print('loading')
-                error_info = np.load(os.path.join(save_location, filename))
-                error_bar_lower = error_info['error_bar_lower']
-                error_bar_upper = error_info['error_bar_upper']
+                if not os.path.isfile(os.path.join(save_location, filename)):
+                    error_bar_lower, error_bar_upper = calculate_error_bars(mean_trace,
+                                                                        flat_traces,
+                                                                        error_bar_method=error_bar_method)
+                    np.savez(os.path.join(save_location, filename), error_bar_lower=error_bar_lower,
+                             error_bar_upper=error_bar_upper)
+                else:
+                    print('loading')
+                    error_info = np.load(os.path.join(save_location, filename))
+                    error_bar_lower = error_info['error_bar_lower']
+                    error_bar_upper = error_info['error_bar_upper']
             ax.fill_between(time_points, error_bar_lower, error_bar_upper, alpha=0.5,
                              facecolor=colours[reward_indx], linewidth=0)
 
@@ -304,9 +311,6 @@ def plot_mean_trace_for_condition(ax, block_change_info, time_points, key, error
     ax.set_xlim([-2, 2])
     ax.set_xlabel('time (s)')
     ax.set_ylabel('z-scored fluorescence')
-    #keys.set_title(key)
-    #lg = keys.legend(title=leg_title, bbox_to_anchor=(1., 1.), fontsize=14)
-    #lg.get_title().set_fontsize(14)
 
 
 def plot_mean_trace_for_condition_value_switch(ax, block_change_info, time_points, key, session_id, possible_values, error_bar_method=None, save_location=None):

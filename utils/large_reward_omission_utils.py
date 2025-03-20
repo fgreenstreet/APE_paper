@@ -133,17 +133,22 @@ def plot_mean_trace_for_condition(ax, site, trial_type_info, time_points, key, e
         if error_bar_method is not None:
             # bootstrapping takes a long time. calculate once and save:
             filename = 'errors_clipped_short_{}_{}_{}.npz'.format(mouse, key, trial_type)
-            if not os.path.isfile(os.path.join(save_location, filename)):
+            if save_location is None:
                 error_bar_lower, error_bar_upper = calculate_error_bars(mean_trace,
-                                                                    flat_traces,
-                                                                    error_bar_method=error_bar_method)
-                np.savez(os.path.join(save_location, filename), error_bar_lower=error_bar_lower,
-                         error_bar_upper=error_bar_upper)
+                                                                        flat_traces,
+                                                                        error_bar_method=error_bar_method)
             else:
-                print('loading error bars')
-                error_info = np.load(os.path.join(save_location, filename))
-                error_bar_lower = error_info['error_bar_lower']
-                error_bar_upper = error_info['error_bar_upper']
+                if not os.path.isfile(os.path.join(save_location, filename)):
+                    error_bar_lower, error_bar_upper = calculate_error_bars(mean_trace,
+                                                                            flat_traces,
+                                                                            error_bar_method=error_bar_method)
+                    np.savez(os.path.join(save_location, filename), error_bar_lower=error_bar_lower,
+                             error_bar_upper=error_bar_upper)
+                else:
+                    print('loading')
+                    error_info = np.load(os.path.join(save_location, filename))
+                    error_bar_lower = error_info['error_bar_lower']
+                    error_bar_upper = error_info['error_bar_upper']
             ax.fill_between(time_points, error_bar_lower, error_bar_upper, alpha=0.5,
                              facecolor=colours[trial_type_indx], linewidth=0)
 
@@ -175,8 +180,6 @@ def make_example_traces_plot(site):
     Maks plot with traces for different reward amounts aligned to outcome for a recording site
     Args:
         site (str): Recording site (Nacc or tail)
-        site_data (pd.Dataframe): behavioural and trace data for trials of different reward amounts, for multiple mice,
-            all recorded at the same site
     Returns:
 
     """
@@ -186,11 +189,10 @@ def make_example_traces_plot(site):
                                       f'omissions_large_rewards_downsampled_traces_example_{site}_{mouse_name}.pkl')
     data = pd.read_pickle(repro_example_file)
     all_trials, time_points = get_processed_data_for_example_mouse(mouse_name, data)
-    processed_data_dir = os.path.join(processed_data_path, 'large_rewards_omissions_data')
 
     fig, ax = plt.subplots(1, 1, figsize=[2.2, 2])
     plot_mean_trace_for_condition(ax, site, all_trials, time_points,
-                                  'reward', error_bar_method='sem', save_location=processed_data_dir,
+                                  'reward', error_bar_method='sem', save_location=None,
                                   colourmap=fig4_plotting_colours[site])
     lg1 = ax.legend(loc='lower left', bbox_to_anchor=(0.6, 0.8), borderaxespad=0, frameon=False, prop={'size': 6})
     ax.set_ylim([-1.5, 4.1])
@@ -233,7 +235,8 @@ def compare_peaks_across_trial_types(avg_traces, colour='gray'):
     """
     Compares peak response size for different reward amounts
     Args:
-        site_data (pd.Dataframe): behavioural and trace data for trials of different reward amounts, for multiple mice,
+        avg_traces (pd.Dataframe): behavioural and trace data and extracted peak (or dip)
+            responses avg across trials of different reward amounts, for multiple mice,
             all recorded at the same site
         colour (str): colour for lines in plot
 
