@@ -44,14 +44,14 @@ ant_t_outcome_df['time'] = ds(ant_t_outcome_data['time'])
 for m in range(ant_t_outcome_data['data'][0].shape[0]):
     ant_t_outcome_df[f'reward_m{m}'] = ds(ant_t_outcome_data['data'][0][m])
     ant_t_outcome_df[f'no_reward_m{m}'] = ds(ant_t_outcome_data['data'][1][m])
-ant_t_outcome_df.to_csv(os.path.join(spreadsheet_folder, 'ant_t_outcome_avg_traces.csv'))
+ant_t_outcome_df.to_csv(os.path.join(spreadsheet_folder, 'ED_fig4O_ant_t_outcome_avg_traces.csv'))
 
 ant_t_move_df = pd.DataFrame()
 ant_t_move_df['time'] = ds(ant_t_move_data['time'])
 for m in range(ant_t_move_data['data'][0].shape[0]):
     ant_t_move_df[f'contra_m{m}'] = ds(ant_t_move_data['data'][0][m])
     ant_t_move_df[f'ipsi_m{m}'] = ds(ant_t_move_data['data'][1][m])
-ant_t_move_df.to_csv(os.path.join(spreadsheet_folder, 'ant_t_move_avg_traces.csv'))
+ant_t_move_df.to_csv(os.path.join(spreadsheet_folder, 'ED_fig4N_ant_t_move_avg_traces.csv'))
 
 
 plt.show()

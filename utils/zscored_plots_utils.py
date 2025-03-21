@@ -295,7 +295,9 @@ def plot_average_trace_all_mice_high_low_cues(ax, site, error_bar_method='sem', 
             axs[trace_type].fill_between(time_points, error_bar_lower, error_bar_upper, alpha=0.5,
                                  facecolor=colours[trace_type], linewidth=0)
 
-        spreadsheet_file = os.path.join(spreadsheet_path, 'ED_fig4', f'ED_fig4_{site}_{trace_type}_traces_CDE.csv')
+        subfig_num = 'H' if site == 'tail' else 'I'
+        spreadsheet_file = os.path.join(spreadsheet_path, 'ED_fig4',
+                                        f'ED_fig4{subfig_num}_{site}_{trace_type}_traces.csv')
         if not os.path.exists(spreadsheet_file):
             df_for_spreadsheet = pd.DataFrame(traces.T)
             df_for_spreadsheet.insert(0, "Timepoints", time_points)
@@ -352,7 +354,8 @@ def plot_average_trace_all_mice_cue_move_rew(cue_ax, move_ax, outcome_ax, error_
                                                                         error_bar_method=error_bar_method)
                 axs[trace_type].fill_between(time_points, error_bar_lower, error_bar_upper, alpha=0.5,
                                      facecolor=colours[trace_type], linewidth=0)
-            spreadsheet_file = os.path.join(spreadsheet_path, 'ED_fig4', f'ED_fig4_{site}_{trace_type}_traces_CDE.csv')
+            subfig_nums = {'cue': 'C', 'contra_choice': 'D', 'reward': 'E'}
+            spreadsheet_file = os.path.join(spreadsheet_path, 'ED_fig4', f'ED_fig4{subfig_nums[trace_type]}_{site}_{trace_type}_traces.csv')
             if not os.path.exists(spreadsheet_file):
                 df_for_spreadsheet = pd.DataFrame(traces.T)
                 df_for_spreadsheet.insert(0, "Timepoints", time_points)

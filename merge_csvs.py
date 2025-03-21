@@ -17,12 +17,13 @@ def create_excel_files_from_folders(root_folder):
         # Full path to this figure folder
         figure_path = os.path.join(root_folder, figure_folder)
 
-        # Get all CSV and XLSX files in this figure folder
-        csv_files = glob.glob(os.path.join(figure_path, "*.csv"))
-        xlsx_files = glob.glob(os.path.join(figure_path, "*.xlsx"))
+        # Get all CSV and XLSX files, and sort them together
+        all_files = glob.glob(os.path.join(figure_path, "*.csv")) + \
+                    glob.glob(os.path.join(figure_path, "*.xlsx"))
+        all_files.sort(key=lambda x: os.path.basename(x).lower())  # Case-insensitive sort
 
-        # Skip if no CSV or XLSX files found
-        if not csv_files and not xlsx_files:
+        # Skip if no files found
+        if not all_files:
             print(f"No CSV or XLSX files found in {figure_folder}, skipping...")
             continue
 
@@ -31,49 +32,38 @@ def create_excel_files_from_folders(root_folder):
 
         # Create Excel writer object
         with pd.ExcelWriter(output_excel_file, engine='openpyxl') as writer:
-            # Process CSV files
-            for csv_file in csv_files:
-                sheet_name = os.path.basename(csv_file).split('.')[0]
+            for file_path in all_files:
+                file_ext = os.path.splitext(file_path)[1].lower()
 
                 try:
-                    df = pd.read_csv(csv_file)
-
-                    # Log empty files
-                    if df.empty:
-                        log_empty_file(csv_file)
-
-                    # Excel has a 31-character limit for sheet names
-                    if len(sheet_name) > 31:
-                        sheet_name = sheet_name[:31]
-
-                    # Write to Excel
-                    df.to_excel(writer, sheet_name=sheet_name, index=False)
-                    print(f"Added {sheet_name} from CSV to {output_excel_file}")
-                except Exception as e:
-                    print(f"Error processing {csv_file}: {e}")
-
-            # Process XLSX files
-            for xlsx_file in xlsx_files:
-                try:
-                    xls = pd.ExcelFile(xlsx_file)
-
-                    for sheet in xls.sheet_names:
-                        df = xls.parse(sheet)
-
-                        # Log empty files
+                    if file_ext == '.csv':
+                        df = pd.read_csv(file_path)
                         if df.empty:
-                            log_empty_file(xlsx_file)
+                            log_empty_file(file_path)
 
-                        # Excel sheet name limitation
-                        sheet_name = f"{os.path.basename(xlsx_file).split('.')[0]}_{sheet}"
+                        sheet_name = os.path.basename(file_path).split('.')[0]
                         if len(sheet_name) > 31:
                             sheet_name = sheet_name[:31]
 
                         df.to_excel(writer, sheet_name=sheet_name, index=False)
-                        print(f"Added {sheet_name} from XLSX to {output_excel_file}")
+                        print(f"Added {sheet_name} from CSV to {output_excel_file}")
+
+                    elif file_ext == '.xlsx':
+                        xls = pd.ExcelFile(file_path)
+                        for sheet in xls.sheet_names:
+                            df = xls.parse(sheet)
+                            if df.empty:
+                                log_empty_file(f"{file_path} - sheet: {sheet}")
+
+                            sheet_name = f"{os.path.basename(file_path).split('.')[0]}_{sheet}"
+                            if len(sheet_name) > 31:
+                                sheet_name = sheet_name[:31]
+
+                            df.to_excel(writer, sheet_name=sheet_name, index=False)
+                            print(f"Added {sheet_name} from XLSX to {output_excel_file}")
 
                 except Exception as e:
-                    print(f"Error processing {xlsx_file}: {e}")
+                    print(f"Error processing {file_path}: {e}")
 
         print(f"Successfully created Excel file: {output_excel_file}")
 
