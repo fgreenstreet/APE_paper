@@ -208,8 +208,8 @@ def get_all_mice_average_data_high_low_cues(experiments_to_process, time_range=(
 
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
         df = experiments_to_process[experiments_to_process.mouse_id == mouse]
-        data_dir = processed_data_path + 'for_figure\\' + mouse + '\\'
-        trial_data_folder = processed_data_path + mouse + '\\'
+        data_dir = os.path.join(processed_data_path, 'for_figure', mouse)
+        trial_data_folder = os.path.join(processed_data_path, mouse)
         fiber_side = df['fiber_side'].values[0]
         if fiber_side == 'left':
             contra_cue = 'low'
@@ -222,9 +222,9 @@ def get_all_mice_average_data_high_low_cues(experiments_to_process, time_range=(
 
         for date in df['date']:
             restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
-            trial_data = pd.read_pickle(trial_data_folder + restructured_data_filename)
+            trial_data = pd.read_pickle(os.path.join(trial_data_folder, restructured_data_filename))
             filename = mouse + '_' + date + '_' + 'aligned_traces_for_fig.p'
-            with open(data_dir + filename, 'rb') as f:
+            with open(os.path.join(data_dir, filename), 'rb') as f:
                 session_data = pickle.load(f)
                 time_mask = (session_data.cue_data.high_cue_data.time_points >= time_range[0]) & (session_data.cue_data.high_cue_data.time_points <= time_range[-1])
                 contra_trial_nums = session_data.choice_data.contra_data.trial_nums

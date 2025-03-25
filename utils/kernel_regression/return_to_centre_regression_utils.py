@@ -42,7 +42,7 @@ def run_regression_return_to_centre_one_mouse_one_session(mouse, date, duration_
 
     num_samples = downsampled_zscored_dff.shape[0]
     aligned_filename = mouse + '_' + date + '_' + 'behavioural_events_with_no_rewards_all_cues_matched_trials.p'
-    save_filename = events_folder + aligned_filename
+    save_filename = os.path.join(events_folder, aligned_filename)
     example_session_data = pickle.load(open(save_filename, "rb"))
 
     ipsi_choices = convert_behavioural_timestamps_into_samples(example_session_data.choice_data.ipsi_data.event_times,
@@ -176,10 +176,10 @@ def run_regression_return_to_centre_one_mouse_one_session_trimmed_traces(mouse, 
         time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times_300frame_window_long_turns.npz'.format(mouse, date)
         return_to_centre_timestamps = np.load(os.path.join(dlc_save_dir, time_stamp_save_file))
 
-    saving_folder = processed_data_path + mouse + '\\'
-    events_folder = processed_data_path + mouse + '\\linear_regression\\'
+    saving_folder = os.path.join(processed_data_path, mouse)
+    events_folder = os.path.join(processed_data_path, mouse, 'linear_regression')
     dff_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
-    dff = np.load(saving_folder + dff_trace_filename)
+    dff = np.load(os.path.join(saving_folder, dff_trace_filename))
 
     rolling_zscored_dff = rolling_zscore(pd.Series(dff), window=window_size_seconds * sample_rate)
     downsampled_zscored_dff = decimate(
@@ -188,7 +188,7 @@ def run_regression_return_to_centre_one_mouse_one_session_trimmed_traces(mouse, 
 
     num_samples = downsampled_zscored_dff.shape[0]
     aligned_filename = mouse + '_' + date + '_' + 'behavioural_events_with_no_rewards_all_cues_matched_trials.p'
-    save_filename = events_folder + aligned_filename
+    save_filename = os.path.join(events_folder, aligned_filename)
     example_session_data = pickle.load(open(save_filename, "rb"))
 
     ipsi_choices = convert_behavioural_timestamps_into_samples(example_session_data.choice_data.ipsi_data.event_times,
@@ -272,10 +272,10 @@ def run_regression_one_mouse_one_session_no_return_no_trim(experiment):
     mouse = experiment['mouse_id']
     date = experiment['date']
     print('proccessing' + mouse + date)
-    saving_folder = processed_data_path + mouse + '\\'
-    events_folder = processed_data_path + mouse + '\\linear_regression\\'
+    saving_folder = os.path.join(processed_data_path, mouse)
+    events_folder = os.path.join(processed_data_path, mouse, 'linear_regression')
     dff_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
-    dff = np.load(saving_folder + dff_trace_filename)
+    dff = np.load(os.path.join(saving_folder, dff_trace_filename))
 
     window_size_seconds = 10
     sample_rate = 10000
@@ -288,7 +288,7 @@ def run_regression_one_mouse_one_session_no_return_no_trim(experiment):
 
     num_samples = downsampled_zscored_dff.shape[0]
     aligned_filename = mouse + '_' + date + '_' + 'behavioural_events_with_no_rewards_all_cues_matched_trials.p'#'behavioural_events_with_no_rewards_added_matched_trials.py' #'behavioural_events_with_no_rewards_added_not_cleaned.py' #'behavioural_events_with_no_rewards_added.py'
-    save_filename = events_folder + aligned_filename
+    save_filename = os.path.join(events_folder, aligned_filename)
     example_session_data = pickle.load(open(save_filename, "rb"))
 
     ipsi_choices = convert_behavioural_timestamps_into_samples(example_session_data.choice_data.ipsi_data.event_times,
