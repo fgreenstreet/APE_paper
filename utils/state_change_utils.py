@@ -55,11 +55,13 @@ def make_example_plot(site):
         trials_pre_state_change = np.where(aligned_data.contra_data.trial_nums <= 149)[0]
         trials_post_state_change = np.where(aligned_data.contra_data.trial_nums > 149)[0]
 
-        all_time_points = decimate(aligned_data.contra_data.time_points, 10)
-        start_plot = int(all_time_points.shape[0] / 2 - 2 * 1000)
-        end_plot = int(all_time_points.shape[0] / 2 + 2 * 1000)
-        time_points = all_time_points[start_plot: end_plot]
-        traces = decimate(aligned_data.contra_data.sorted_traces, 10)[:, start_plot: end_plot]
+        all_time_points = decimate(aligned_data.contra_data.time_points, 50) # need to downsample more to keep within csv limits (used to be q=10)
+        time_window_size = 2
+        bool_idx = (all_time_points < time_window_size) & (all_time_points >= -time_window_size)
+
+        time_points = all_time_points[bool_idx]
+        traces = decimate(aligned_data.contra_data.sorted_traces, 50)[:, bool_idx]
+
 
         traces_pre_df = pd.DataFrame(index=time_points, data=traces[trials_pre_state_change, :].T)
         traces_pre_df.index.name = 'Timepoints'

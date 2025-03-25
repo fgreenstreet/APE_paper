@@ -45,14 +45,14 @@ def get_DA_peak_times_and_slopes_from_cue(experiments_to_process, time_range=(-1
     mouse_slopes = []
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
         df = experiments_to_process[experiments_to_process.mouse_id == mouse]
-        data_dir = processed_data_path + 'for_figure\\' + mouse + '\\'
+        data_dir = os.path.join(processed_data_path, 'for_figure' ,mouse)
         date_peak_times = []
         date_slopes = []
         for date in df['date']:
             filename = mouse + '_' + date + '_' + 'aligned_traces_for_fig.p'
             peak_times = []
             trial_slopes = []
-            with open(data_dir + filename, 'rb') as f:
+            with open(os.path.join(data_dir, filename), 'rb') as f:
                 session_data = pickle.load(f)
             contra_cues = session_data.cue_data.contra_data.sorted_traces
             time_stamps = session_data.choice_data.contra_data.time_points

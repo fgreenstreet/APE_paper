@@ -3,7 +3,7 @@ from tqdm import tqdm
 import numpy as np
 from set_global_params import processed_data_path
 import pandas as pd
-
+import os
 
 def get_all_mice_average_movement_times(experiments_to_process):
     reaction_times = []
@@ -40,7 +40,7 @@ def get_all_mice_average_reaction_times(experiments_to_process):
 
         for date in df['date']:
             filename = mouse + '_' + date + '_' + 'aligned_traces_for_fig.p'
-            with open(data_dir + filename, 'rb') as f:
+            with open(os.path.join(data_dir, filename), 'rb') as f:
                 session_data = pickle.load(f)
             ipsi_trial_nums = session_data.choice_data.ipsi_data.trial_nums
             contra_trial_nums = session_data.choice_data.contra_data.trial_nums
@@ -82,7 +82,7 @@ def get_all_mice_average_data(experiments_to_process, time_range=(-1.5, 1.5)):
 
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
         df = experiments_to_process[experiments_to_process.mouse_id == mouse]
-        data_dir = processed_data_path + 'for_figure\\' + mouse + '\\'
+        data_dir = os.path.join(processed_data_path, 'for_figure', mouse)
 
         mouse_ipsi_choices = []
         mouse_contra_choices = []
@@ -92,7 +92,7 @@ def get_all_mice_average_data(experiments_to_process, time_range=(-1.5, 1.5)):
 
         for date in df['date']:
             filename = mouse + '_' + date + '_' + 'aligned_traces_for_fig.p'
-            with open(data_dir + filename, 'rb') as f:
+            with open(os.path.join(data_dir, filename), 'rb') as f:
                 session_data = pickle.load(f)
             time_mask = (session_data.choice_data.contra_data.time_points >= time_range[0]) & (session_data.choice_data.contra_data.time_points <= time_range[-1])
             ipsi_choice = session_data.choice_data.ipsi_data.mean_trace[time_mask]

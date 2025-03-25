@@ -86,8 +86,8 @@ for site in sites:
     # we don't need -8:8 seconds. let's try [-2:2)
     time_window_size = 2
     bool_idx = (time_points < time_window_size) & (time_points >= -time_window_size)
-    all_trials_clipped['time points'] = all_trials['time points'].map(np.array).map(lambda x: decimate(x[bool_idx], q=10))
-    all_trials_clipped['traces'] = all_trials['traces'].map(np.array).map(lambda x: decimate(x[bool_idx], q=10))
+    all_trials_clipped['time points'] = all_trials['time points'].map(np.array).map(lambda x: decimate(x[bool_idx], q=60)) # used to be q=10 but need to downsample for csvs
+    all_trials_clipped['traces'] = all_trials['traces'].map(np.array).map(lambda x: decimate(x[bool_idx], q=60)) # used to be q=10 but need to downsample for csvs
     repro_example_file = os.path.join(repro_path, f'value_change_downsampled_traces_example_{site}_{mouse_name}.pkl')
     all_trials_clipped.to_pickle(repro_example_file)
 

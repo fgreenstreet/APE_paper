@@ -297,9 +297,9 @@ def get_movement_properties_for_session(mouse, date):
 
 
 def get_peaks_and_trial_types(mouse, date, align_to='choice'):
-    saving_folder = processed_data_path + mouse + '\\'
+    saving_folder = os.path.join(processed_data_path, mouse)
     restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
-    trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
+    trial_data = pd.read_pickle(os.path.join(saving_folder, restructured_data_filename))
     if align_to == 'choice':
         photometry_data = get_photometry_data(mouse, date)
     elif align_to == 'cue':

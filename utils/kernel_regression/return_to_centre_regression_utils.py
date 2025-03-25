@@ -23,17 +23,17 @@ def get_first_x_sessions_reg_rtc(sorted_experiment_record, x=3):
 
 def run_regression_return_to_centre_one_mouse_one_session(mouse, date, duration_list, within_2sd_durations, all_trial_durations, sample_rate=10000, decimate_factor=100, window_size_seconds = 10, reg_type='_return_to_centre'):
     print('proccessing' + mouse + date)
-    dlc_save_dir = processed_data_path + '\\return_to_centre\\{}'.format(mouse)
+    dlc_save_dir = os.path.join(processed_data_path, 'return_to_centre', mouse)
     if reg_type == '_return_to_centre' or reg_type == '_return_to_centre_trimmed_traces':
         time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times.npz'.format(mouse, date)
     elif reg_type == '_return_to_centre_300frames' or '_return_to_centre_300frames_long_turns':
         time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times_300frame_window_long_turns.npz'.format(mouse, date)
         return_to_centre_timestamps = np.load(os.path.join(dlc_save_dir, time_stamp_save_file))
 
-    saving_folder = processed_data_path + mouse + '\\'
-    events_folder = processed_data_path + mouse + '\\linear_regression\\'
+    saving_folder = os.path.join(processed_data_path, mouse)
+    events_folder = os.path.join(processed_data_path, mouse, 'linear_regression')
     dff_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
-    dff = np.load(saving_folder + dff_trace_filename)
+    dff = np.load(os.path.join(saving_folder, dff_trace_filename))
 
     rolling_zscored_dff = rolling_zscore(pd.Series(dff), window=window_size_seconds * sample_rate)
     downsampled_zscored_dff = decimate(

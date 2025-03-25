@@ -1,4 +1,5 @@
 import pickle
+import os
 import pandas as pd
 import numpy as np
 from utils.post_processing_utils import remove_exps_after_manipulations, get_first_x_sessions
@@ -17,7 +18,7 @@ experiments_to_process = get_first_x_sessions(experiment_record, mouse_ids, site
 ipsi_choice, contra_choice, reward, no_reward, cue, time_stamps = get_all_mice_average_data(experiments_to_process)
 
 #save out per mouse average traces
-dir = processed_data_path + 'for_figure\\'
+dir = os.path.join(processed_data_path, 'for_figure')
 file_name = 'group_data_avg_across_sessions_' + site +'_new_mice_added_with_cues.npz'
 np.savez(dir + file_name, ipsi_choice=ipsi_choice, contra_choice=contra_choice, reward=reward, no_reward=no_reward, time_stamps=time_stamps, cue=cue)
 

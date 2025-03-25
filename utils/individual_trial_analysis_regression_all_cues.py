@@ -88,7 +88,7 @@ def find_and_z_score_traces(trial_data, demod_signal, params, norm_window=8, sor
     response_names = ['both left and right', 'left', 'right']
     outcome_names = ['incorrect', 'correct', 'both correct and incorrect']
 
-    if any(trial_data['State type'] == 5.5):
+    if any(trial_data['State type'] == 5.5): # this is the time of the first incorrect response if the punishment isn't on
         punishment = False
     else:
         punishment = True
@@ -107,7 +107,7 @@ def find_and_z_score_traces(trial_data, demod_signal, params, norm_window=8, sor
         omission_trials_all_states = trial_data.loc[(trial_data['Trial num'].isin(trials_of_int))]
         events_of_int = omission_trials_all_states.loc[
             (omission_trials_all_states['State type'] == 5)]  # get the action aligned trace
-    elif params.state == 5.5:
+    elif params.state == 5.5: # this is the time of the first incorrect response if the punishment isn't on
         events_of_int = trial_data.loc[
             np.logical_or((trial_data['State type'] == 5.5), (trial_data['State type'] == 5))]
         trial_nums = events_of_int['Trial num'].unique()
@@ -123,7 +123,7 @@ def find_and_z_score_traces(trial_data, demod_signal, params, norm_window=8, sor
         events_of_int = trial_data.loc[(trial_data['State type'] == params.state)]
 
     if params.response != 0:
-        if params.state == 5.5:
+        if params.state == 5.5: # this is the time of the first incorrect response if the punishment isn't on
             correct_choices = np.logical_and(events_of_int['Response'] == params.response,
                                              events_of_int['State type'] == 5)
             incorrect_first_choices = np.logical_and(events_of_int['First response'] == params.response,
@@ -186,11 +186,11 @@ def find_and_z_score_traces(trial_data, demod_signal, params, norm_window=8, sor
     #trial_starts = events_of_int['Trial start'].values
     trial_ends = events_of_int['Trial end'].values
 
-    if params.state == 5.5:
+    if params.state == 5.5: # this is the time of the first incorrect response if the punishment isn't on
 
         other_event = np.zeros([events_of_int_reset.shape[0]])
         for i, event in events_of_int_reset.iterrows():
-            if event['State type'] == 5.5:
+            if event['State type'] == 5.5: # this is the time of the first incorrect response if the punishment isn't on
                 trial_num = event['Trial num']
                 this_trial_data = trial_data[trial_data['Trial num'] == trial_num]
                 out_of_centre = this_trial_data[this_trial_data['State type'] == 4].tail(1)['Time end'].values[0]

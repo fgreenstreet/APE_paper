@@ -5,7 +5,7 @@ import os
 sites = ['Nacc', 'tail']
 peak_times = {}
 rise_times = {}
-original_dir = processed_data_path + 'for_figure\\'
+original_dir = os.path.join(processed_data_path,'for_figure')
 for site in sites:
     file_name = 'peak_times_and_time_to_slope_ipsi_and_contra_{}_with_means.npz'.format(site)
     if os.path.exists(os.path.join(reproduce_figures_path, 'ED_fig4', file_name)):

@@ -43,8 +43,8 @@ def add_timestamps_to_aligned_data(experiments_to_add):
         session_events.cue_data.high_cue_data.filter_by_trial_nums(common_trial_nums)
         session_events.cue_data.low_cue_data.filter_by_trial_nums(common_trial_nums)
 
-        aligned_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'behavioural_events_with_no_rewards_all_cues_matched_trials.p' #'behavioural_events_clean_cues.p' #'behavioural_events_no_repeated_cues.p'
-        save_filename = saving_folder + aligned_filename
+        aligned_filename = experiment['mouse_id'] + '_' + experiment['date'] + '_' + 'behavioural_events_with_no_rewards_all_cues_matched_trials.p'
+        save_filename = os.path.join(saving_folder, aligned_filename)
         pickle.dump(session_events, open(save_filename, "wb"))
 
 

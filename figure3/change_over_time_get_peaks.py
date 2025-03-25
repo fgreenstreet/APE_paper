@@ -7,7 +7,7 @@ from set_global_params import processed_data_path, change_over_time_mice
 
 
 # Saves out the files needed to plot change over time
-data_root = processed_data_path + 'peak_analysis'
+save_path = os.path.join(processed_data_path, 'peak_analysis')
 recording_site = 'tail'
 mice = change_over_time_mice[recording_site]
 side = 'contra'
@@ -22,7 +22,7 @@ for mouse_num, mouse in enumerate(mice):
         (all_experiments['mouse_id'] == mouse) & (all_experiments['recording_site'] == recording_site)]
     dates = experiments_to_process['date'].values
     rolling_mean_x, rolling_mean_peaks, peak_trace_inds, rolling_mean_traces = get_valid_traces(mouse, dates, window_around_mean=0.2, recording_site=recording_site, side=side, window_size=window_for_binning, align_to=align_to)
-    saving_folder = os.path.join(data_root, mouse)
+    saving_folder = os.path.join(save_path, mouse)
     filename = mouse + '_binned_' + str(window_for_binning) + '_average_then_peaks_peaks_{}_aligned_to_{}.npz'.format(side, align_to)
     save_filename = os.path.join(saving_folder, filename)
     np.savez(save_filename, rolling_mean_x=rolling_mean_x, rolling_mean_peaks=rolling_mean_peaks, rolling_mean_trace=rolling_mean_traces, peak_trace_inds=peak_trace_inds)

@@ -1,5 +1,6 @@
 from utils.kernel_regression.linear_regression_utils import *
 import gc
+import os
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings
 from set_global_params import experiment_record_path, processed_data_path, mice_average_traces
 from scipy.signal import decimate
@@ -17,12 +18,13 @@ for index, experiment in experiments_to_process.iterrows():
     mouse = experiment['mouse_id']
     date = experiment['date']
     print('proccessing' + mouse + date)
-    saving_folder = processed_data_path + mouse + '\\'
-    events_folder = processed_data_path + mouse + '\\linear_regression\\'
+    saving_folder = os.path.join(processed_data_path, mouse)
+    events_folder = os.path.join(processed_data_path, mouse, 'linear_regression')
     restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
     trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
+    # loads demodulated and smoothed photometry (produced by data_preprocessing/preprocessing.py, but these files are provided)
     dff_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
-    dff = np.load(saving_folder + dff_trace_filename)
+    dff = np.load(os.path.join(saving_folder,dff_trace_filename))
 
     window_size_seconds = 10
     sample_rate = 10000
@@ -37,7 +39,7 @@ for index, experiment in experiments_to_process.iterrows():
 
     num_samples = downsampled_zscored_dff.shape[0]
     aligned_filename = mouse + '_' + date + '_' + 'behavioural_events_with_no_rewards_all_cues_matched_trials.p'
-    save_filename = events_folder + aligned_filename
+    save_filename = os.path.join(events_folder, aligned_filename)
     example_session_data = pickle.load(open(save_filename, "rb"))
 
     ipsi_choices = convert_behavioural_timestamps_into_samples(example_session_data.choice_data.ipsi_data.event_times,
@@ -72,6 +74,7 @@ for index, experiment in experiments_to_process.iterrows():
     trial_ends_samps = np.squeeze(convert_behavioural_timestamps_into_samples(all_trial_ends, window_size_seconds))
 
     trials_to_include = pd.DataFrame({'trial starts': trial_starts_samps, 'trial ends': trial_ends_samps, 'durations': trial_durations})
+    # we remove trials where the mice have lost interest (the behaviour is self paced so this does happen a bit early in training)
     trials_to_remove = trials_to_include[
         trials_to_include['durations'] > np.mean(trial_durations) + 2 * np.std(trial_durations)].reset_index(drop=True)
     inds_to_go = []
@@ -92,5 +95,5 @@ for index, experiment in experiments_to_process.iterrows():
 
     save_filename = mouse + '_' + date + '_'
 
-    save_kernels_different_shifts(saving_folder + save_filename, param_names, params_for_reg, results, trace_for_reg, X.astype(int), shifts, windows)
+    save_kernels_different_shifts(os.path.join(saving_folder, save_filename), param_names, params_for_reg, results, trace_for_reg, X.astype(int), shifts, windows)
     gc.collect()

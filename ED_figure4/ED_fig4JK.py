@@ -23,7 +23,7 @@ if long_turns:
 else:
     file_extend = ''
     cutoff = '1s'
-# long turns is not for paper but for revisions
+# long turns is not for paper but was used for revision rebuttal
 experiment_record = pd.read_csv(experiment_record_path)
 experiment_record['date'] = experiment_record['date'].astype(str)
 clean_experiments = remove_exps_after_manipulations(experiment_record, mouse_ids)

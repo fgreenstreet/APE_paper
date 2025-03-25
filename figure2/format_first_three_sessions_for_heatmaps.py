@@ -3,7 +3,7 @@ from utils.post_processing_utils import remove_exps_after_manipulations, remove_
 from set_global_params import experiment_record_path, mice_average_traces
 
 
-site = 'tail_ant'
+site = 'tail_ant' # can also be 'tail', 'nacc'.
 mouse_ids = mice_average_traces[site]
 experiment_record = pd.read_csv(experiment_record_path)
 

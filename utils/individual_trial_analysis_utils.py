@@ -188,7 +188,7 @@ def find_and_z_score_traces(trial_data, demod_signal, params, norm_window=8, sor
         omission_trials_all_states = trial_data.loc[(trial_data['Trial num'].isin(trials_of_int))]
         events_of_int = omission_trials_all_states.loc[
             (omission_trials_all_states['State type'] == 5)]  # get the action aligned trace
-    elif params.state == 5.5:
+    elif params.state == 5.5: # this is the time of the first incorrect response if the punishment isn't on
         events_of_int = trial_data.loc[
             np.logical_or((trial_data['State type'] == 5.5), (trial_data['State type'] == 5))]
         trial_nums = events_of_int['Trial num'].unique()

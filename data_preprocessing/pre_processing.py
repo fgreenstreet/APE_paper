@@ -72,6 +72,7 @@ def pre_process_experiment_lerner_deissroth(mouse, date, protocol):
 def pre_process_experiment_pyphotometry(mouse, date, protocol, daq_sample_rate=daq_sample_rate):
     """
     Preprocesses the photomtery signal using demodulation and filtering similar to that used by pyphotometry paper.
+    Used on all photometry data for the cloud of tones task.
     Args:
         mouse (str): mouse name 
         date (str): date (YYYYMMDD)

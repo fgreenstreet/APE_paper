@@ -4,7 +4,7 @@ import numpy as np
 from utils.post_processing_utils import remove_exps_after_manipulations, get_first_x_sessions
 from set_global_params import experiment_record_path, processed_data_path, mice_average_traces
 from utils.average_trace_processing_utils import get_all_mice_average_data_high_low_cues
-
+import os
 
 
 site = 'Nacc'
@@ -18,7 +18,7 @@ experiments_to_process = get_first_x_sessions(experiment_record, mouse_ids, site
 contra_high_cues, contra_low_cues, ipsi_high_cues, ipsi_low_cues,  time_stamps = get_all_mice_average_data_high_low_cues(experiments_to_process)
 
 #save out per mouse average traces
-dir = processed_data_path + 'for_figure\\'
+dir = os.path.join(processed_data_path, 'for_figure')
 file_name = 'group_data_avg_across_sessions_' + site +'_new_mice_added_high_low_cues_ipsi_contra.npz'
-np.savez(dir + file_name, contra_high_cues=contra_high_cues, contra_low_cues=contra_low_cues, ipsi_high_cues=ipsi_high_cues, ipsi_low_cues=ipsi_low_cues, time_stamps=time_stamps)
+np.savez(os.path.join(dir, file_name), contra_high_cues=contra_high_cues, contra_low_cues=contra_low_cues, ipsi_high_cues=ipsi_high_cues, ipsi_low_cues=ipsi_low_cues, time_stamps=time_stamps)
 

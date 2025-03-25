@@ -15,7 +15,7 @@ num_sessions = 3
 site = 'tail'
 mouse_ids = mice_average_traces[site]
 use_old_tracking = False
-short_turns = False
+short_turns = False # True for averages false for regression
 timeframe = 300 # 300 for figures
 
 
@@ -74,7 +74,7 @@ for index, experiment in experiments_to_process.iterrows():
         interpolate_nans=True,
         verbose=False)
 
-    camera_triggers, trial_start_stamps = get_camera_trigger_times(mouse, date, protocol)
+    camera_triggers, trial_start_stamps = get_camera_trigger_times(mouse, date, protocol) # currently requires the raw daq files
     trial_start_triggers = find_nearest_trials(trial_start_stamps, camera_triggers)
     dff_data, trial_data = get_raw_photometry_data(mouse, date)
     photometry_data = rolling_zscore(pd.Series(dff_data), window=10 * 10000)
@@ -140,9 +140,9 @@ for index, experiment in experiments_to_process.iterrows():
         save_file = '{}_{}_return_to_centre_traces_aligned_to_movement_start_turn_ang_thresh_{}frame_window_long_turns.npz'.format(
             mouse, date, timeframe)
         time_stamp_save_file = '{}_{}_return_to_centre_movement_onset_times_{}frame_window_long_turns.npz'.format(mouse, date, timeframe)
-    #np.savez(os.path.join(save_dir, save_file), contra_movement=contra_movement_traces, ipsi_movement=ipsi_movement_traces)
-    #np.savez(os.path.join(save_dir, time_stamp_save_file), contra_movement_return=contra_movement_onsets_time_stamps,
-    #         ipsi_movement_return=ipsi_movement_onsets_time_stamps)
+    np.savez(os.path.join(save_dir, save_file), contra_movement=contra_movement_traces, ipsi_movement=ipsi_movement_traces)
+    np.savez(os.path.join(save_dir, time_stamp_save_file), contra_movement_return=contra_movement_onsets_time_stamps,
+             ipsi_movement_return=ipsi_movement_onsets_time_stamps)
 
 # Create a DataFrame from the collected data
 duration_df = pd.DataFrame(data_list)

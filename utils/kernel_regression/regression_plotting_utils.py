@@ -11,6 +11,41 @@ import shutil
 
 
 def get_regression_data_for_plot(recording_site='tail'):
+    """
+       Processes regression kernel data, calculates mean traces, sems and significance windows between traces.
+
+       The following steps are performed:
+           1. Load experiment record csv and filter for relevant sessions (first 3).
+           2. For each mouse, load kernels for choices, cues, and outcomes for these sessions.
+           3. Average kernel data across sessions for each mouse and calculate sems.
+           4. Save per-mouse kernel time series to CSVs (if they don’t already exist).
+           5. Calculate statistical significance time windows using Mann-Whitney U tests across 0.1s bins.
+
+       Args:
+           recording_site (str): The recording site to filter data by (e.g., 'tail', 'head'). Defaults to 'tail'.
+
+       Returns:
+           time_stamps (dict): Dictionary of time stamps for each kernel type (in seconds).
+           means (dict): Dictionary of mean kernel values across mice for each variable.
+           sems (dict): Dictionary of standard error of the mean values across mice for each variable.
+           significant_time_bins (dict): Dictionary with significant time windows (timestamps) for:
+               - 'choice' : ipsi vs contra choices
+               - 'cue'    : ipsi vs contra cues
+               - 'outcome': reward vs no reward
+
+       Notes:
+           - Session kernels are assumed to be precomputed and saved as pickle files (can be found in data_dir and have
+                format filename).
+                data_dir = os.path.join(processed_data_path, mouse)
+                filename = mouse + '_' + date + '_' + 'linear_regression_kernels_different_shifts_all_cues_matched_trials.p'
+                These files are produced by running both get_time_stamps_for_regression_all_cues_matched_trials.py and
+                linear_regression_all_sessions_different_shits.py
+           - Data paths such as `processed_data_path`, `reproduce_figures_path`, `spreadsheet_path`,
+             `mice_average_traces`, and `experiment_record_path` must be defined globally in set_gloabl_params.py.
+           - Fiber side is used to determine whether 'high cues' or 'low cues' correspond to ipsi or contralateral trials.
+           - Output CSVs are saved to spreadsheet_path/fig2 and named accordingly.
+
+       """
     experiment_record = pd.read_csv(experiment_record_path, dtype=str)
     experiment_record['date'] = experiment_record['date'].astype(str)
 
@@ -29,7 +64,7 @@ def get_regression_data_for_plot(recording_site='tail'):
     no_reward_kernels = []
 
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
-        data_dir = processed_data_path + mouse + '\\'
+        data_dir = os.path.join(processed_data_path, mouse)
         repro_data_dir = os.path.join(reproduce_figures_path, 'fig2', mouse)
         if not os.path.exists(repro_data_dir):
             os.makedirs(repro_data_dir)

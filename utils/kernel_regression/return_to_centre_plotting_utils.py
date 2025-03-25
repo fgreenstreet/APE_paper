@@ -59,7 +59,7 @@ def get_regression_data_for_plot(recording_site='tail', reg_type='_return_to_cen
         ipsi_return_kernels = []
 
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
-        data_dir = processed_data_path + mouse + '\\'
+        data_dir = os.path.join(processed_data_path, mouse)
         repro_data_dir = os.path.join(reproduce_figures_path, 'ED_fig4', mouse)
         if not os.path.exists(repro_data_dir):
             os.makedirs(repro_data_dir)

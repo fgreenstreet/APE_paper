@@ -38,6 +38,8 @@ perc_exp_rew_ax = fig.add_subplot(gs[2, 3], sharey=perc_exp_cue_ax)
 
 labelled_axes = [model_description_ax1, ts_cue_ax, model_description_ax2, vs_cue_ax, total_perc_exp, perc_exp_cue_ax]
 
+# Requires either repro data or running: 1) get_time_stamps_for_regression_all_cues_matched_trials.py
+# and 2) linear_regressions_all_session_different_shifts
 tail_time_stamps, tail_reg_means, tail_reg_sems, tail_reg_sig_times = get_regression_data_for_plot(
     recording_site='tail')
 nacc_time_stamps, nacc_reg_means, nacc_reg_sems, nacc_reg_sig_times = get_regression_data_for_plot(
@@ -80,6 +82,9 @@ for window_num, start in enumerate(window_starts):
                               alpha=0.2,
                               linewidth=0)
     ts_move_ax.add_patch(rect)
+
+# Requires either repro data or running: 1) get_time_stamps_for_regression_all_cues_matched_trials.py,
+# 2) linear_regressions_all_session_different_shifts and  3) percentage_variance_explained.py
 nacc_exp_var = load_exp_var_data_for_site('Nacc')
 tail_exp_var = load_exp_var_data_for_site('tail')
 
