@@ -47,7 +47,7 @@ def get_all_mice_data(experiments_to_process, exp_type='', key='fitted max cumsu
     for index, experiment in experiments_to_process.iterrows():
         mouse = experiment['mouse_id']
         date = experiment['date']
-        save_out_folder = post_processed_tracking_data_path + mouse
+        save_out_folder = os.path.join(post_processed_tracking_data_path, mouse)
         if not os.path.exists(save_out_folder):
             os.makedirs(save_out_folder)
         movement_param_file = os.path.join(save_out_folder, 'contra_APE_tracking{}_{}{}.pkl'.format(mouse, date, exp_type))
@@ -120,8 +120,8 @@ def get_first_three_sessions_dlc(mouse_ids, site, num_sessions=3, save=False, lo
         data_to_save['norm by mouse'] = data_to_save.groupby(['mouse'])['mean max cumsum ang vel'].transform(lambda x: (x/ x.max()))
 
         if save:
-            all_data.to_pickle(save_out_file_shuffles)
-            data_to_save.to_pickle(save_out_file)
+            all_data.to_csv(save_out_file_shuffles_csv)
+            data_to_save.to_csv(save_out_file_csv)
     return data_to_save, all_data
 
 

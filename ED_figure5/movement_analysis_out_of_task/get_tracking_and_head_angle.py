@@ -9,6 +9,7 @@ from set_global_params import running_in_box_dir, out_of_task_movement_mice_date
 
 
 def get_movement_properties_for_session(mouse, date):
+    # The camera is not directly above the box, it is at an angle so this transforms the tracking coordinates to fit the actual shape of the box
     file_path = os.path.join(running_in_box_tracking_dir,  '{}\\{}\\{}_cameraDLC_resnet50_heading_angleMar23shuffle1_1030000.h5'.format(mouse, date, mouse))
     body_parts = ('nose', 'L_ear', 'R_ear', 'body', 'tail_base', 'tail_tip')
     tracking_data = prepare_tracking_data(
@@ -51,12 +52,12 @@ def rolling_zscore(x, window=10*10000):
 
 
 def get_photometry_data(mouse, date):
-    loading_folder = running_in_box_dir + '\\processed_data\\' + mouse + '\\'
+    loading_folder = os.path.join(running_in_box_dir, 'processed_data', mouse)
     smoothed_trace_filename = mouse + '_' + date + '_' + 'smoothed_signal.npy'
     clock_filename = mouse + '_' + date + '_' + 'clock.npy'
-    photometry_data = np.load(loading_folder + smoothed_trace_filename)
+    photometry_data = np.load(os.path.join(loading_folder, smoothed_trace_filename))
     z_scored_data = rolling_zscore(pd.Series(photometry_data))
-    clock_stamps = np.load(loading_folder + clock_filename)
+    clock_stamps = np.load(os.path.join(loading_folder, clock_filename))
     return z_scored_data.values[clock_stamps]
 
 
@@ -67,7 +68,7 @@ if __name__ == '__main__':
         tracking_data, untransformed_data, head_angular_velocity, head_ang_accel, speed, move_dir, acceleration, head_angles = get_movement_properties_for_session(mouse, date_time)
 
         photometry_data = get_photometry_data(mouse, date)
-        save_dir = running_in_box_dir + '\\processed_data\\'
+        save_dir = os.path.join(running_in_box_dir, 'processed_data')
         np.savez(os.path.join(save_dir, 'preprocessed_speed_by_neurons_transformed_tracking_{}.npz'.format(mouse)), speed=speed, acceleration=acceleration, photometry_data=photometry_data,
                  head_angular_velocity=head_angular_velocity, head_ang_accel=head_ang_accel, move_dir=move_dir, head_angles=head_angles, allow_pickle=True)
         file = open(os.path.join(save_dir, 'tracking_data_{}.p'.format(mouse)), 'wb')

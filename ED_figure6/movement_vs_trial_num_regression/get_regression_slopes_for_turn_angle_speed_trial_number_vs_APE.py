@@ -42,7 +42,7 @@ def create_movement_param_and_APE_df(mouse, recording_site='tail'):
     dates = experiments_to_process['date'].values
     last_session_ind = int(np.where(dates == last_session)[0])
     for i, date in enumerate(dates[0: last_session_ind + 1]):
-        save_out_folder = 'S:\\projects\\APE_tracking\\{}\\{}\\'.format(mouse, date)
+        save_out_folder = os.path.join(raw_tracking_path, mouse, date)
         movement_param_file = os.path.join(save_out_folder, 'APE_tracking{}_{}.pkl'.format(mouse, date))
         if os.path.isfile(movement_param_file):
             session_data = pd.read_pickle(movement_param_file)
@@ -56,7 +56,7 @@ def create_movement_param_and_APE_df(mouse, recording_site='tail'):
         else:
             print('{} not found'.format(date))
             all_session_data, trial_data = get_movement_properties_for_session(mouse, date,
-                                                                                protocol='Two_Alternative_Choice_CentrePortHold',
+                                                                                protocol='Two_Alternative_Choice',
                                                                                 multi_session=False)
             all_session_data.to_pickle(movement_param_file)
     all_session_data = all_session_data.reset_index(drop=True)
@@ -80,7 +80,7 @@ def create_movement_param_and_APE_df_just_first_3_sessions(mouse, recording_site
     first_3_sessions = get_first_x_sessions(experiments_to_process, x=x)
     dates = first_3_sessions['date'].values
     for i, date in enumerate(dates):
-        save_out_folder = '{}{}\\{}\\'.format(raw_tracking_path, mouse, date)
+        save_out_folder = os.path.join(raw_tracking_path, mouse, date)
         movement_param_file = os.path.join(save_out_folder, 'APE_tracking{}_{}.pkl'.format(mouse, date))
         if os.path.isfile(movement_param_file):
             session_data = pd.read_pickle(movement_param_file)
@@ -248,10 +248,10 @@ if __name__ == '__main__':
     load_saved = True
     mice = change_over_time_mice['tail']
     for i, mouse in enumerate(mice):
-        df_save_dir = r'{}{}\turn_angle_over_time'.format(processed_data_path, mouse)
+        df_save_dir = os.path.join(processed_data_path, mouse,'turn_angle_over_time')
         if not os.path.isdir(df_save_dir):
             os.makedirs(df_save_dir)
-        df_save_file = os.path.join(df_save_dir, 'movement_params_all_trials_vs_APE_{}.pkl'.format(mouse))
+        df_save_file = os.path.join(df_save_dir, 'movement_params_all_trials_vs_APE_{}.pkl'.format(mouse)) # this pickle might need python 3.6 env
         if os.path.isfile(df_save_file) & load_saved:
             valid_contra_data = pd.read_pickle(df_save_file)
         else:

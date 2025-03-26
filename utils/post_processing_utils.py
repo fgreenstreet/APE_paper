@@ -280,12 +280,12 @@ class CustomAlignedData(object):
             params (HeatMapParams): the parameters for how to align the photometry data
             peak_quantification (bool): whether to get the peaks of the photometry data after the aligned to events
         """
-        saving_folder = processed_data_path + session_data.mouse + '\\'
+        saving_folder = os.path.join(processed_data_path, session_data.mouse)
 
         restructured_data_filename = session_data.mouse + '_' + session_data.date + '_' + 'restructured_data.pkl'
-        trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
+        trial_data = pd.read_pickle(os.path.join(saving_folder, restructured_data_filename))
         dff_trace_filename = session_data.mouse + '_' + session_data.date + '_' + 'smoothed_signal.npy'
-        dff = np.load(saving_folder + dff_trace_filename)
+        dff = np.load(os.path.join(saving_folder, dff_trace_filename))
 
         fiber_options = np.array(['left', 'right'])
         fiber_side_numeric = (np.where(fiber_options == session_data.fiber_side)[0] + 1)[0]

@@ -190,9 +190,9 @@ def get_movement_properties_for_session(mouse, date):
     trial_start_triggers = find_nearest_trials(trial_start_stamps, camera_triggers)
     photometry_data = get_photometry_data(mouse, date)
 
-    saving_folder = processed_data_path + mouse + '\\'
+    saving_folder = os.path.join(processed_data_path, mouse)
     restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
-    trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
+    trial_data = pd.read_pickle(os.path.join(saving_folder, restructured_data_filename))
 
     first_cot = (trial_data[(trial_data['State name'] == 'CueDelay') & (
             trial_data['Instance in state'] == trial_data['Max times in state'])]['Time start'].values * 10000)

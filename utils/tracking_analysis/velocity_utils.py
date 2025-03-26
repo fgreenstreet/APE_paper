@@ -231,6 +231,56 @@ def format_tracking_data_and_photometry_correct_incorrect(tracking_data, photome
 
 def format_movement_params_into_df(photometry_data, trial_nums, speed, cot_triggers, choice_triggers, acceleration, head_angles, head_angular_velocity, head_ang_accel, move_dir,
                                    tracking_data, photometry_traces, peaks, photometry_reaction_times, trial_types_subset, side):
+    """
+        Extracts, computes, and formats trial-aligned behavioral and photometry metrics into a DataFrame for a given trial set.
+
+        This function processes trial-by-trial photometry and movement data, calculates kinematic variables (e.g., speed,
+        acceleration, head angle dynamics), fits sigmoids to angular velocity integrals (for turning behavior), and compiles
+        all variables into a structured DataFrame.
+
+        Args:
+            photometry_data (PhotometryData): Object containing trial-based photometry data and fiber side info.
+            trial_nums (np.ndarray): Array of trial indices to process.
+            speed (np.ndarray): Per-frame nose speed values.
+            cot_triggers (np.ndarray): Cue-onset trigger frame indices for each trial.
+            choice_triggers (np.ndarray): Choice event trigger frame indices for each trial.
+            acceleration (np.ndarray): Per-frame acceleration values.
+            head_angles (np.ndarray): Per-frame head angles.
+            head_angular_velocity (np.ndarray): Per-frame angular velocity of head angle.
+            head_ang_accel (np.ndarray): Per-frame angular acceleration.
+            move_dir (np.ndarray): Per-frame movement direction (angle or directional vector).
+            tracking_data (dict): Dictionary of tracking coordinates for body parts ('nose', 'left ear', 'right ear'),
+                                  each containing x and y position time series.
+            photometry_traces (np.ndarray): Aligned photometry traces per trial.
+            peaks (list): List of APE peak amplitudes for each trial.
+            photometry_reaction_times (list): Reaction times for each trial.
+            trial_types_subset (np.ndarray): Trial type labels for this subset of trials.
+            side (str): Either 'ipsi' or 'contra' to indicate trial side.
+
+        Returns:
+            pd.DataFrame: A DataFrame where each row represents a trial, and each column is a behavioral or photometry feature, including:
+                - Speed, acceleration, time to move
+                - Head kinematics (angle, angular velocity, angular acceleration)
+                - Sigmoid fit params on cumulative angular velocity (e.g., slope, MSE, AUC)
+                - Photometry trace and APE peaks
+                - Trajectory (x/y) and distance traveled
+                - Trial metadata (trial type, number, side, reaction time, etc.)
+
+        Notes:
+            - The direction of turning behavior is accounted for by flipping metrics based on the fiber side.
+            - Sigmoid fitting is used to characterize turn onset and slope based on integrated angular velocity.
+            - Trials with extreme outliers or missing data (e.g., peak not found) are removed from the final DataFrame.
+            - If `max speed > 35`, or APE peak / time-to-move is NaN, the trial is excluded.
+
+        Important Calculations:
+            -  fitted max cumsum ang vel : the plateau of the fitted sigmoid to cumsum ang vel (the abs of this is used as turn angle in the paper)
+            -  avg speed : average speed (pixels/frame) during the choice movement
+            - `max initial turn`: cumulative angular velocity within first few frames post cue.
+            - `turn slope`: from slope of sigmoid fit of cumulative angular velocity.
+            - `time to move`: time after cue where speed exceeds threshold (7).
+            - `area under sigmoid`: area under fitted sigmoid of cumsum ang velocity
+
+        """
     if photometry_data.fiber_side == 'left':
         max_function = np.min
         arg_max_function = np.argmin
@@ -272,9 +322,7 @@ def format_movement_params_into_df(photometry_data, trial_nums, speed, cot_trigg
     fitted_max_cumsum = []
     aucs = []
     reaction_times = []
-    # cot_triggers = cot_triggers - 10
     for i in trial_nums.astype(int):
-
         trial_speed = speed[cot_triggers[i]: choice_triggers[i]]
         trial_acceleration = acceleration[cot_triggers[i]: choice_triggers[i]]
         trial_head_angs = head_angles[cot_triggers[i]: choice_triggers[i]]
@@ -284,7 +332,6 @@ def format_movement_params_into_df(photometry_data, trial_nums, speed, cot_trigg
         angular_accels.append(head_ang_accel[cot_triggers[i]: choice_triggers[i]])
         max_ang_v.append(max_function(head_angular_velocity[cot_triggers[i]: choice_triggers[i]]))
         time_to_max_ang_v.append(arg_max_function(head_angular_velocity[cot_triggers[i]: choice_triggers[i]]))
-        # cumsum_ang_v.append(np.cumsum(head_angular_velocity[cot_triggers[i]: choice_triggers[i]])- np.cumsum(head_angular_velocity[cot_triggers[i]: choice_triggers[i]])[10])
         trial_cumsum_ang_v = np.cumsum(head_angular_velocity[cot_triggers[i]: choice_triggers[i]])
 
         move_dirs.append(move_dir[cot_triggers[i]: choice_triggers[i]])
@@ -369,7 +416,7 @@ def format_movement_params_into_df(photometry_data, trial_nums, speed, cot_trigg
             'trial type': trial_types_subset, 'reaction times': reaction_times}
     data_df = pd.DataFrame(data)
     data_df['side'] = side
-    clean_df = data_df.drop(data_df.loc[data_df['max speed'] > 35].index)
+    clean_df = data_df.drop(data_df.loc[data_df['max speed'] > 35].index) # tracking error - this is too fast for a mouse
     non_nan_df = clean_df.drop(clean_df.loc[np.isnan(clean_df['APE peaks'])].index)
     non_nan_df = non_nan_df.drop(non_nan_df.loc[np.isnan(non_nan_df['time to move'])].index)
     return data_df #used to be non_nan_df
@@ -460,21 +507,3 @@ def format_only_photometry(photometry_data, trial_types, trial_numbers=None, ali
     non_nan_df = both_df.drop(both_df.loc[np.isnan(both_df['APE peaks'])].index)
     ape_sorted_data = non_nan_df.sort_values(by='APE peaks', ascending=False).reset_index(drop=True)
     return ape_sorted_data
-
-
-
-# demod_signal = np.load(saving_folder + mouse + '_' + date + "_smoothed_signal.npy" )
-# downsampled_signal = demod_signal[camera_triggers]
-#
-# i=11
-# fig, axs = plt.subplots(1,1)
-# axs.plot(downsampled_signal[first_cot_triggers[i]: choice_triggers[i]]/np.max(downsampled_signal[first_cot_triggers[i]: choice_triggers[i]]), label='dff (normalised)')
-# axs.plot(velocity[first_cot_triggers[i]: choice_triggers[i]]/np.max(velocity[first_cot_triggers[i]: choice_triggers[i]]), label='velocity')
-# plt.legend()
-#
-# def rolling_zscore(x, window=10*10000):
-#     r = x.rolling(window=window)
-#     m = r.mean().shift(1)
-#     s = r.std(ddof=0).shift(1)
-#     z = (x-m)/s
-#     return z

@@ -18,5 +18,5 @@ example_scatter_change_over_time('SNL_photo31', axs[1], window_for_binning=40, c
 makes_plots_pretty(axs)
 
 save_ax_scatter_data_to_excel(axs[0], os.path.join(sh_path, sh_fn_tail))
-save_ax_scatter_data_to_excel(axs[0], os.path.join(sh_path, sh_fn_nacc))
+save_ax_scatter_data_to_excel(axs[1], os.path.join(sh_path, sh_fn_nacc))
 plt.show()

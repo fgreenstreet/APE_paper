@@ -8,6 +8,8 @@ from set_global_params import silence_mice, raw_tracking_path
 recording_site = 'tail'
 mice = silence_mice
 old_mice = ['SNL_photo37', 'SNL_photo43']
+# The silence protcol was run in two slightly differnt ways, for the old_mice the silence trials occured in a block wise manner,
+# for 'SNL_photo70' the trials were interleaved so we extract silence trials slightly differently
 protocols = ['Two_Alternative_Choice_Inference', 'Two_Alternative_Choice']
 exp_name = 'silence'
 
