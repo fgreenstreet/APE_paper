@@ -16,7 +16,7 @@ class HeatMapParams(object):
                         {'state_type_of_interest': 5, # Bpod state number to align to
                         'outcome': 2,                 # 0=incorrect, 1=correct, 2=correct and incorrect
                         'last_outcome': 0,            # NOT USED CURRENTLY
-                        'no_repeats': 0,              # is the bpod state allowed to be repeated? 0=no, 1=yes (can only be used with instance=1)
+                        'no_repeats': 0,              # don't include bpod states that are repeated? 0=no, 1=yes (can only be used with instance=1)
                         'last_response': 0,           # 0=left and right, 1=left, 2=right
                         'align_to': 'Time end',       # What time point of bpod state to align to ('Time start' or 'Time end' )
                         'instance': -1,               # What instance of bpod state to choose for alignment. 1=first, -1=last

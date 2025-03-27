@@ -134,8 +134,8 @@ def get_photometry_data(mouse, date):
 
 
 def get_photometry_data_correct_incorrect(mouse, date):
-    saving_folder = os.path.join(processed_data_path, 'for_psychometric\\' + mouse + '\\')
-    aligned_filename = saving_folder + mouse + '_' + date + '_' + 'aligned_traces_for_psychometric.p'
+    saving_folder = os.path.join(processed_data_path, 'for_psychometric', mouse)
+    aligned_filename = os.path.join(saving_folder, mouse + '_' + date + '_' + 'aligned_traces_for_psychometric.p')
     with open(aligned_filename, 'rb') as f:
         data = pickle.load(f)
     return data
@@ -171,7 +171,7 @@ def get_raw_photometry_data(mouse, date):
 
 
 def get_movement_properties_for_session(mouse, date):
-    file_path = os.path.join(old_raw_tracking_path, '\{}_{}DLC_resnet50_two_acMay10shuffle1_600000.h5'.format(
+    file_path = os.path.join(old_raw_tracking_path, '{}_{}DLC_resnet50_two_acMay10shuffle1_600000.h5'.format(
         mouse, date))
     body_parts = ('nose', 'left ear', 'right ear', 'tail base', 'tail tip')
     tracking_data = prepare_tracking_data(

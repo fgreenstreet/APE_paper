@@ -47,7 +47,7 @@ def get_all_mice_data(experiments_to_process, exp_type='', key='fitted max cumsu
     for index, experiment in experiments_to_process.iterrows():
         mouse = experiment['mouse_id']
         date = experiment['date']
-        save_out_folder = psychometric_data_path + mouse
+        save_out_folder = os.path.join(psychometric_data_path, mouse)
         if not os.path.exists(save_out_folder):
             os.makedirs(save_out_folder)
         movement_param_file = os.path.join(save_out_folder, 'contra_APE_tracking{}_{}{}.pkl'.format(mouse, date, exp_type))

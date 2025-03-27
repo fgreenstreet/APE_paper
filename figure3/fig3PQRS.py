@@ -1,6 +1,6 @@
 from utils.plotting_visuals import set_plotting_defaults
 from utils.state_change_utils import make_example_plot, get_group_data, pre_post_state_change_plot
-from set_global_params import fig4_plotting_colours, spreadsheet_path, reproduce_figures_path
+from set_global_params import plotting_colours, spreadsheet_path, reproduce_figures_path
 import matplotlib.pyplot as plt
 import os
 import pandas as pd
@@ -19,7 +19,7 @@ for site in sites:
         site_data.to_csv(group_data_file)
     else:
         site_data = pd.read_csv(group_data_file, index_col=0)
-    group_data_df = pre_post_state_change_plot(site_data, colour=fig4_plotting_colours[site][0])
+    group_data_df = pre_post_state_change_plot(site_data, colour=plotting_colours[site][0])
 
 plt.show()
 

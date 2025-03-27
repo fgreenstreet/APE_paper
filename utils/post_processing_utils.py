@@ -246,7 +246,7 @@ def add_experiment_to_aligned_data(experiments_to_add, for_heat_map_figure=False
 
     """
     if for_heat_map_figure:
-        data_root = processed_data_path + 'for_figure'
+        data_root = os.path.join(processed_data_path, 'for_figure')
         file_name_tag = 'aligned_traces_for_fig.p'
     else:
         data_root = processed_data_path

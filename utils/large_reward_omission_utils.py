@@ -8,7 +8,7 @@ import pandas as pd
 from scipy import stats
 from statsmodels.stats.multitest import multipletests
 from utils.plotting import calculate_error_bars
-from set_global_params import processed_data_path, fig4_plotting_colours, large_reward_omission_example_mice, daq_sample_rate, reproduce_figures_path, spreadsheet_path
+from set_global_params import processed_data_path, plotting_colours, large_reward_omission_example_mice, daq_sample_rate, reproduce_figures_path, spreadsheet_path
 from utils.plotting_visuals import makes_plots_pretty
 from utils.plotting import multi_conditions_plot, output_significance_stars_from_pval
 from utils.stats import cohen_d_paired
@@ -193,7 +193,7 @@ def make_example_traces_plot(site):
     fig, ax = plt.subplots(1, 1, figsize=[2.2, 2])
     plot_mean_trace_for_condition(ax, site, all_trials, time_points,
                                   'reward', error_bar_method='sem', save_location=None,
-                                  colourmap=fig4_plotting_colours[site])
+                                  colourmap=plotting_colours[site])
     lg1 = ax.legend(loc='lower left', bbox_to_anchor=(0.6, 0.8), borderaxespad=0, frameon=False, prop={'size': 6})
     ax.set_ylim([-1.5, 4.1])
     makes_plots_pretty(ax)

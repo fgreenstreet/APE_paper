@@ -26,8 +26,7 @@ def get_actual_trial_numbers(per_session_trial_nums, date, mouse, recording_site
 
 
 def get_movement_properties_for_session(mouse, date, protocol='Two_Alternative_Choice', multi_session=True):
-    file_path = os.path.join(raw_tracking_path, '{}\\{}\\cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5'.format(
-        mouse, date))
+    file_path = os.path.join(raw_tracking_path, mouse, date, 'cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5')
     body_parts = ('nose', 'left ear', 'right ear', 'tail base', 'tail tip')
     tracking_data = prepare_tracking_data(
         tracking_filepath=file_path,
@@ -152,8 +151,7 @@ def get_movement_properties_for_session(mouse, date, protocol='Two_Alternative_C
 
 
 def get_movement_properties_for_session_correct_incorrect(mouse, date, protocol='Two_Alternative_Choice', multi_session=True):
-    file_path = 'S:\\projects\\APE_tracking\\{}\\{}\\cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5'.format(
-        mouse, date)
+    file_path = os.path.join(raw_tracking_path, mouse, date,'cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5')
     body_parts = ('nose', 'left ear', 'right ear', 'tail base', 'tail tip')
     tracking_data = prepare_tracking_data(
         tracking_filepath=file_path,
@@ -171,9 +169,9 @@ def get_movement_properties_for_session_correct_incorrect(mouse, date, protocol=
     trial_start_triggers = find_nearest_trials(trial_start_stamps, camera_triggers)
     photometry_data = get_photometry_data_correct_incorrect_normal_task(mouse, date)
 
-    saving_folder = processed_data_path + mouse + '\\'
+    saving_folder = os.path.join(processed_data_path, mouse)
     restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
-    trial_data = pd.read_pickle(saving_folder + restructured_data_filename)
+    trial_data = pd.read_pickle(os.path.join(saving_folder, restructured_data_filename))
 
     first_cot = (trial_data[(trial_data['State name'] == 'CueDelay') & (
             trial_data['Instance in state'] == trial_data['Max times in state'])]['Time start'].values * 10000)

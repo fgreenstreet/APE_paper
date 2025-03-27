@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 import seaborn as sns
 from utils.tracking_analysis.tracking_plotting import *
-from set_global_params import raw_tracking_path, processed_data_path, bias_path, change_over_time_mice, fig4_plotting_colours
+from set_global_params import raw_tracking_path, processed_data_path, bias_path, change_over_time_mice, plotting_colours
 from utils.reaction_time_utils import get_bpod_trial_nums_per_session
 from utils.post_processing_utils import get_all_experimental_records
 from utils.post_processing_utils import remove_exps_after_manipulations, remove_unsuitable_recordings, remove_manipulation_days

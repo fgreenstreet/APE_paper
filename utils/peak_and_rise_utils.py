@@ -21,7 +21,7 @@ def get_peak_times(traces, time_stamps):
 
 
 def get_standard_dev_of_baseline_slopes():
-    dir = processed_data_path + 'for_figure\\'
+    dir = os.path.join(processed_data_path, 'for_figure')
     file_name = 'thresholds_for_rise_time.npz'
     trace_slope_sds = np.load(os.path.join(dir, file_name))
     all_trace_slope_sds = np.concatenate([trace_slope_sds['VS'], trace_slope_sds['TS']])

@@ -10,7 +10,7 @@ import peakutils
 from scipy.signal import decimate
 from utils.plotting import calculate_error_bars, multi_conditions_plot, output_significance_stars_from_pval
 from utils.post_processing_utils import *
-from set_global_params import processed_data_path, state_change_example_mice, fig4_plotting_colours, spreadsheet_path
+from set_global_params import processed_data_path, state_change_example_mice, plotting_colours, spreadsheet_path
 from utils.stats import cohen_d_paired
 import os
 
@@ -77,7 +77,7 @@ def make_example_plot(site):
     post_mean_trace = np.mean(traces_post_df, axis=1)
 
     fig, axs1 = plt.subplots(1, 1, figsize=[2.5, 2])
-    colours =[fig4_plotting_colours[site][-1], fig4_plotting_colours[site][0]]
+    colours =[plotting_colours[site][-1], plotting_colours[site][0]]
 
     axs1.plot(traces_pre_df.index, pre_mean_trace, label='normal cue', color=colours[0])
     pre_error_bar_lower, pre_error_bar_upper = calculate_error_bars(pre_mean_trace,

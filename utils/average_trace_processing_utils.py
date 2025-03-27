@@ -10,13 +10,13 @@ def get_all_mice_average_movement_times(experiments_to_process):
 
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
         df = experiments_to_process[experiments_to_process.mouse_id == mouse]
-        data_dir = processed_data_path + 'for_figure\\' + mouse + '\\'
+        data_dir = os.path.join(processed_data_path, 'for_figure', mouse)
 
         mouse_reaction_times = []
 
         for date in df['date']:
             filename = mouse + '_' + date + '_' + 'aligned_traces_for_fig.p'
-            with open(data_dir + filename, 'rb') as f:
+            with open(os.path.join(data_dir, filename), 'rb') as f:
                 session_data = pickle.load(f)
             ipsi_choice = session_data.choice_data.ipsi_data.reaction_times
             contra_choice = session_data.choice_data.contra_data.reaction_times
@@ -34,7 +34,7 @@ def get_all_mice_average_reaction_times(experiments_to_process):
 
     for mouse in tqdm(experiments_to_process['mouse_id'].unique(), desc='Mouse: '):
         df = experiments_to_process[experiments_to_process.mouse_id == mouse]
-        data_dir = processed_data_path + 'for_figure\\' + mouse + '\\'
+        data_dir = os.path.join(processed_data_path, 'for_figure', mouse)
 
         mouse_reaction_times = []
 
@@ -45,9 +45,9 @@ def get_all_mice_average_reaction_times(experiments_to_process):
             ipsi_trial_nums = session_data.choice_data.ipsi_data.trial_nums
             contra_trial_nums = session_data.choice_data.contra_data.trial_nums
             all_trial_nums = np.concatenate([ipsi_trial_nums, contra_trial_nums])
-            trial_data_folder = processed_data_path + mouse + '\\'
+            trial_data_folder = os.path.join(processed_data_path, mouse)
             restructured_data_filename = mouse + '_' + date + '_' + 'restructured_data.pkl'
-            trial_data = pd.read_pickle(trial_data_folder + restructured_data_filename)
+            trial_data = pd.read_pickle(os.path.join(trial_data_folder, restructured_data_filename))
             trials_of_interest = trial_data[trial_data['Trial num'].isin(all_trial_nums)]
             states_of_interest = trials_of_interest[trials_of_interest['State type'] == 4]
             session_reaction_times = states_of_interest['Time end'] - states_of_interest['Time start']

@@ -38,7 +38,7 @@ for index, experiment in experiments_to_process.iterrows():
     plt.close('all')
     mouse = experiment['mouse_id']
     date = experiment['date']
-    save_out_folder = post_processed_tracking_data_path + mouse
+    save_out_folder = os.path.join(post_processed_tracking_data_path, mouse)
 
     port_coords = {'side1': np.array([int(experiments_to_process['left side x'][0]), int(experiments_to_process['left side y'][0])]),
                   'centre': np.array([int(experiments_to_process['centre port x'][0]), int(experiments_to_process['centre port y'][0])]),
@@ -51,8 +51,7 @@ for index, experiment in experiments_to_process.iterrows():
         right_ang_thresh = 280
 
     else:
-        file_path = os.path.join(raw_tracking_path, '{}\\{}\\cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5'.format(
-            mouse, date))
+        file_path = os.path.join(raw_tracking_path, mouse, date,'cameraDLC_resnet50_train_network_with_more_miceMar2shuffle1_800000.h5')
         protocol = 'Two_Alternative_Choice_CentrePortHold'
         left_ang_thresh = 100
         right_ang_thresh = 300

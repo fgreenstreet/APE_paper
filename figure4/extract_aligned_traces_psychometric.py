@@ -34,9 +34,8 @@ if __name__ == '__main__':
     all_experiments_to_process = clean_experiments[
         (clean_experiments['mouse_id'].isin(mouse_ids)) & (clean_experiments['recording_site'] == site)].reset_index(
         drop=True)
-    #experiments_to_process = get_first_x_sessions(all_experiments_to_process)
-    #add_experiment_to_aligned_data(experiments_to_process)
-    date = '20201214'
+
+    date = '20201214' #Change this to the date of the psychometric experiment you want to process
     for mouse_id in mouse_ids:
         all_experiments = get_all_experimental_records()
 
